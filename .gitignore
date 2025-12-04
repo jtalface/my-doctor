@@ -3,9 +3,13 @@ node_modules/
 
 # Build output
 dist/
+*.tsbuildinfo
 
 # Parcel cache
 .parcel-cache/
+
+# Turbo cache
+.turbo/
 
 # IDE
 .idea/
@@ -26,4 +30,8 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
+# Lock files (keep pnpm-lock.yaml)
+package-lock.json
+yarn.lock

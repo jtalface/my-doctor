@@ -2,10 +2,12 @@ import { StateMachine } from "./StateMachine";
 import { Router } from "./Router";
 import { State } from "./types/states";
 import { AppContext } from "./types/state-machine";
-import { PatientProfileStore } from "../modules/PatientProfile/types";
-import { SessionMemory } from "../modules/ContextMemory/types";
-import { NLP } from "../modules/NLP/types";
-import { PromptEngine } from "../modules/PromptEngine/PromptEngine";
+import { 
+  PatientProfileStore, 
+  SessionMemory, 
+  NLP, 
+  PromptEngine 
+} from "@mydoctor/modules";
 
 export interface OrchestratorDependencies {
   profileStore: PatientProfileStore;
@@ -85,4 +87,3 @@ export class Orchestrator {
     this.stateMachine.reset();
   }
 }
-

@@ -1,38 +1,21 @@
 {
-  "name": "my-doctor",
+  "name": "mydoctor-monorepo",
   "version": "1.0.0",
-  "description": "AI-powered health assistant with state machine architecture for guided wellness check-ins",
-  "source": "index.html",
-  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "private": true,
+  "description": "MyDoctor monorepo - AI-powered health assistant",
   "scripts": {
-    "start": "parcel",
-    "build": "parcel build --no-scope-hoist",
-    "clean": "rm -rf dist .parcel-cache",
-    "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit && echo 'Type check passed!'"
+    "dev": "turbo run dev --filter=@mydoctor/app",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules"
   },
-  "keywords": [
-    "react",
-    "typescript",
-    "health",
-    "wellness",
-    "state-machine",
-    "ai-assistant",
-    "parcel"
-  ],
-  "author": "",
+  "keywords": ["mydoctor", "monorepo", "health", "ai"],
   "license": "ISC",
+  "packageManager": "pnpm@8.15.0",
   "engines": {
     "node": ">=18.0.0"
   },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "parcel": "^2.11.0",
-    "typescript": "^5.3.0"
+    "turbo": "^2.0.0"
   }
 }

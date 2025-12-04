@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styles from './App.module.css';
-import { Orchestrator, Router, State } from "./components/StateMachine";
-import { InMemoryProfileStore } from "./components/modules/PatientProfile";
-import { InMemorySessionMemory } from "./components/modules/ContextMemory";
-import { DummyNLP } from "./components/modules/NLP";
-import { PromptEngine } from "./components/modules/PromptEngine";
+import { Orchestrator, Router, State } from "@mydoctor/state-machine";
+import { 
+  InMemoryProfileStore, 
+  InMemorySessionMemory, 
+  DummyNLP, 
+  PromptEngine 
+} from "@mydoctor/modules";
 
 // Initialize dependencies
 const profileStore = new InMemoryProfileStore();
@@ -63,3 +65,4 @@ const App = () => {
 };
 
 export default App;
+
