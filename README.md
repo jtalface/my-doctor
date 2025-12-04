@@ -4,10 +4,11 @@ An AI-powered health assistant monorepo built with React, TypeScript, pnpm works
 
 ## 📦 Packages
 
-| Package | Description |
-|---------|-------------|
-| `@mydoctor/app` | React frontend application |
-| `@mydoctor/state-machine-v1` | Core state machine, router, orchestrator, and modules |
+| Package | Version | Description |
+|---------|---------|-------------|
+| `@mydoctor/app` | 1.0.0 | React frontend application |
+| `@mydoctor/state-machine` | 2.0.0 | **NEW** - Enhanced state machine with analytics, screening logic, risk scores, multilingual support |
+| `@mydoctor/state-machine-v1` | 1.0.0 | Legacy state machine (maintained for backwards compatibility) |
 
 ## 🛠 Tech Stack
 
@@ -27,29 +28,31 @@ MyDoctor/
 │
 └── packages/
     ├── app/                  # @mydoctor/app
-    │   ├── package.json
-    │   ├── tsconfig.json
-    │   ├── index.html
     │   └── src/
-    │       ├── index.tsx
-    │       ├── App.tsx
-    │       └── App.module.css
+    │       ├── App.tsx       # Uses @mydoctor/state-machine (v2)
+    │       └── ...
     │
-    └── state-machine-v1/     # @mydoctor/state-machine-v1
-        ├── package.json
-        ├── tsconfig.json
+    ├── state-machine/        # @mydoctor/state-machine (v2)
+    │   └── src/
+    │       ├── core/
+    │       │   ├── state.enum.ts
+    │       │   ├── state-machine.ts
+    │       │   ├── orchestrator.ts
+    │       │   ├── router.ts
+    │       │   └── nodes.ts
+    │       └── modules/
+    │           ├── analytics/
+    │           ├── context-memory/
+    │           ├── multilingual/
+    │           ├── nlp/
+    │           ├── patient-profile/
+    │           ├── prompt-engine/
+    │           ├── risk-scores/
+    │           └── screening-logic/
+    │
+    └── state-machine-v1/     # @mydoctor/state-machine-v1 (legacy)
         └── src/
-            ├── index.ts
-            ├── Machine.ts
-            ├── StateMachine.ts
-            ├── Router.ts
-            ├── Orchestrator.ts
-            ├── types/
-            └── modules/
-                ├── ContextMemory/
-                ├── NLP/
-                ├── PatientProfile/
-                └── PromptEngine/
+            └── ...
 ```
 
 ## 🚀 Getting Started
@@ -62,41 +65,72 @@ MyDoctor/
 ### Installation
 
 ```bash
-# Install pnpm if you haven't
-npm install -g pnpm
-
-# Install dependencies
 pnpm install
 ```
 
 ### Development
 
 ```bash
-# Start the development server
 pnpm dev
-
-# The app will be available at http://localhost:1234
+# App runs at http://localhost:1234
 ```
 
 ### Build
 
 ```bash
-# Build all packages
 pnpm build
 ```
 
 ### Type Checking
 
 ```bash
-# Type check all packages
 pnpm typecheck
 ```
 
-### Clean
+## ✨ New in state-machine v2
 
-```bash
-# Clean all build artifacts
-pnpm clean
+The new `@mydoctor/state-machine` package includes:
+
+- **Analytics** — Track user interactions and events
+- **Screening Logic** — Smart follow-up question suggestions
+- **Risk Scores** — BMI calculation, blood pressure classification
+- **Multilingual** — Language detection and translation support
+- **MVP & Full Flows** — Pre-configured node sets for different use cases
+
+### Usage Example
+
+```typescript
+import { 
+  Orchestrator, 
+  mvpNodes,
+  InMemoryProfileStore,
+  InMemorySessionMemory,
+  DummyNLP,
+  PromptEngine,
+  Router,
+  AnalyticsConsole,
+  ScreeningLogicImpl,
+  RiskScoresImpl,
+  TranslatorStub
+} from "@mydoctor/state-machine";
+
+const orchestrator = new Orchestrator({
+  profileStore: new InMemoryProfileStore(),
+  sessionMemory: new InMemorySessionMemory(),
+  nlp: new DummyNLP(),
+  promptEngine: new PromptEngine(),
+  router: new Router(),
+  analytics: new AnalyticsConsole(),
+  screening: new ScreeningLogicImpl(),
+  risk: new RiskScoresImpl(),
+  translator: new TranslatorStub(),
+  nodes: mvpNodes  // or fullNodes for extended flow
+});
+
+const response = await orchestrator.handleInput("yes", { 
+  sessionId: "session-1", 
+  userId: "user-1" 
+});
 ```
 
 ## 📋 Package Dependencies
@@ -104,24 +138,11 @@ pnpm clean
 ```
 @mydoctor/app
      │
-     ▼
-@mydoctor/state-machine-v1
+     ├─────────────────────────┐
+     ▼                         ▼
+@mydoctor/state-machine    @mydoctor/state-machine-v1
+     (v2 - active)              (v1 - legacy)
 ```
-
-## ✨ Features
-
-- **38+ Health Check-in States** — Comprehensive wellness assessment flow
-- **Modular Architecture** — Easily swap NLP providers, storage backends
-- **Symptom Escalation** — Automatic detection of urgent symptoms
-- **Session Memory** — Context-aware conversations
-- **Patient Profiles** — Persistent patient data
-
-## 🔧 Adding a New Package
-
-1. Create a new directory under `packages/`
-2. Add a `package.json` with name `@mydoctor/your-package`
-3. Add a `tsconfig.json` extending the base config
-4. Run `pnpm install` to link the workspace
 
 ## ⚠️ Disclaimer
 

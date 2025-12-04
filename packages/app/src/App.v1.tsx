@@ -1,0 +1,76 @@
+import React, { useEffect, useState } from 'react';
+import styles from './App.module.css';
+import { 
+  Orchestrator, 
+  Router, 
+  State,
+  InMemoryProfileStore, 
+  InMemorySessionMemory, 
+  DummyNLP, 
+  PromptEngine 
+} from "@mydoctor/state-machine-v1";
+
+// Initialize dependencies
+const profileStore = new InMemoryProfileStore();
+const sessionMemory = new InMemorySessionMemory();
+const nlp = new DummyNLP();
+const promptEngine = new PromptEngine();
+const router = new Router();
+
+// Create orchestrator with dependencies
+const orchestrator = new Orchestrator({
+  profileStore,
+  sessionMemory,
+  nlp,
+  promptEngine,
+  router
+});
+
+interface AppV1Props {
+  onBack?: () => void;
+}
+
+const AppV1: React.FC<AppV1Props> = ({ onBack }) => {
+  const [currentState, setCurrentState] = useState<State>(orchestrator.getCurrentState());
+  const [prompt, setPrompt] = useState<string>(orchestrator.getCurrentPrompt());
+
+  useEffect(() => {
+    console.log("=== MyDoctor App (v1 State Machine) ===");
+    console.log("Current State:", currentState);
+    console.log("Current Prompt:", prompt);
+  }, [currentState, prompt]);
+
+  const handleUserInput = async (input: string) => {
+    const context = { sessionId: 'demo-session-v1', userId: 'demo-user' };
+    await orchestrator.handleInput(input, context);
+    setCurrentState(orchestrator.getCurrentState());
+    setPrompt(orchestrator.getCurrentPrompt());
+  };
+
+  return (
+    <div className={styles.container}>
+      {onBack && (
+        <button className={styles.backButton} onClick={onBack}>
+          ← Back to Selection
+        </button>
+      )}
+      <div className={styles.versionBadge + ' ' + styles.v1Badge}>v1 - Legacy</div>
+      <h1 className={styles.title}>MyDoctor 👋</h1>
+      <p className={styles.subtitle}>
+        Your AI-powered health assistant (Legacy)
+      </p>
+      <div className={styles.stateInfo}>
+        <p><strong>Current State:</strong> {currentState}</p>
+        <p><strong>Prompt:</strong> {prompt}</p>
+      </div>
+      <button 
+        className={styles.demoButton}
+        onClick={() => handleUserInput('yes')}
+      >
+        Demo: Send "yes"
+      </button>
+    </div>
+  );
+};
+
+export default AppV1;

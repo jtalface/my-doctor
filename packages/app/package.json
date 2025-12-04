@@ -13,6 +13,7 @@
   "keywords": ["mydoctor", "app", "react"],
   "license": "ISC",
   "dependencies": {
+    "@mydoctor/state-machine": "workspace:*",
     "@mydoctor/state-machine-v1": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
