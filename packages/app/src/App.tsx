@@ -5,7 +5,7 @@ import styles from './App.module.css';
 import { 
   Orchestrator, 
   State,
-  mvpNodes,
+  fullNodes,
   InMemoryProfileStore, 
   InMemorySessionMemory, 
   DummyNLP, 
@@ -28,7 +28,7 @@ const orchestrator = new Orchestrator({
   screening: new ScreeningLogicImpl(),
   risk: new RiskScoresImpl(),
   translator: new TranslatorStub(),
-  nodes: mvpNodes
+  nodes: fullNodes
 });
 
 interface AppProps {

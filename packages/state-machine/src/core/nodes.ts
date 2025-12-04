@@ -16,12 +16,12 @@ export const mvpNodes: NodeMap = {
   [State.START]: {
     id: State.START,
     prompt:
-      "Hi, I’m your wellness assistant. I can help with a quick health check-in. This is for education only, not a medical diagnosis. Ready to start? (yes / no)",
+      "Hi, I'm your wellness assistant. I can help with a quick health check-in. This is for education only, not a medical diagnosis. Ready to start? (yes / no)",
     inputType: "choice",
     choices: ["yes", "no"],
     transitions: [
-      { condition: "equals(input,'yes')", next: State.AGENDA },
-      { condition: "equals(input,'no')", next: State.END }
+      { condition: "equals(input,'no')", next: State.END },
+      { condition: "always", next: State.AGENDA }  // Default: any other input proceeds
     ]
   },
   [State.CONSENT]: {
@@ -92,7 +92,7 @@ export const mvpNodes: NodeMap = {
   [State.SUMMARY]: {
     id: State.SUMMARY,
     prompt:
-      "Thanks. I’ll summarize your key points and share some general wellness suggestions.",
+      "Thanks. I'll summarize your key points and share some general wellness suggestions.",
     inputType: "none",
     transitions: [
       { condition: "always", next: State.END }
@@ -112,12 +112,12 @@ export const fullNodes: NodeMap = {
   [State.START]: {
     id: State.START,
     prompt:
-      "Hello — I’m a health assistant for routine check-ins. This is educational only, not a substitute for a doctor. May I ask you some health questions? (yes / no)",
+      "Hello — I'm a health assistant for routine check-ins. This is educational only, not a substitute for a doctor. May I ask you some health questions? (yes / no)",
     inputType: "choice",
     choices: ["yes", "no"],
     transitions: [
-      { condition: "equals(input,'yes')", next: State.CONSENT },
-      { condition: "equals(input,'no')", next: State.END }
+      { condition: "equals(input,'no')", next: State.END },
+      { condition: "always", next: State.CONSENT }  // Default: any other input proceeds
     ]
   },
   [State.CONSENT]: {
@@ -142,7 +142,7 @@ export const fullNodes: NodeMap = {
   [State.DEMOGRAPHICS]: {
     id: State.DEMOGRAPHICS,
     prompt:
-      "Please share your age, gender, and approximate weight/height if you’re comfortable (e.g. '40, female, 70kg, 1.65m').",
+      "Please share your age, gender, and approximate weight/height if you're comfortable (e.g. '40, female, 70kg, 1.65m').",
     inputType: "text",
     transitions: [
       { condition: "always", next: State.MEDICAL_HISTORY }
@@ -188,7 +188,7 @@ export const fullNodes: NodeMap = {
   [State.SUMMARY]: {
     id: State.SUMMARY,
     prompt:
-      "I’ll summarize what you’ve shared and outline some general next steps and preventive care topics you may want to discuss with a clinician.",
+      "I'll summarize what you've shared and outline some general next steps and preventive care topics you may want to discuss with a clinician.",
     inputType: "none",
     transitions: [
       { condition: "always", next: State.END }
