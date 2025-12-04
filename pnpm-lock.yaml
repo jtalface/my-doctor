@@ -14,12 +14,9 @@ importers:
 
   packages/app:
     dependencies:
-      '@mydoctor/modules':
+      '@mydoctor/state-machine-v1':
         specifier: workspace:*
-        version: link:../modules
-      '@mydoctor/state-machine':
-        specifier: workspace:*
-        version: link:../state-machine
+        version: link:../state-machine-v1
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -40,17 +37,7 @@ importers:
         specifier: ^5.3.0
         version: 5.9.3
 
-  packages/modules:
-    devDependencies:
-      typescript:
-        specifier: ^5.3.0
-        version: 5.9.3
-
-  packages/state-machine:
-    dependencies:
-      '@mydoctor/modules':
-        specifier: workspace:*
-        version: link:../modules
+  packages/state-machine-v1:
     devDependencies:
       typescript:
         specifier: ^5.3.0

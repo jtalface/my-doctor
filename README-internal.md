@@ -10,9 +10,9 @@ Traditional Multi-Repo:          Monorepo:
 │ repo: app       │              │ repo: mydoctor              │
 │ └── src/        │              │ └── packages/               │
 └─────────────────┘              │     ├── app/                │
-┌─────────────────┐              │     ├── state-machine/      │
-│ repo: state-machine            │     └── modules/            │
-│ └── src/        │              └─────────────────────────────┘
+┌─────────────────┐              │     └── state-machine-v1/   │
+│ repo: state-machine            └─────────────────────────────┘
+│ └── src/        │              
 └─────────────────┘
 ```
 
@@ -33,7 +33,7 @@ packages:
 This tells pnpm: "Every folder under `packages/` is a workspace package."
 
 **How it works:**
-- When `@mydoctor/app` declares `"@mydoctor/state-machine": "workspace:*"` as a dependency
+- When `@mydoctor/app` declares `"@mydoctor/state-machine-v1": "workspace:*"` as a dependency
 - pnpm creates a symlink instead of downloading from npm
 - Changes in one package are instantly available to dependent packages
 
@@ -69,9 +69,8 @@ Turborepo is a build system that understands your package dependency graph and:
 
 Example: When you run `pnpm build`:
 ```
-1. @mydoctor/modules:build        (no deps, runs first)
-2. @mydoctor/state-machine:build  (depends on modules)
-3. @mydoctor/app:build            (depends on both)
+1. @mydoctor/state-machine-v1:build  (no deps, runs first)
+2. @mydoctor/app:build               (depends on state-machine-v1)
 ```
 
 ---
@@ -86,14 +85,11 @@ MyDoctor/
 ├── tsconfig.base.json    # Shared TypeScript config
 │
 └── packages/
-    ├── modules/          # @mydoctor/modules (leaf package)
-    │   └── package.json  # No internal dependencies
-    │
-    ├── state-machine/    # @mydoctor/state-machine
-    │   └── package.json  # Depends on @mydoctor/modules
+    ├── state-machine-v1/ # @mydoctor/state-machine-v1 (core package)
+    │   └── package.json  # Contains state machine + all modules
     │
     └── app/              # @mydoctor/app
-        └── package.json  # Depends on both packages
+        └── package.json  # Depends on state-machine-v1
 ```
 
 ---
@@ -103,12 +99,14 @@ MyDoctor/
 ```
 @mydoctor/app
      │
-     ├──────────────────────┐
-     ▼                      ▼
-@mydoctor/state-machine    (direct)
-     │
      ▼
-@mydoctor/modules
+@mydoctor/state-machine-v1
+     │
+     └── modules/
+         ├── ContextMemory/
+         ├── NLP/
+         ├── PatientProfile/
+         └── PromptEngine/
 ```
 
 ---
@@ -119,8 +117,7 @@ MyDoctor/
 ```json
 {
   "dependencies": {
-    "@mydoctor/state-machine": "workspace:*",
-    "@mydoctor/modules": "workspace:*"
+    "@mydoctor/state-machine-v1": "workspace:*"
   }
 }
 ```
@@ -132,11 +129,18 @@ The `workspace:*` protocol tells pnpm:
 **In your code, you import like this:**
 ```typescript
 // packages/app/src/App.tsx
-import { StateMachine } from "@mydoctor/state-machine";
-import { DummyNLP } from "@mydoctor/modules";
+import { 
+  StateMachine, 
+  Orchestrator, 
+  Router,
+  DummyNLP, 
+  PromptEngine,
+  InMemoryProfileStore,
+  InMemorySessionMemory
+} from "@mydoctor/state-machine-v1";
 ```
 
-These resolve to the local packages via symlinks.
+Everything is exported from a single package now.
 
 ---
 
@@ -234,7 +238,7 @@ pnpm add -D eslint -w
 
 ### Run a command in a specific package
 ```bash
-pnpm --filter @mydoctor/state-machine typecheck
+pnpm --filter @mydoctor/state-machine-v1 typecheck
 ```
 
 ### Run a command in all packages
@@ -251,12 +255,11 @@ Turborepo caches task outputs. If nothing changed, it skips the task:
 ```
 $ pnpm build
 
-@mydoctor/modules:build: cache hit, replaying logs
-@mydoctor/state-machine:build: cache hit, replaying logs  
+@mydoctor/state-machine-v1:build: cache hit, replaying logs
 @mydoctor/app:build: cache hit, replaying logs
 
-Tasks:    3 successful, 3 total
-Cached:   3 cached, 3 total
+Tasks:    2 successful, 2 total
+Cached:   2 cached, 2 total
 Time:     89ms >>> FULL TURBO
 ```
 
@@ -272,4 +275,3 @@ rm -rf .turbo
 - [pnpm Workspaces](https://pnpm.io/workspaces)
 - [Turborepo Documentation](https://turbo.build/repo/docs)
 - [TypeScript Project References](https://www.typescriptlang.org/docs/handbook/project-references.html)
-

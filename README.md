@@ -7,8 +7,7 @@ An AI-powered health assistant monorepo built with React, TypeScript, pnpm works
 | Package | Description |
 |---------|-------------|
 | `@mydoctor/app` | React frontend application |
-| `@mydoctor/state-machine` | Core state machine for health check-in flow |
-| `@mydoctor/modules` | Shared modules (NLP, Memory, Profile, Prompts) |
+| `@mydoctor/state-machine-v1` | Core state machine, router, orchestrator, and modules |
 
 ## 🛠 Tech Stack
 
@@ -36,26 +35,21 @@ MyDoctor/
     │       ├── App.tsx
     │       └── App.module.css
     │
-    ├── state-machine/        # @mydoctor/state-machine
-    │   ├── package.json
-    │   ├── tsconfig.json
-    │   └── src/
-    │       ├── index.ts
-    │       ├── Machine.ts
-    │       ├── StateMachine.ts
-    │       ├── Router.ts
-    │       ├── Orchestrator.ts
-    │       └── types/
-    │
-    └── modules/              # @mydoctor/modules
+    └── state-machine-v1/     # @mydoctor/state-machine-v1
         ├── package.json
         ├── tsconfig.json
         └── src/
             ├── index.ts
-            ├── ContextMemory/
-            ├── NLP/
-            ├── PatientProfile/
-            └── PromptEngine/
+            ├── Machine.ts
+            ├── StateMachine.ts
+            ├── Router.ts
+            ├── Orchestrator.ts
+            ├── types/
+            └── modules/
+                ├── ContextMemory/
+                ├── NLP/
+                ├── PatientProfile/
+                └── PromptEngine/
 ```
 
 ## 🚀 Getting Started
@@ -109,8 +103,9 @@ pnpm clean
 
 ```
 @mydoctor/app
-  └── @mydoctor/state-machine
-        └── @mydoctor/modules
+     │
+     ▼
+@mydoctor/state-machine-v1
 ```
 
 ## ✨ Features

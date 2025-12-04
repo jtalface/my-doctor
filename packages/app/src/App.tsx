@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styles from './App.module.css';
-import { Orchestrator, Router, State } from "@mydoctor/state-machine";
 import { 
+  Orchestrator, 
+  Router, 
+  State,
   InMemoryProfileStore, 
   InMemorySessionMemory, 
   DummyNLP, 
   PromptEngine 
-} from "@mydoctor/modules";
+} from "@mydoctor/state-machine-v1";
 
 // Initialize dependencies
 const profileStore = new InMemoryProfileStore();
@@ -65,4 +67,3 @@ const App = () => {
 };
 
 export default App;
-
