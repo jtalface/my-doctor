@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import styles from './App.module.css';
 
 // Using the new state-machine package (v2)
 import { 
   Orchestrator, 
   State,
-  fullNodes,
+  mvpNodes,
+  standardNodes,
+  extendedNodes,
   InMemoryProfileStore, 
   InMemorySessionMemory, 
   DummyNLP, 
@@ -14,35 +16,57 @@ import {
   AnalyticsConsole,
   ScreeningLogicImpl,
   RiskScoresImpl,
-  TranslatorStub
+  TranslatorStub,
+  NodeMap
 } from "@mydoctor/state-machine";
 
-// Initialize all dependencies for the v2 orchestrator
-const orchestrator = new Orchestrator({
-  profileStore: new InMemoryProfileStore(),
-  sessionMemory: new InMemorySessionMemory(),
-  nlp: new DummyNLP(),
-  promptEngine: new PromptEngine(),
-  router: new Router(),
-  analytics: new AnalyticsConsole(),
-  screening: new ScreeningLogicImpl(),
-  risk: new RiskScoresImpl(),
-  translator: new TranslatorStub(),
-  nodes: fullNodes
-});
+export type NodeType = 'mvp' | 'standard' | 'extended';
+
+const nodeConfigs: Record<NodeType, { nodes: NodeMap; label: string }> = {
+  mvp: { nodes: mvpNodes, label: 'MVP' },
+  standard: { nodes: standardNodes, label: 'Standard' },
+  extended: { nodes: extendedNodes, label: 'Extended' }
+};
+
+// Helper to get node count
+const getNodeCount = (nodes: NodeMap) => Object.keys(nodes).length;
 
 interface AppProps {
   onBack?: () => void;
+  nodeType: NodeType;
 }
 
-const App: React.FC<AppProps> = ({ onBack }) => {
+const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
+  // Create orchestrator based on selected node type
+  const orchestrator = useMemo(() => {
+    const { nodes } = nodeConfigs[nodeType];
+    return new Orchestrator({
+      profileStore: new InMemoryProfileStore(),
+      sessionMemory: new InMemorySessionMemory(),
+      nlp: new DummyNLP(),
+      promptEngine: new PromptEngine(),
+      router: new Router(),
+      analytics: new AnalyticsConsole(),
+      screening: new ScreeningLogicImpl(),
+      risk: new RiskScoresImpl(),
+      translator: new TranslatorStub(),
+      nodes
+    });
+  }, [nodeType]);
+
   const [currentState, setCurrentState] = useState<State>(orchestrator.getState());
   const [response, setResponse] = useState<string>("");
 
   useEffect(() => {
-    console.log("=== MyDoctor App (v2 State Machine) ===");
+    // Reset state when orchestrator changes
+    setCurrentState(orchestrator.getState());
+    setResponse("");
+  }, [orchestrator]);
+
+  useEffect(() => {
+    console.log(`=== MyDoctor App (v2 - ${nodeConfigs[nodeType].label}) ===`);
     console.log("Current State:", currentState);
-  }, [currentState]);
+  }, [currentState, nodeType]);
 
   const handleUserInput = async (input: string) => {
     const context = { sessionId: 'demo-session-v2', userId: 'demo-user' };
@@ -51,6 +75,8 @@ const App: React.FC<AppProps> = ({ onBack }) => {
     setResponse(output);
   };
 
+  const config = nodeConfigs[nodeType];
+
   return (
     <div className={styles.container}>
       {onBack && (
@@ -58,7 +84,9 @@ const App: React.FC<AppProps> = ({ onBack }) => {
           ← Back to Selection
         </button>
       )}
-      <div className={styles.versionBadge}>v2 - State Machine</div>
+      <div className={styles.versionBadge}>
+        v2 - {config.label} ({getNodeCount(config.nodes)} states)
+      </div>
       <h1 className={styles.title}>MyDoctor 👋</h1>
       <p className={styles.subtitle}>
         AI-powered health assistant with enhanced features

@@ -20,7 +20,11 @@ export class StateMachine {
   }
 
   getNode(): NodeDef {
-    return this.nodes[this.state];
+    const node = this.nodes[this.state];
+    if (!node) {
+      throw new Error(`No node defined for state: ${this.state}`);
+    }
+    return node;
   }
 
   transition(next: State){

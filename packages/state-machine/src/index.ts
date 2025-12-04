@@ -6,7 +6,7 @@ export { StateMachine } from "./core/state-machine";
 export type { AppContext } from "./core/state-machine";
 export { Orchestrator } from "./core/orchestrator";
 export { Router } from "./core/router";
-export { mvpNodes, fullNodes } from "./core/nodes";
+export { mvpNodes, standardNodes, extendedNodes } from "./core/nodes";
 export type { NodeDef, NodeMap } from "./core/nodes";
 
 // ============================================

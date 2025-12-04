@@ -124,7 +124,7 @@ const orchestrator = new Orchestrator({
   screening: new ScreeningLogicImpl(),
   risk: new RiskScoresImpl(),
   translator: new TranslatorStub(),
-  nodes: mvpNodes  // or fullNodes for extended flow
+  nodes: mvpNodes  // or standardNodes / extendedNodes for more states
 });
 
 const response = await orchestrator.handleInput("yes", { 
