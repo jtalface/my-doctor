@@ -315,6 +315,7 @@ export const extendedNodes: NodeMap = {
     id: State.END_OK,
     prompt: "Take care! Remember to follow up on any recommended screenings. Goodbye!",
     inputType: "none",
+    controller: "summaryController",
     transitions: []
   },
 
@@ -322,6 +323,7 @@ export const extendedNodes: NodeMap = {
     id: State.END_ESCALATED,
     prompt: "Please contact your healthcare provider or visit urgent care. Take care and stay safe.",
     inputType: "none",
+    controller: "summaryController",
     transitions: []
   },
 
@@ -329,6 +331,7 @@ export const extendedNodes: NodeMap = {
     id: State.END_EPHEMERAL,
     prompt: "Session complete. No data was saved. Take care!",
     inputType: "none",
+    controller: "summaryController",
     transitions: []
   },
 
@@ -336,6 +339,7 @@ export const extendedNodes: NodeMap = {
     id: State.END_NOSESSION,
     prompt: "No problem. Feel free to return whenever you're ready. Goodbye!",
     inputType: "none",
+    controller: "summaryController",
     transitions: []
   },
 
@@ -343,7 +347,7 @@ export const extendedNodes: NodeMap = {
     id: State.END,
     prompt: "SESSION CLOSED",
     inputType: "none",
+    controller: "summaryController",
     transitions: []
   }
 };
-

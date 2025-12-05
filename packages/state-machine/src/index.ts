@@ -5,6 +5,7 @@ export { State } from "./core/state.enum";
 export { StateMachine } from "./core/state-machine";
 export type { AppContext } from "./core/state-machine";
 export { Orchestrator } from "./core/orchestrator";
+export type { ControllerContext, ControllerResult, ControllerFn, ControllerRegistry } from "./core/orchestrator";
 export { Router } from "./core/router";
 export { mvpNodes, standardNodes, extendedNodes } from "./core/nodes";
 export type { NodeDef, NodeMap } from "./core/nodes";

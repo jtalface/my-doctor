@@ -8,13 +8,24 @@
  * TODO: Implement actual controller logic as requirements are defined.
  */
 
+export interface ControllerContext {
+  /** History of states traversed in this session */
+  history: string[];
+  /** Current state */
+  currentState: string;
+  /** Session ID */
+  sessionId?: string;
+  /** User ID */
+  userId?: string;
+}
+
 export interface ControllerResult {
   success: boolean;
   data?: Record<string, unknown>;
   error?: string;
 }
 
-export type ControllerFn = (input: string) => Promise<ControllerResult>;
+export type ControllerFn = (input: string, context?: ControllerContext) => Promise<ControllerResult>;
 
 /**
  * Handles agenda/focus area selection
@@ -76,6 +87,54 @@ export const symptomsController: ControllerFn = async (input) => {
 };
 
 /**
+ * Handles session summary at end states
+ * Logs all steps traversed during the session
+ */
+export const summaryController: ControllerFn = async (_input, context) => {
+  console.log('\n========================================');
+  console.log('📋 SESSION SUMMARY');
+  console.log('========================================');
+  
+  if (context) {
+    console.log(`\n🔹 Current State: ${context.currentState}`);
+    console.log(`🔹 Session ID: ${context.sessionId || 'N/A'}`);
+    console.log(`🔹 User ID: ${context.userId || 'N/A'}`);
+    
+    console.log('\n📍 States Traversed:');
+    console.log('----------------------------------------');
+    
+    if (context.history.length > 0) {
+      context.history.forEach((state, index) => {
+        const arrow = index < context.history.length - 1 ? '  ↓' : '';
+        console.log(`  ${index + 1}. ${state}${arrow}`);
+      });
+      console.log(`  ${context.history.length + 1}. ${context.currentState} (current)`);
+    } else {
+      console.log(`  1. ${context.currentState} (start & end)`);
+    }
+    
+    console.log('\n📊 Session Statistics:');
+    console.log(`  • Total states visited: ${context.history.length + 1}`);
+    console.log(`  • Unique states: ${new Set([...context.history, context.currentState]).size}`);
+  } else {
+    console.log('⚠️  No context provided - unable to display session history');
+  }
+  
+  console.log('========================================\n');
+  
+  return { 
+    success: true, 
+    data: { 
+      summary: {
+        history: context?.history || [],
+        currentState: context?.currentState,
+        totalSteps: (context?.history.length || 0) + 1
+      }
+    } 
+  };
+};
+
+/**
  * Registry of all available controllers
  */
 export const controllers: Record<string, ControllerFn> = {
@@ -84,7 +143,8 @@ export const controllers: Record<string, ControllerFn> = {
   medicalHistoryController,
   medicationsController,
   vitalsController,
-  symptomsController
+  symptomsController,
+  summaryController
 };
 
 /**

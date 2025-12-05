@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import styles from './App.module.css';
 import { NodeInput, NavigationControls } from './components';
+import { controllers } from './utils';
 
 // Using the new state-machine package (v2)
 import { 
@@ -67,7 +68,8 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
       screening: new ScreeningLogicImpl(),
       risk: new RiskScoresImpl(),
       translator: new TranslatorStub(),
-      nodes
+      nodes,
+      controllers
     });
   }, [nodeType]);
 
