@@ -90,4 +90,8 @@ export class Orchestrator {
   getPrompt(){
     return this.sm.getNode().prompt;
   }
+
+  getNode(){
+    return this.sm.getNode();
+  }
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import styles from './App.module.css';
+import { NodeInput } from './components';
 
 // Using the new state-machine package (v2)
 import { 
@@ -19,6 +20,7 @@ import {
   RiskScoresImpl,
   TranslatorStub,
   NodeMap,
+  NodeDef,
   OriginalNodeDef
 } from "@mydoctor/state-machine";
 
@@ -71,12 +73,14 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
 
   const [currentState, setCurrentState] = useState<State>(orchestrator.getState());
   const [prompt, setPrompt] = useState<string>(orchestrator.getPrompt());
+  const [currentNode, setCurrentNode] = useState<NodeDef | null>(orchestrator.getNode());
   const [response, setResponse] = useState<string>("");
 
   useEffect(() => {
     // Reset state when orchestrator changes
     setCurrentState(orchestrator.getState());
     setPrompt(orchestrator.getPrompt());
+    setCurrentNode(orchestrator.getNode());
     setResponse("");
   }, [orchestrator]);
 
@@ -90,6 +94,7 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
     const output = await orchestrator.handleInput(input, context);
     setCurrentState(orchestrator.getState());
     setPrompt(orchestrator.getPrompt());
+    setCurrentNode(orchestrator.getNode());
     setResponse(output);
   };
 
@@ -119,26 +124,15 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
           </div>
         )}
       </div>
-      <div className={styles.buttonGroup}>
-        <button 
-          className={styles.demoButton}
-          onClick={() => handleUserInput('yes')}
-        >
-          Send "yes"
-        </button>
-        <button 
-          className={styles.demoButton}
-          onClick={() => handleUserInput('routine checkup')}
-        >
-          Send "routine checkup"
-        </button>
-        <button 
-          className={styles.demoButton}
-          onClick={() => handleUserInput('30 male')}
-        >
-          Send "30 male"
-        </button>
-      </div>
+      <NodeInput 
+        node={currentNode}
+        onInput={handleUserInput}
+        className={styles.buttonGroup}
+        styles={{
+          buttonClassName: styles.demoButton,
+          inputClassName: styles.textInput
+        }}
+      />
     </div>
   );
 };
