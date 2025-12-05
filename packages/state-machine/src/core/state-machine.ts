@@ -29,9 +29,19 @@ export class StateMachine {
   }
 
   transition(next: State){
-    // Push current state to history before transitioning
-    this.history.push(this.state);
-    this.state = next;
+    // Only push to history if actually changing state
+    if (next !== this.state) {
+      this.history.push(this.state);
+      this.state = next;
+    }
+  }
+
+  /**
+   * Check if current node is an end state (no transitions)
+   */
+  isEndState(): boolean {
+    const node = this.nodes[this.state];
+    return !node || node.transitions.length === 0;
   }
 
   /**

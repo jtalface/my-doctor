@@ -51,7 +51,24 @@ export const NodeInput: React.FC<NodeInputProps> = ({
   }
 
   // Handle "none" input type - no input needed, state auto-transitions
+  // If no transitions, this is an end state - disable the button
   if (inputType === 'none') {
+    const isEndState = !node.transitions || node.transitions.length === 0;
+    
+    if (isEndState) {
+      return (
+        <div className={className}>
+          <button 
+            className={buttonClassName}
+            disabled
+            title="Session ended"
+          >
+            Session Complete
+          </button>
+        </div>
+      );
+    }
+    
     return (
       <div className={className}>
         <button 
