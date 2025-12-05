@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import styles from './App.module.css';
-import { NodeInput } from './components';
+import { NodeInput, NavigationControls } from './components';
 
 // Using the new state-machine package (v2)
 import { 
@@ -75,6 +75,8 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
   const [prompt, setPrompt] = useState<string>(orchestrator.getPrompt());
   const [currentNode, setCurrentNode] = useState<NodeDef | null>(orchestrator.getNode());
   const [response, setResponse] = useState<string>("");
+  const [canGoBack, setCanGoBack] = useState<boolean>(orchestrator.canGoBack());
+  const [historyCount, setHistoryCount] = useState<number>(orchestrator.getHistory().length);
 
   useEffect(() => {
     // Reset state when orchestrator changes
@@ -82,6 +84,8 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
     setPrompt(orchestrator.getPrompt());
     setCurrentNode(orchestrator.getNode());
     setResponse("");
+    setCanGoBack(orchestrator.canGoBack());
+    setHistoryCount(orchestrator.getHistory().length);
   }, [orchestrator]);
 
   useEffect(() => {
@@ -96,6 +100,19 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
     setPrompt(orchestrator.getPrompt());
     setCurrentNode(orchestrator.getNode());
     setResponse(output);
+    setCanGoBack(orchestrator.canGoBack());
+    setHistoryCount(orchestrator.getHistory().length);
+  };
+
+  const handleGoBack = () => {
+    if (orchestrator.goBack()) {
+      setCurrentState(orchestrator.getState());
+      setPrompt(orchestrator.getPrompt());
+      setCurrentNode(orchestrator.getNode());
+      setResponse(""); // Clear response when going back
+      setCanGoBack(orchestrator.canGoBack());
+      setHistoryCount(orchestrator.getHistory().length);
+    }
   };
 
   const config = nodeConfigs[nodeType];
@@ -124,6 +141,13 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
           </div>
         )}
       </div>
+      <NavigationControls
+        canGoBack={canGoBack}
+        onBack={handleGoBack}
+        historyCount={historyCount}
+        className={styles.navigationControls}
+        buttonClassName={styles.navButton}
+      />
       <NodeInput 
         node={currentNode}
         onInput={handleUserInput}

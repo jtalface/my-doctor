@@ -94,4 +94,35 @@ export class Orchestrator {
   getNode(){
     return this.sm.getNode();
   }
+
+  /**
+   * Check if navigation back is possible
+   */
+  canGoBack(): boolean {
+    return this.sm.canGoBack();
+  }
+
+  /**
+   * Navigate back to the previous state
+   * @returns true if navigation was successful, false if no history
+   */
+  goBack(): boolean {
+    const previous = this.sm.goBack();
+    if (previous !== null) {
+      this.deps.analytics.track("navigation", {
+        action: "back",
+        fromState: this.sm.getState(),
+        toState: previous
+      });
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Get the history of visited states
+   */
+  getHistory() {
+    return this.sm.getHistory();
+  }
 }
