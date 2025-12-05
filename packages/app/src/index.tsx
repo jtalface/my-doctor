@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App, { NodeType } from './App';
 import AppV1 from './App.v1';
 import styles from './App.module.css';
-import { mvpNodes, standardNodes, extendedNodes } from '@mydoctor/state-machine';
+import { mvpNodes, standardNodes, extendedNodes, originalNodes } from '@mydoctor/state-machine';
 
 type SelectedVersion = 'none' | 'v1' | 'v2-select' | 'v2';
 
@@ -11,7 +11,8 @@ type SelectedVersion = 'none' | 'v1' | 'v2-select' | 'v2';
 const nodeCounts = {
   mvp: Object.keys(mvpNodes).length,
   standard: Object.keys(standardNodes).length,
-  extended: Object.keys(extendedNodes).length
+  extended: Object.keys(extendedNodes).length,
+  original: originalNodes.length  // originalNodes is an array
 };
 
 const Root = () => {
@@ -61,6 +62,14 @@ const Root = () => {
             <span className={styles.versionNumber}>Extended</span>
             <span className={styles.versionName}>Clinical Workflow</span>
             <span className={styles.versionDesc}>{nodeCounts.extended} states — PHQ-2, escalation, detailed systems</span>
+          </button>
+          <button 
+            className={styles.versionButton}
+            onClick={() => { setNodeType('original'); setSelectedVersion('v2'); }}
+          >
+            <span className={styles.versionNumber}>Original</span>
+            <span className={styles.versionName}>Full Annual Checkup</span>
+            <span className={styles.versionDesc}>{nodeCounts.original} nodes — Actions, structured input, red flags</span>
           </button>
         </div>
       </div>

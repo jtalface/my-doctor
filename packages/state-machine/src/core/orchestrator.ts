@@ -86,4 +86,8 @@ export class Orchestrator {
   getState(){
     return this.sm.getState();
   }
+
+  getPrompt(){
+    return this.sm.getNode().prompt;
+  }
 }

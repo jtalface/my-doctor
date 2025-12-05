@@ -8,6 +8,7 @@ import {
   mvpNodes,
   standardNodes,
   extendedNodes,
+  originalNodes,
   InMemoryProfileStore, 
   InMemorySessionMemory, 
   DummyNLP, 
@@ -17,15 +18,29 @@ import {
   ScreeningLogicImpl,
   RiskScoresImpl,
   TranslatorStub,
-  NodeMap
+  NodeMap,
+  OriginalNodeDef
 } from "@mydoctor/state-machine";
 
-export type NodeType = 'mvp' | 'standard' | 'extended';
+export type NodeType = 'mvp' | 'standard' | 'extended' | 'original';
 
-const nodeConfigs: Record<NodeType, { nodes: NodeMap; label: string }> = {
+// Convert originalNodes array to NodeMap format for orchestrator compatibility
+const originalNodesAsMap: NodeMap = originalNodes.reduce((acc, node: OriginalNodeDef) => {
+  acc[node.id as State] = {
+    id: node.id as State,
+    prompt: node.prompt,
+    inputType: node.input.type === 'structured' ? 'text' : node.input.type,
+    choices: node.input.choices,
+    transitions: node.transitions.map(t => ({ condition: t.condition, next: t.next as State }))
+  };
+  return acc;
+}, {} as NodeMap);
+
+const nodeConfigs: Record<NodeType, { nodes: NodeMap; label: string; isOriginal?: boolean }> = {
   mvp: { nodes: mvpNodes, label: 'MVP' },
   standard: { nodes: standardNodes, label: 'Standard' },
-  extended: { nodes: extendedNodes, label: 'Extended' }
+  extended: { nodes: extendedNodes, label: 'Extended' },
+  original: { nodes: originalNodesAsMap, label: 'Original', isOriginal: true }
 };
 
 // Helper to get node count
@@ -55,11 +70,13 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
   }, [nodeType]);
 
   const [currentState, setCurrentState] = useState<State>(orchestrator.getState());
+  const [prompt, setPrompt] = useState<string>(orchestrator.getPrompt());
   const [response, setResponse] = useState<string>("");
 
   useEffect(() => {
     // Reset state when orchestrator changes
     setCurrentState(orchestrator.getState());
+    setPrompt(orchestrator.getPrompt());
     setResponse("");
   }, [orchestrator]);
 
@@ -72,6 +89,7 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
     const context = { sessionId: 'demo-session-v2', userId: 'demo-user' };
     const output = await orchestrator.handleInput(input, context);
     setCurrentState(orchestrator.getState());
+    setPrompt(orchestrator.getPrompt());
     setResponse(output);
   };
 
@@ -93,6 +111,7 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
       </p>
       <div className={styles.stateInfo}>
         <p><strong>Current State:</strong> {currentState}</p>
+        <p><strong>Prompt:</strong> {prompt}</p>
         {response && (
           <div className={styles.response}>
             <strong>Response:</strong>

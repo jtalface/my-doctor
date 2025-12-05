@@ -9,6 +9,24 @@ export { Router } from "./core/router";
 export { mvpNodes, standardNodes, extendedNodes } from "./core/nodes";
 export type { NodeDef, NodeMap } from "./core/nodes";
 
+// Red flags
+export { redFlagDefinitions } from "./core/nodes";
+export type { RedFlagDefinition } from "./core/nodes";
+
+// Utilities
+export { createFlowMeta, getCurrentDateVersion } from "./core/nodes";
+export type { FlowMeta } from "./core/nodes";
+
+// Original flow (with actions)
+export { originalFlow, originalNodes } from "./core/nodes";
+export type { 
+  NodeInput, 
+  NodeAction, 
+  NodeTransition, 
+  OriginalNodeDef, 
+  OriginalFlow 
+} from "./core/nodes";
+
 // ============================================
 // Modules - Patient Profile
 // ============================================
