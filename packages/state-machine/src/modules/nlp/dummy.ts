@@ -4,6 +4,7 @@ import { NLP } from "./types";
 const LM_STUDIO_URL = "http://localhost:1235/v1/chat/completions";
 const LM_STUDIO_TIMEOUT = 30000; // 30 seconds
 const LM_STUDIO_MODEL = "meditron-7b";
+const LM_STUDIO_CONTEXT = "[Context: You are a health education assistant. Be concise and helpful. Do not diagnose.]";
 
 /**
  * NLP implementation that calls Meditron LLM via LM Studio
@@ -25,11 +26,14 @@ export class DummyNLP implements NLP {
         body: JSON.stringify({
           model: LM_STUDIO_MODEL,
           messages: [
-            { role: "user", content: prompt }
+            { 
+              role: "user", 
+              content: `${LM_STUDIO_CONTEXT}\n\n${prompt}` 
+            }
           ],
           max_tokens: 150,
           temperature: 0.7,
-          stop: ["###", "Response:", "User:", "\n\n\n"],
+          stop: ["###", "Response:", "User:", "\n\n\n", "[Context:"],
           repeat_penalty: 1.2
         }),
         signal: controller.signal
@@ -79,6 +83,7 @@ export class DummyNLP implements NLP {
     // Remove any quoted system instructions that leaked
     cleaned = cleaned.replace(/["']?You are a.*?\.["']?\s*/gi, '');
     cleaned = cleaned.replace(/["']?Do not diagnose.*?\.["']?\s*/gi, '');
+    cleaned = cleaned.replace(/\[Context:.*?\]\s*/gi, '');
     
     // If response is empty after cleaning, return a generic message
     cleaned = cleaned.trim();
