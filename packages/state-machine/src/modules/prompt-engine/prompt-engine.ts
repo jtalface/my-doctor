@@ -1,10 +1,21 @@
 import { PatientProfile } from "../patient-profile/types";
 
 export class PromptEngine {
-  buildPrompt(nodePrompt: string, profile: PatientProfile | null, sessionMemory: any){
-    const header = "You are a calm, neutral health education assistant. Provide general, non-prescriptive information.\n";
-    const profileText = profile ? ("Patient (approx): " + JSON.stringify({ age: profile.age, gender: profile.gender }) + "\n") : "";
-    const memoryHint = sessionMemory && sessionMemory.lastState ? ("Last state: " + sessionMemory.lastState + "\n") : "";
-    return header + profileText + memoryHint + "System: " + nodePrompt + "\nAssistant:";
+  /**
+   * Build a prompt for the LLM
+   * Returns just the essential context + node prompt, suitable for chat APIs
+   */
+  buildPrompt(nodePrompt: string, profile: PatientProfile | null, _sessionMemory: any): string {
+    const parts: string[] = [];
+    
+    // Add patient context if available
+    if (profile?.age || profile?.gender) {
+      parts.push(`Patient info: ${profile.age ? `age ${profile.age}` : ''}${profile.age && profile.gender ? ', ' : ''}${profile.gender || ''}`);
+    }
+    
+    // Add the current prompt/question
+    parts.push(nodePrompt);
+    
+    return parts.join('\n\n');
   }
 }
