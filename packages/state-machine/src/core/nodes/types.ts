@@ -1,11 +1,12 @@
 import { State } from "../state.enum";
+import type { NodeController } from "../controllers";
 
 export interface NodeDef {
   id: State;
   prompt: string;
   inputType: "choice" | "text" | "none";
   choices?: string[];
-  controller?: string; // which controller/module to involve (optional)
+  controller?: NodeController;
   transitions: { condition: string; next: State }[];
 }
 

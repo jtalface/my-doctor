@@ -9,6 +9,27 @@ export { Router } from "./core/router";
 export { mvpNodes, standardNodes, extendedNodes } from "./core/nodes";
 export type { NodeDef, NodeMap } from "./core/nodes";
 
+// ============================================
+// Controllers
+// ============================================
+export type { 
+  NodeController, 
+  NodeControllerContext, 
+  NodeControllerResult,
+  RiskUtils,
+  ScreeningUtils
+} from "./core/controllers";
+export { 
+  DemographicsController,
+  MedicalHistoryController,
+  MedicationsController,
+  SystemsReviewController,
+  CardioSymptomsController,
+  RespiratoryController,
+  PreventiveScreeningController,
+  SummaryController
+} from "./core/controllers";
+
 // Red flags
 export { redFlagDefinitions } from "./core/nodes";
 export type { RedFlagDefinition } from "./core/nodes";

@@ -1,5 +1,15 @@
 import { State } from "../state.enum";
 import type { NodeMap } from "./types";
+import {
+  DemographicsController,
+  MedicalHistoryController,
+  MedicationsController,
+  SystemsReviewController,
+  CardioSymptomsController,
+  RespiratoryController,
+  PreventiveScreeningController,
+  SummaryController
+} from "../controllers";
 
 // Full clinical workflow with 40+ states for comprehensive health check-ins
 export const extendedNodes: NodeMap = {
@@ -89,6 +99,7 @@ export const extendedNodes: NodeMap = {
     id: State.DEMOGRAPHICS,
     prompt: "Please confirm your age (or year of birth) and sex assigned at birth. You may type 'prefer not to say'.",
     inputType: "text",
+    controller: new DemographicsController(),
     transitions: [
       { condition: "is_missing(input.age_or_birthyear)", next: State.DEMOGRAPHICS_ASKAGE },
       { condition: "always", next: State.MEDICAL_HISTORY }
@@ -99,6 +110,7 @@ export const extendedNodes: NodeMap = {
     id: State.DEMOGRAPHICS_ASKAGE,
     prompt: "I didn't catch your age. Could you please provide your age or year of birth?",
     inputType: "text",
+    controller: new DemographicsController(),
     transitions: [{ condition: "always", next: State.MEDICAL_HISTORY }]
   },
 
@@ -106,6 +118,7 @@ export const extendedNodes: NodeMap = {
     id: State.MEDICAL_HISTORY,
     prompt: "Do you have any chronic conditions or past surgeries I should know about?",
     inputType: "text",
+    controller: new MedicalHistoryController(),
     transitions: [
       { condition: "has_conditions", next: State.MED_HISTORY_FOLLOWUP },
       { condition: "always", next: State.MEDICATIONS }
@@ -116,6 +129,7 @@ export const extendedNodes: NodeMap = {
     id: State.MED_HISTORY_FOLLOWUP,
     prompt: "Can you tell me more about when these conditions were diagnosed and how they're being managed?",
     inputType: "text",
+    controller: new MedicalHistoryController(),
     transitions: [{ condition: "always", next: State.MEDICATIONS }]
   },
 
@@ -123,6 +137,7 @@ export const extendedNodes: NodeMap = {
     id: State.MEDICATIONS,
     prompt: "What medications are you currently taking, including any supplements or over-the-counter drugs?",
     inputType: "text",
+    controller: new MedicationsController(),
     transitions: [{ condition: "always", next: State.ALLERGIES }]
   },
 
@@ -144,6 +159,7 @@ export const extendedNodes: NodeMap = {
     id: State.SYSTEMS_REVIEW_INTRO,
     prompt: "Now I'll ask about different body systems. This helps identify any areas that need attention.",
     inputType: "none",
+    controller: new SystemsReviewController(),
     transitions: [{ condition: "always", next: State.SYSTEMS_CARDIO }]
   },
 
@@ -151,6 +167,7 @@ export const extendedNodes: NodeMap = {
     id: State.SYSTEMS_CARDIO,
     prompt: "Have you experienced any chest pain, palpitations, shortness of breath, or swelling in your legs?",
     inputType: "text",
+    controller: new CardioSymptomsController(),
     transitions: [
       { condition: "has_symptoms", next: State.SYSTEMS_CARDIO_FOLLOWUP },
       { condition: "always", next: State.SYSTEMS_RESP }
@@ -161,6 +178,7 @@ export const extendedNodes: NodeMap = {
     id: State.SYSTEMS_CARDIO_FOLLOWUP,
     prompt: "Can you describe these symptoms in more detail? When do they occur and how severe are they?",
     inputType: "text",
+    controller: new CardioSymptomsController(),
     transitions: [
       { condition: "is_urgent", next: State.ESCALATE },
       { condition: "always", next: State.SYSTEMS_RESP }
@@ -171,6 +189,7 @@ export const extendedNodes: NodeMap = {
     id: State.SYSTEMS_RESP,
     prompt: "Any coughing, wheezing, or difficulty breathing?",
     inputType: "text",
+    controller: new RespiratoryController(),
     transitions: [
       { condition: "has_symptoms", next: State.SYSTEMS_RESP_FOLLOWUP },
       { condition: "always", next: State.SYSTEMS_GI }
@@ -181,6 +200,7 @@ export const extendedNodes: NodeMap = {
     id: State.SYSTEMS_RESP_FOLLOWUP,
     prompt: "How long have you had these respiratory symptoms? Is it getting worse?",
     inputType: "text",
+    controller: new RespiratoryController(),
     transitions: [{ condition: "always", next: State.SYSTEMS_GI }]
   },
 
@@ -235,6 +255,7 @@ export const extendedNodes: NodeMap = {
     id: State.PREVENTIVE_SCREENINGS,
     prompt: "Let's review your preventive health. When was your last general checkup?",
     inputType: "text",
+    controller: new PreventiveScreeningController(),
     transitions: [{ condition: "always", next: State.PREVENTIVE_CHECKLIST }]
   },
 
@@ -242,6 +263,7 @@ export const extendedNodes: NodeMap = {
     id: State.PREVENTIVE_CHECKLIST,
     prompt: "Have you had any of these recently: blood pressure check, cholesterol test, diabetes screening, cancer screenings appropriate for your age?",
     inputType: "text",
+    controller: new PreventiveScreeningController(),
     transitions: [
       { condition: "needs_lipids", next: State.PREVENTIVE_LIPIDS },
       { condition: "needs_diabetes", next: State.PREVENTIVE_DIABETES },
@@ -274,6 +296,7 @@ export const extendedNodes: NodeMap = {
     id: State.SUMMARY_PLAN,
     prompt: "Thank you for all that information. Let me summarize what we discussed and suggest some next steps.",
     inputType: "none",
+    controller: new SummaryController(),
     transitions: [{ condition: "always", next: State.SAVING_AND_REMINDERS }]
   },
 
