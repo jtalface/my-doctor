@@ -12,7 +12,7 @@ import {
   originalNodes,
   InMemoryProfileStore, 
   InMemorySessionMemory, 
-  DummyNLP, 
+  LLM,
   PromptEngine,
   Router,
   AnalyticsConsole,
@@ -60,7 +60,7 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
     return new Orchestrator({
       profileStore: new InMemoryProfileStore(),
       sessionMemory: new InMemorySessionMemory(),
-      nlp: new DummyNLP(),
+      nlp: new LLM(),
       promptEngine: new PromptEngine(),
       router: new Router(),
       analytics: new AnalyticsConsole(),

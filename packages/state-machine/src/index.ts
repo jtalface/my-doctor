@@ -64,7 +64,7 @@ export { InMemorySessionMemory } from "./modules/context-memory/inmemory";
 // Modules - NLP
 // ============================================
 export type { NLP } from "./modules/nlp/types";
-export { DummyNLP } from "./modules/nlp/dummy";
+export { LLM } from "./modules/nlp/llm";
 
 // ============================================
 // Modules - Prompt Engine

@@ -7,13 +7,11 @@ const LM_STUDIO_MODEL = "meditron-7b";
 const LM_STUDIO_CONTEXT = "[Context: You are a health education assistant. Be concise and helpful. Do not diagnose.]";
 
 /**
- * NLP implementation that calls Meditron LLM via LM Studio
- * Falls back to dummy responses if LM Studio is unavailable
+ * LLM implementation that calls Meditron via LM Studio
+ * Falls back to simple responses if LM Studio is unavailable
  */
-export class DummyNLP implements NLP {
+export class LLM implements NLP {
   async complete(prompt: string): Promise<string> {
-    console.log("[DummyNLP] Sending to LM Studio::::::", prompt);
-
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), LM_STUDIO_TIMEOUT);
@@ -49,13 +47,11 @@ export class DummyNLP implements NLP {
       let response = json.choices[0].message.content;
       
       // Clean up common LLM artifacts
-      response = this.cleanResponse(response);
-      
-      console.log("[DummyNLP] LM Studio response:", response);
+      response = this.cleanResponse(response);      
       return response;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.warn("[DummyNLP] LM Studio error, using fallback:", errorMsg);
+      console.warn("[LLM] Error, using fallback:", errorMsg);
       return this.fallbackResponse(prompt);
     }
   }
@@ -107,3 +103,4 @@ export class DummyNLP implements NLP {
     return "Okay, I've noted that. I'll ask a few more questions to understand your situation better.";
   }
 }
+
