@@ -10,27 +10,6 @@ import { ScreeningLogic } from "../modules/screening-logic/types";
 import { RiskScores } from "../modules/risk-scores/types";
 import { Translator } from "../modules/multilingual/types";
 
-/** Context passed to controllers */
-export interface ControllerContext {
-  history: string[];
-  currentState: string;
-  sessionId?: string;
-  userId?: string;
-}
-
-/** Result returned from controllers */
-export interface ControllerResult {
-  success: boolean;
-  data?: Record<string, unknown>;
-  error?: string;
-}
-
-/** Controller function type */
-export type ControllerFn = (input: string, context?: ControllerContext) => Promise<ControllerResult>;
-
-/** Registry of controller functions by name */
-export type ControllerRegistry = Record<string, ControllerFn>;
-
 interface OrchestratorDeps {
   profileStore: PatientProfileStore;
   sessionMemory: SessionMemory;
@@ -42,7 +21,6 @@ interface OrchestratorDeps {
   risk: RiskScores;
   translator: Translator;
   nodes: NodeMap;
-  controllers?: ControllerRegistry;
 }
 
 export class Orchestrator {
@@ -73,21 +51,6 @@ export class Orchestrator {
     // call NLP model
     const llmOutput = await this.deps.nlp.complete(prompt + "\nUser: " + normalizedUserInput);
 
-    // Call controller if node has one
-    let controllerResult: ControllerResult | undefined;
-    if (node.controller && this.deps.controllers) {
-      const controllerFn = this.deps.controllers[node.controller];
-      if (controllerFn) {
-        const controllerContext: ControllerContext = {
-          history: this.sm.getHistory().map(s => String(s)),
-          currentState: String(current),
-          sessionId: context.sessionId,
-          userId: context.userId
-        };
-        controllerResult = await controllerFn(normalizedUserInput, controllerContext);
-      }
-    }
-
     // use screening logic for optional next question suggestion (not shown to user in this MVP)
     const screeningQ = await this.deps.screening.nextQuestion(profile, memory, normalizedUserInput);
 
@@ -116,24 +79,8 @@ export class Orchestrator {
     const next = await this.deps.router.nextState(current, node, normalizedUserInput);
     this.sm.transition(next);
 
-    // Check if the NEW state has a controller (for end states with summaryController)
-    const newNode = this.sm.getNode();
-    if (newNode.controller && this.deps.controllers) {
-      const controllerFn = this.deps.controllers[newNode.controller];
-      if (controllerFn) {
-        const controllerContext: ControllerContext = {
-          history: this.sm.getHistory().map(s => String(s)),
-          currentState: String(next),
-          sessionId: context.sessionId,
-          userId: context.userId
-        };
-        await controllerFn(normalizedUserInput, controllerContext);
-      }
-    }
-
     // Return model output plus a hint of internal reasoning (for debugging)
-    const controllerInfo = controllerResult ? `\n[controller] ${node.controller}: ${JSON.stringify(controllerResult.data)}` : '';
-    return llmOutput + bmiInfo + controllerInfo + `\n\n[debug] nextState=${next}, screeningSuggestion="${screeningQ}"`;
+    return llmOutput + bmiInfo + `\n\n[debug] nextState=${next}, screeningSuggestion="${screeningQ}"`;
   }
 
   getState(){
