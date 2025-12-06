@@ -1,0 +1,15 @@
+{
+  "name": "@mydoctor/medical-reasoning-engine",
+  "version": "1.0.0",
+  "description": "Medical reasoning engine for analyzing patient data and detecting red flags",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
+

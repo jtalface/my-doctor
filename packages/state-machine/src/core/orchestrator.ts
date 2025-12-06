@@ -16,6 +16,11 @@ import type {
   RiskUtils,
   ScreeningUtils 
 } from "./controllers";
+import type { 
+  IMedicalReasoningEngine, 
+  ReasoningContext, 
+  ReasoningResult 
+} from "@mydoctor/medical-reasoning-engine";
 
 interface OrchestratorDeps {
   profileStore: PatientProfileStore;
@@ -28,6 +33,8 @@ interface OrchestratorDeps {
   risk: RiskScores;
   translator: Translator;
   nodes: NodeMap;
+  /** Optional medical reasoning engine for hybrid analysis */
+  reasoningEngine?: IMedicalReasoningEngine;
 }
 
 export class Orchestrator {
@@ -129,14 +136,58 @@ export class Orchestrator {
     }
 
     // ---------------------------------------------------------------
-    // 2. LOAD PROFILE & BUILD PROMPT
+    // 2. MEDICAL REASONING ENGINE (Hybrid Analysis)
+    // ---------------------------------------------------------------
+    let reasoning: ReasoningResult | undefined;
+    
+    if (this.deps.reasoningEngine) {
+      const updatedMemory = await this.deps.sessionMemory.recall(context.sessionId) || {};
+      
+      const reasoningCtx: ReasoningContext = {
+        userId: context.userId,
+        sessionId: context.sessionId,
+        state: String(node.id),
+        input: processedInput,
+        memory: updatedMemory as Record<string, unknown>,
+        risk: {
+          computeBMI: this.deps.risk.computeBMI.bind(this.deps.risk),
+          // Add other risk methods as needed
+        },
+        screening: {
+          // Add screening methods as needed
+        }
+      };
+
+      reasoning = await this.deps.reasoningEngine.analyze(reasoningCtx);
+
+      // Store reasoning result in session memory
+      await this.deps.sessionMemory.store(context.sessionId, {
+        ...await this.deps.sessionMemory.recall(context.sessionId),
+        [`${node.id}_reasoning`]: reasoning
+      });
+
+      // If reasoning engine detects high-severity red flags, escalate immediately
+      if (reasoning.overrideNextState) {
+        this.sm.transition(reasoning.overrideNextState as State);
+        this.deps.analytics.track("reasoning_escalation", {
+          userId: context.userId,
+          state: current,
+          redFlags: reasoning.redFlags,
+          nextState: reasoning.overrideNextState
+        });
+        return "I'm concerned about some symptoms or patterns you've described. I recommend seeking in-person medical evaluation promptly.";
+      }
+    }
+
+    // ---------------------------------------------------------------
+    // 3. LOAD PROFILE & BUILD PROMPT
     // ---------------------------------------------------------------
     const profile = await this.deps.profileStore.load(context.userId);
     const memory = await this.deps.sessionMemory.recall(context.sessionId);
     const prompt = this.deps.promptEngine.buildPrompt(node.prompt, profile, memory);
 
     // ---------------------------------------------------------------
-    // 3. PRIMARY LLM GENERATION
+    // 4. PRIMARY LLM GENERATION
     // ---------------------------------------------------------------
     const inputForLLM = typeof processedInput === "string" 
       ? processedInput 
@@ -145,7 +196,7 @@ export class Orchestrator {
     let finalResponse = llmOutput;
 
     // ---------------------------------------------------------------
-    // 4. POSTPROCESS CONTROLLER
+    // 5. POSTPROCESS CONTROLLER
     // ---------------------------------------------------------------
     if (controller?.postprocess) {
       const controllerCtx = await this.buildControllerContext(context, processedInput);
@@ -173,7 +224,7 @@ export class Orchestrator {
     }
 
     // ---------------------------------------------------------------
-    // 5. ANALYTICS & MEMORY
+    // 6. ANALYTICS & MEMORY
     // ---------------------------------------------------------------
     this.deps.analytics.track("message", {
       userId: context.userId,
@@ -188,13 +239,13 @@ export class Orchestrator {
     });
 
     // ---------------------------------------------------------------
-    // 6. ROUTE TO NEXT STATE
+    // 7. ROUTE TO NEXT STATE
     // ---------------------------------------------------------------
     const next = await this.deps.router.nextState(current, node, inputForLLM);
     this.sm.transition(next);
 
     // ---------------------------------------------------------------
-    // 7. RETURN RESPONSE
+    // 8. RETURN RESPONSE
     // ---------------------------------------------------------------
     return finalResponse;
   }

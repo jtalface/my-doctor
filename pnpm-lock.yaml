@@ -40,7 +40,17 @@ importers:
         specifier: ^5.3.0
         version: 5.9.3
 
+  packages/medical-reasoning-engine:
+    devDependencies:
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
   packages/state-machine:
+    dependencies:
+      '@mydoctor/medical-reasoning-engine':
+        specifier: workspace:*
+        version: link:../medical-reasoning-engine
     devDependencies:
       typescript:
         specifier: ^5.3.0

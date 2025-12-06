@@ -95,3 +95,16 @@ export { RiskScoresImpl } from "./modules/risk-scores/risk-scores";
 export type { Translator } from "./modules/multilingual/types";
 export { TranslatorStub } from "./modules/multilingual/translator";
 
+// ============================================
+// Medical Reasoning Engine (re-exported from @mydoctor/medical-reasoning-engine)
+// ============================================
+export type {
+  IMedicalReasoningEngine,
+  ReasoningContext,
+  ReasoningResult,
+  ReasoningScores,
+  ReasoningRecommendations,
+  RedFlag
+} from "@mydoctor/medical-reasoning-engine";
+export { MedicalReasoningEngine } from "@mydoctor/medical-reasoning-engine";
+
