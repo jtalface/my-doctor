@@ -266,3 +266,524 @@
   max-width: 700px;
   width: 100%;
 }
+
+/* ========================================
+   MODE SELECTOR (Demo vs Full)
+   ======================================== */
+
+.modeSelector {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.modeButton {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 320px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.modeButton:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modeButtonDemo {
+  border-color: rgba(255, 193, 7, 0.5);
+}
+
+.modeButtonDemo:hover {
+  background: rgba(255, 193, 7, 0.2);
+  border-color: rgba(255, 193, 7, 0.8);
+}
+
+.modeButtonFull {
+  border-color: rgba(76, 175, 80, 0.5);
+}
+
+.modeButtonFull:hover {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: rgba(76, 175, 80, 0.8);
+}
+
+.modeIcon {
+  font-size: 3rem;
+}
+
+.modeName {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.modeDesc {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+}
+
+.modeFeatures {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0 0;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.85rem;
+}
+
+.modeFeatures li {
+  padding: 0.25rem 0;
+}
+
+.modeNote {
+  margin-top: 2rem;
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  max-width: 600px;
+  text-align: center;
+}
+
+.modeNote p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.demoModeNote {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+}
+
+.demoModeNote p {
+  margin: 0;
+}
+
+/* ========================================
+   FULL MODE LOGIN
+   ======================================== */
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1.5rem;
+}
+
+.loginInput {
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.loginInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.loginInput:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.loginButton {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: rgba(76, 175, 80, 0.8);
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.loginButton:hover:not(:disabled) {
+  background: rgba(76, 175, 80, 1);
+  transform: translateY(-2px);
+}
+
+.loginButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fullModeFeatures {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 400px;
+  width: 100%;
+}
+
+.fullModeFeatures h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.fullModeFeatures ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.fullModeFeatures li {
+  padding: 0.4rem 0;
+  font-size: 0.95rem;
+}
+
+/* ========================================
+   FULL MODE APP
+   ======================================== */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 1rem;
+}
+
+.header h1 {
+  color: #ffffff;
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.headerButtons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sessionInfo {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+}
+
+.mainContent {
+  width: 100%;
+  max-width: 900px;
+}
+
+.conversationHistory {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.conversationHistory h3 {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem 0;
+}
+
+.historyScroll {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.historyItem {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.historyState {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.historyUser {
+  color: rgba(255, 193, 7, 0.9);
+  margin-bottom: 0.25rem;
+}
+
+.historyAssistant {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.inputSection {
+  margin-top: 1.5rem;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.choiceButton {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.choiceButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.choiceButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.textInputForm {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.submitButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: rgba(76, 175, 80, 0.8);
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: rgba(76, 175, 80, 1);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.continueButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.continueButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.continueButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sessionComplete {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(76, 175, 80, 0.2);
+  border: 2px solid rgba(76, 175, 80, 0.4);
+  border-radius: 12px;
+  margin-top: 1.5rem;
+}
+
+.sessionComplete h3 {
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+}
+
+.sessionComplete p {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 1rem 0;
+}
+
+.newSessionButton {
+  background: rgba(76, 175, 80, 0.8);
+  border: none;
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.newSessionButton:hover {
+  background: rgba(76, 175, 80, 1);
+}
+
+/* Reasoning Display */
+.reasoning {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+
+.reasoning h3 {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin: 0 0 1rem 0;
+}
+
+.reasoning h4 {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.redFlags ul,
+.scores ul,
+.recommendations ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+}
+
+.redFlags li {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.severity-low {
+  background: rgba(255, 193, 7, 0.2);
+  border-left: 3px solid rgba(255, 193, 7, 0.8);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.severity-moderate {
+  background: rgba(255, 152, 0, 0.2);
+  border-left: 3px solid rgba(255, 152, 0, 0.8);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.severity-high {
+  background: rgba(244, 67, 54, 0.2);
+  border-left: 3px solid rgba(244, 67, 54, 0.8);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.severityBadge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.scores li,
+.recommendations li {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+}
+
+.error {
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid rgba(244, 67, 54, 0.5);
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1rem;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.error h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+}
+
+.error p {
+  margin: 0 0 1rem 0;
+}
+
+.error button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  margin: 0.75rem 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.loading p {
+  font-size: 1.1rem;
+}
+
+.footer {
+  margin-top: 2rem;
+  padding: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0;
+}

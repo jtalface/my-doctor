@@ -1,0 +1,313 @@
+{
+  "id": "medical-checkin-v1",
+  "name": "Medical Check-in Flow",
+  "version": "1.0.0",
+  "description": "Comprehensive medical check-in state machine for health assessment",
+  "initialState": "WELCOME",
+  "metadata": {
+    "author": "MyDoctor Team",
+    "createdAt": "2024-12-08"
+  },
+  "nodes": {
+    "WELCOME": {
+      "id": "WELCOME",
+      "prompt": "Welcome to your health check-in. How are you feeling today?",
+      "inputType": "choice",
+      "choices": ["Start check-in", "Quick question", "Emergency"],
+      "transitions": [
+        { "condition": "choice:emergency", "next": "EMERGENCY_TRIAGE" },
+        { "condition": "choice:quick question", "next": "QUICK_QUESTION" },
+        { "condition": "always", "next": "CONSENT" }
+      ]
+    },
+    "CONSENT": {
+      "id": "CONSENT",
+      "prompt": "Before we begin, please confirm that you understand this is for health education only and not a substitute for professional medical advice. Do you consent to continue?",
+      "inputType": "choice",
+      "choices": ["Yes, I understand", "No, I don't consent"],
+      "transitions": [
+        { "condition": "choice:no", "next": "END_NO_CONSENT" },
+        { "condition": "always", "next": "DEMOGRAPHICS" }
+      ]
+    },
+    "DEMOGRAPHICS": {
+      "id": "DEMOGRAPHICS",
+      "prompt": "Let's start with some basic information. Please share your age (or year of birth) and sex assigned at birth.",
+      "inputType": "text",
+      "controller": "DemographicsController",
+      "transitions": [
+        { "condition": "is_missing(age)", "next": "DEMOGRAPHICS_AGE" },
+        { "condition": "always", "next": "MEDICAL_HISTORY" }
+      ]
+    },
+    "DEMOGRAPHICS_AGE": {
+      "id": "DEMOGRAPHICS_AGE",
+      "prompt": "I didn't catch your age. How old are you?",
+      "inputType": "text",
+      "controller": "DemographicsController",
+      "transitions": [
+        { "condition": "always", "next": "MEDICAL_HISTORY" }
+      ]
+    },
+    "MEDICAL_HISTORY": {
+      "id": "MEDICAL_HISTORY",
+      "prompt": "Do you have any chronic medical conditions? (e.g., diabetes, hypertension, asthma, heart disease)",
+      "inputType": "text",
+      "controller": "MedicalHistoryController",
+      "transitions": [
+        { "condition": "always", "next": "MEDICATIONS" }
+      ]
+    },
+    "MEDICATIONS": {
+      "id": "MEDICATIONS",
+      "prompt": "Are you currently taking any medications, vitamins, or supplements?",
+      "inputType": "text",
+      "controller": "MedicationsController",
+      "transitions": [
+        { "condition": "always", "next": "ALLERGIES" }
+      ]
+    },
+    "ALLERGIES": {
+      "id": "ALLERGIES",
+      "prompt": "Do you have any known allergies to medications, foods, or other substances?",
+      "inputType": "text",
+      "transitions": [
+        { "condition": "always", "next": "SOCIAL_HISTORY" }
+      ]
+    },
+    "SOCIAL_HISTORY": {
+      "id": "SOCIAL_HISTORY",
+      "prompt": "A few questions about lifestyle: Do you currently smoke or use tobacco products?",
+      "inputType": "choice",
+      "choices": ["Never smoked", "Former smoker", "Current smoker", "Prefer not to say"],
+      "transitions": [
+        { "condition": "always", "next": "SOCIAL_HISTORY_ALCOHOL" }
+      ]
+    },
+    "SOCIAL_HISTORY_ALCOHOL": {
+      "id": "SOCIAL_HISTORY_ALCOHOL",
+      "prompt": "How would you describe your alcohol consumption?",
+      "inputType": "choice",
+      "choices": ["None", "Occasional (1-2 drinks/week)", "Moderate (3-7 drinks/week)", "Heavy (8+ drinks/week)", "Prefer not to say"],
+      "transitions": [
+        { "condition": "always", "next": "SYSTEMS_REVIEW" }
+      ]
+    },
+    "SYSTEMS_REVIEW": {
+      "id": "SYSTEMS_REVIEW",
+      "prompt": "Now I'll ask about different body systems. Have you experienced any new or concerning symptoms recently?",
+      "inputType": "choice",
+      "controller": "SystemsReviewController",
+      "choices": ["Yes, I have symptoms", "No new symptoms", "Not sure"],
+      "transitions": [
+        { "condition": "choice:yes", "next": "SYMPTOM_CATEGORY" },
+        { "condition": "always", "next": "PREVENTIVE_SCREENING" }
+      ]
+    },
+    "SYMPTOM_CATEGORY": {
+      "id": "SYMPTOM_CATEGORY",
+      "prompt": "Which area best describes your symptoms?",
+      "inputType": "choice",
+      "choices": ["Chest/Heart", "Breathing/Lungs", "Stomach/Digestive", "Pain/Muscles", "Mental Health", "Skin", "Other"],
+      "transitions": [
+        { "condition": "choice:chest", "next": "CARDIO_SYMPTOMS" },
+        { "condition": "choice:heart", "next": "CARDIO_SYMPTOMS" },
+        { "condition": "choice:breathing", "next": "RESPIRATORY_SYMPTOMS" },
+        { "condition": "choice:lungs", "next": "RESPIRATORY_SYMPTOMS" },
+        { "condition": "choice:mental", "next": "MENTAL_HEALTH_SCREEN" },
+        { "condition": "always", "next": "GENERAL_SYMPTOMS" }
+      ]
+    },
+    "CARDIO_SYMPTOMS": {
+      "id": "CARDIO_SYMPTOMS",
+      "prompt": "Please describe your chest or heart-related symptoms. Include: location, what it feels like, how long it lasts, and anything that makes it better or worse.",
+      "inputType": "text",
+      "controller": "CardioSymptomsController",
+      "transitions": [
+        { "condition": "regex:severe|crushing|can't breathe|radiating", "next": "URGENT_CARDIO" },
+        { "condition": "always", "next": "CARDIO_FOLLOWUP" }
+      ]
+    },
+    "CARDIO_FOLLOWUP": {
+      "id": "CARDIO_FOLLOWUP",
+      "prompt": "Have you experienced any of these along with your symptoms: sweating, nausea, dizziness, or shortness of breath?",
+      "inputType": "choice",
+      "choices": ["Yes", "No", "Not sure"],
+      "transitions": [
+        { "condition": "choice:yes", "next": "URGENT_CARDIO" },
+        { "condition": "always", "next": "PREVENTIVE_SCREENING" }
+      ]
+    },
+    "URGENT_CARDIO": {
+      "id": "URGENT_CARDIO",
+      "prompt": "⚠️ Based on your symptoms, I recommend seeking immediate medical evaluation. These symptoms could be serious. If you're having severe chest pain, call emergency services (911) now.",
+      "inputType": "choice",
+      "choices": ["I will seek care", "Symptoms have improved", "I need more information"],
+      "transitions": [
+        { "condition": "always", "next": "END_URGENT_REFERRAL" }
+      ]
+    },
+    "RESPIRATORY_SYMPTOMS": {
+      "id": "RESPIRATORY_SYMPTOMS",
+      "prompt": "Please describe your breathing symptoms. Include: when they started, severity, and any triggers you've noticed.",
+      "inputType": "text",
+      "controller": "RespiratoryController",
+      "transitions": [
+        { "condition": "regex:can't breathe|gasping|blue|severe", "next": "URGENT_RESPIRATORY" },
+        { "condition": "always", "next": "RESPIRATORY_FOLLOWUP" }
+      ]
+    },
+    "RESPIRATORY_FOLLOWUP": {
+      "id": "RESPIRATORY_FOLLOWUP",
+      "prompt": "Do you have a history of asthma, COPD, or other lung conditions?",
+      "inputType": "choice",
+      "choices": ["Yes", "No", "Not sure"],
+      "transitions": [
+        { "condition": "always", "next": "PREVENTIVE_SCREENING" }
+      ]
+    },
+    "URGENT_RESPIRATORY": {
+      "id": "URGENT_RESPIRATORY",
+      "prompt": "⚠️ Severe breathing difficulty requires immediate medical attention. Please seek emergency care if you're having significant trouble breathing.",
+      "inputType": "choice",
+      "choices": ["I will seek care", "Symptoms have improved"],
+      "transitions": [
+        { "condition": "always", "next": "END_URGENT_REFERRAL" }
+      ]
+    },
+    "MENTAL_HEALTH_SCREEN": {
+      "id": "MENTAL_HEALTH_SCREEN",
+      "prompt": "Over the past 2 weeks, how often have you felt little interest or pleasure in doing things?",
+      "inputType": "choice",
+      "choices": ["Not at all", "Several days", "More than half the days", "Nearly every day"],
+      "transitions": [
+        { "condition": "always", "next": "MENTAL_HEALTH_SCREEN_2" }
+      ]
+    },
+    "MENTAL_HEALTH_SCREEN_2": {
+      "id": "MENTAL_HEALTH_SCREEN_2",
+      "prompt": "Over the past 2 weeks, how often have you felt down, depressed, or hopeless?",
+      "inputType": "choice",
+      "choices": ["Not at all", "Several days", "More than half the days", "Nearly every day"],
+      "transitions": [
+        { "condition": "always", "next": "MENTAL_HEALTH_SAFETY" }
+      ]
+    },
+    "MENTAL_HEALTH_SAFETY": {
+      "id": "MENTAL_HEALTH_SAFETY",
+      "prompt": "Are you having any thoughts of hurting yourself or that you'd be better off dead?",
+      "inputType": "choice",
+      "choices": ["No", "Yes, but I'm safe", "Yes, I need help"],
+      "transitions": [
+        { "condition": "choice:yes, i need help", "next": "CRISIS_RESOURCES" },
+        { "condition": "always", "next": "PREVENTIVE_SCREENING" }
+      ]
+    },
+    "CRISIS_RESOURCES": {
+      "id": "CRISIS_RESOURCES",
+      "prompt": "I'm concerned about you. Please reach out for support now:\n\n📞 National Suicide Prevention Lifeline: 988\n📱 Crisis Text Line: Text HOME to 741741\n🚨 If you're in immediate danger, call 911\n\nYou don't have to face this alone.",
+      "inputType": "choice",
+      "choices": ["I will reach out", "I'm feeling safer now"],
+      "transitions": [
+        { "condition": "always", "next": "END_CRISIS" }
+      ]
+    },
+    "GENERAL_SYMPTOMS": {
+      "id": "GENERAL_SYMPTOMS",
+      "prompt": "Please describe your symptoms in detail. Include when they started, how severe they are, and anything that affects them.",
+      "inputType": "text",
+      "transitions": [
+        { "condition": "always", "next": "PREVENTIVE_SCREENING" }
+      ]
+    },
+    "PREVENTIVE_SCREENING": {
+      "id": "PREVENTIVE_SCREENING",
+      "prompt": "Based on your information, I can suggest some preventive health screenings to discuss with your doctor. Would you like to see recommendations?",
+      "inputType": "choice",
+      "controller": "PreventiveScreeningController",
+      "choices": ["Yes, show me", "No thanks, skip"],
+      "transitions": [
+        { "condition": "choice:yes", "next": "SCREENING_RECOMMENDATIONS" },
+        { "condition": "always", "next": "SUMMARY" }
+      ]
+    },
+    "SCREENING_RECOMMENDATIONS": {
+      "id": "SCREENING_RECOMMENDATIONS",
+      "prompt": "Based on your age and health profile, here are some preventive screenings to discuss with your healthcare provider.",
+      "inputType": "none",
+      "transitions": [
+        { "condition": "always", "next": "SUMMARY" }
+      ]
+    },
+    "SUMMARY": {
+      "id": "SUMMARY",
+      "prompt": "We've completed your health check-in. Here's a summary of what we discussed. Would you like me to highlight anything specific?",
+      "inputType": "choice",
+      "controller": "SummaryController",
+      "choices": ["View full summary", "Export to share with doctor", "I'm done"],
+      "transitions": [
+        { "condition": "always", "next": "END" }
+      ]
+    },
+    "QUICK_QUESTION": {
+      "id": "QUICK_QUESTION",
+      "prompt": "What would you like to know about? I can provide general health information.",
+      "inputType": "text",
+      "transitions": [
+        { "condition": "always", "next": "QUICK_RESPONSE" }
+      ]
+    },
+    "QUICK_RESPONSE": {
+      "id": "QUICK_RESPONSE",
+      "prompt": "Here's some general information. Remember, this is educational only - please consult a healthcare provider for personalized advice.",
+      "inputType": "choice",
+      "choices": ["Ask another question", "Start full check-in", "I'm done"],
+      "transitions": [
+        { "condition": "choice:ask another", "next": "QUICK_QUESTION" },
+        { "condition": "choice:start full", "next": "CONSENT" },
+        { "condition": "always", "next": "END" }
+      ]
+    },
+    "EMERGENCY_TRIAGE": {
+      "id": "EMERGENCY_TRIAGE",
+      "prompt": "If you're experiencing a medical emergency, please call 911 immediately.\n\nAre you or someone else having any of these symptoms right now?\n- Severe chest pain or pressure\n- Difficulty breathing\n- Signs of stroke (face drooping, arm weakness, speech difficulty)\n- Severe bleeding\n- Loss of consciousness",
+      "inputType": "choice",
+      "choices": ["Yes - calling 911 now", "No - not an emergency", "Need guidance"],
+      "transitions": [
+        { "condition": "choice:yes", "next": "END_EMERGENCY" },
+        { "condition": "always", "next": "CONSENT" }
+      ]
+    },
+    "END": {
+      "id": "END",
+      "prompt": "Thank you for completing your health check-in. Take care and don't hesitate to reach out to healthcare professionals if you have concerns. Goodbye!",
+      "inputType": "none",
+      "transitions": []
+    },
+    "END_NO_CONSENT": {
+      "id": "END_NO_CONSENT",
+      "prompt": "I understand. If you change your mind or have questions, feel free to come back anytime. Take care!",
+      "inputType": "none",
+      "transitions": []
+    },
+    "END_URGENT_REFERRAL": {
+      "id": "END_URGENT_REFERRAL",
+      "prompt": "Please prioritize getting medical evaluation for your symptoms. Your health is important. Take care.",
+      "inputType": "none",
+      "transitions": []
+    },
+    "END_EMERGENCY": {
+      "id": "END_EMERGENCY",
+      "prompt": "Stay on the line with 911. Help is on the way. Stay calm and follow the dispatcher's instructions.",
+      "inputType": "none",
+      "transitions": []
+    },
+    "END_CRISIS": {
+      "id": "END_CRISIS",
+      "prompt": "Remember, you matter and support is available 24/7. Please reach out to the resources provided. Take care of yourself.",
+      "inputType": "none",
+      "transitions": []
+    }
+  }
+}
+
