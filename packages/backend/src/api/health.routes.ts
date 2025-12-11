@@ -1,7 +1,8 @@
 import { Router, Request, Response } from "express";
 import mongoose from "mongoose";
+import { llmService } from "../services";
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * GET /api/health
@@ -17,12 +18,14 @@ router.get("/", async (_req: Request, res: Response) => {
     3: "disconnecting"
   };
   const mongoStatus = stateMap[mongoState] || "unknown";
+  const llmStatus = llmService.getAvailabilityStatus();
 
   return res.status(200).json({
     status: "ok",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    mongodb: mongoStatus
+    mongodb: mongoStatus,
+    llm: llmStatus === null ? "unknown" : llmStatus ? "available" : "unavailable"
   });
 });
 
@@ -43,6 +46,20 @@ router.get("/ready", async (_req: Request, res: Response) => {
 
   return res.status(200).json({
     status: "ready"
+  });
+});
+
+/**
+ * GET /api/health/llm
+ * 
+ * Check LLM availability
+ */
+router.get("/llm", async (_req: Request, res: Response) => {
+  const available = await llmService.checkAvailability();
+
+  return res.status(200).json({
+    status: available ? "available" : "unavailable",
+    timestamp: new Date().toISOString()
   });
 });
 

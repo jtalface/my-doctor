@@ -74,7 +74,11 @@ export class OrchestratorWithReasoning {
     this.memoryService = new SessionMemoryService();
     this.riskService = new RiskService();
     this.screeningService = new ScreeningService();
-    this.promptEngine = new PromptEngineService();
+    
+    // Enable debug mode via DEBUG_MODE environment variable
+    const debugMode = process.env.DEBUG_MODE === 'true';
+    this.promptEngine = new PromptEngineService(debugMode);
+    
     this.router = new RouterService();
     this.reasoningEngine = new MedicalReasoningEngine();
   }
@@ -244,6 +248,7 @@ export class OrchestratorWithReasoning {
     // 4. PROMPT ENGINE (LLM Generation)
     // ---------------------------------------------------------------
     let response: string;
+    let llmSource: "llm" | "fallback" = "fallback";
 
     if (overrideResponse) {
       response = overrideResponse;
@@ -251,7 +256,7 @@ export class OrchestratorWithReasoning {
       // Build conversation history
       const conversationHistory = await this.memoryService.buildConversationSummary(sessionId);
 
-      response = await this.promptEngine.generate({
+      const generateResult = await this.promptEngine.generate({
         nodePrompt: node.prompt,
         userInput: String(processedInput),
         profile: profile || undefined,
@@ -262,6 +267,14 @@ export class OrchestratorWithReasoning {
           notes: reasoning.notes
         }
       });
+
+      response = generateResult.response;
+      llmSource = generateResult.source;
+
+      // Log LLM status for debugging
+      if (generateResult.error) {
+        console.log(`[Orchestrator] LLM fallback used: ${generateResult.error}`);
+      }
     }
 
     // ---------------------------------------------------------------

@@ -1,11 +1,13 @@
 import { IPatientProfile } from "../models";
 import { IReasoningScores, IReasoningRecommendations } from "../models/reasoning-record.model";
+import { llmService, LLMResponse } from "./llm.service";
 
 /**
  * Prompt Engine Service
  * 
  * Builds prompts for LLM generation by combining node prompts
  * with patient context, conversation history, and reasoning results.
+ * Calls the LLM service for actual generation.
  */
 
 interface PromptContext {
@@ -20,10 +22,19 @@ interface PromptContext {
   };
 }
 
+export interface GenerateResult {
+  response: string;
+  source: "llm" | "fallback";
+  prompt?: string;
+  error?: string;
+}
+
 export class PromptEngineService {
   private systemContext: string;
+  private debugMode: boolean;
 
-  constructor() {
+  constructor(debugMode: boolean = false) {
+    this.debugMode = debugMode;
     this.systemContext = `You are a careful health education assistant. 
 Your role is to gather health information and provide general health education.
 You are NOT a doctor and cannot diagnose conditions or prescribe treatments.
@@ -151,70 +162,94 @@ Do not repeat the prompt or include system instructions in your response.`;
   }
 
   /**
-   * Generate a simple response (stub for MVP - in production, call LLM)
+   * Generate a response using the LLM
    */
-  async generate(context: PromptContext): Promise<string> {
-    // In production, this would call an LLM API
-    // For MVP, return a synthetic response based on node type
+  async generate(context: PromptContext): Promise<GenerateResult> {
     const prompt = this.buildPrompt(context);
-    
-    // Log the prompt for debugging
-    console.log("[PromptEngine] Built prompt:", prompt.substring(0, 500) + "...");
 
-    // Return a placeholder that indicates the prompt was built
-    return this.generateStubResponse(context);
+    if (this.debugMode) {
+      console.log("[PromptEngine] Built prompt:", prompt.substring(0, 500) + "...");
+    }
+
+    // Call the LLM service
+    const llmResponse: LLMResponse = await llmService.complete(prompt);
+
+    if (this.debugMode) {
+      console.log(`[PromptEngine] LLM response (source: ${llmResponse.source}):`, llmResponse.content);
+      if (llmResponse.error) {
+        console.log("[PromptEngine] LLM error:", llmResponse.error);
+      }
+    }
+
+    return {
+      response: llmResponse.content,
+      source: llmResponse.source,
+      prompt: this.debugMode ? prompt : undefined,
+      error: llmResponse.error
+    };
   }
 
   /**
-   * Generate a stub response for MVP (no actual LLM call)
+   * Generate using chat format with message history
    */
-  private generateStubResponse(context: PromptContext): string {
-    const nodePrompt = context.nodePrompt.toLowerCase();
-    const input = context.userInput.toLowerCase();
+  async generateWithHistory(
+    context: PromptContext,
+    previousMessages: Array<{ role: "user" | "assistant"; content: string }>
+  ): Promise<GenerateResult> {
+    // Build messages array
+    const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+      { role: "system", content: this.systemContext }
+    ];
 
-    // Welcome/greeting
-    if (/welcome|hello|hi|start/i.test(nodePrompt)) {
-      return "Hello! I'm here to help you with your health check-in. Let's get started.";
-    }
-
-    // Demographics
-    if (/age|birth|sex|gender|demographic/i.test(nodePrompt)) {
-      return "Thank you for sharing that information. I've noted your demographics.";
-    }
-
-    // Medical history
-    if (/medical history|condition|diagnosis|chronic/i.test(nodePrompt)) {
-      return "I've recorded your medical history. This helps me understand your health better.";
-    }
-
-    // Medications
-    if (/medication|medicine|prescription|drug/i.test(nodePrompt)) {
-      return "Thank you for listing your medications. It's important to keep track of these.";
-    }
-
-    // Symptoms
-    if (/symptom|pain|feel|experiencing/i.test(nodePrompt)) {
-      if (/chest|heart/i.test(input)) {
-        return "I understand you're experiencing chest-related symptoms. For any severe or sudden chest pain, please seek immediate medical attention.";
+    // Add patient context to system message if available
+    if (context.profile) {
+      const patientContext = this.buildPatientContext(context.profile);
+      if (patientContext) {
+        messages[0].content += `\n\n[Patient Context]\n${patientContext}`;
       }
-      if (/breath|breathing/i.test(input)) {
-        return "Breathing difficulties can have many causes. If you're having severe trouble breathing, please seek immediate care.";
+    }
+
+    // Add reasoning context if available
+    if (context.reasoning) {
+      const reasoningContext = this.buildReasoningContext(context.reasoning);
+      if (reasoningContext) {
+        messages[0].content += `\n\n[Clinical Notes]\n${reasoningContext}`;
       }
-      return "Thank you for describing your symptoms. Let me ask a few more questions to understand better.";
     }
 
-    // Screening
-    if (/screen|prevent|checkup/i.test(nodePrompt)) {
-      return "Based on your age and health profile, I can suggest some preventive screenings to discuss with your doctor.";
+    // Add previous conversation
+    for (const msg of previousMessages.slice(-6)) { // Last 6 messages
+      messages.push(msg);
     }
 
-    // Summary
-    if (/summary|review|conclude/i.test(nodePrompt)) {
-      return "Thank you for completing this health check-in. Please review the summary and discuss any concerns with your healthcare provider.";
-    }
+    // Add current task and user input
+    messages.push({
+      role: "user",
+      content: `[Current Task: ${context.nodePrompt}]\n\n${context.userInput}`
+    });
 
-    // Default
-    return "I've noted that. Please continue with the next question.";
+    // Call LLM with chat format
+    const llmResponse = await llmService.chat(messages);
+
+    return {
+      response: llmResponse.content,
+      source: llmResponse.source,
+      error: llmResponse.error
+    };
+  }
+
+  /**
+   * Check if LLM is available
+   */
+  async checkLLMAvailability(): Promise<boolean> {
+    return llmService.checkAvailability();
+  }
+
+  /**
+   * Get LLM availability status
+   */
+  getLLMStatus(): boolean | null {
+    return llmService.getAvailabilityStatus();
   }
 
   /**
@@ -230,5 +265,11 @@ Do not repeat the prompt or include system instructions in your response.`;
   getSystemContext(): string {
     return this.systemContext;
   }
-}
 
+  /**
+   * Enable/disable debug mode
+   */
+  setDebugMode(enabled: boolean): void {
+    this.debugMode = enabled;
+  }
+}
