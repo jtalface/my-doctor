@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { apiClient, SendInputResponse } from './services/api';
+import { apiClient, SendInputResponse, LLMProviderType, LLMProviderInfo } from './services/api';
 import styles from './App.module.css';
 
 interface AppBackendProps {
@@ -38,11 +38,24 @@ const AppBackend: React.FC<AppBackendProps> = ({ userEmail, userName, onBack }) 
   const [conversation, setConversation] = useState<ConversationStep[]>([]);
   const [reasoning, setReasoning] = useState<SendInputResponse['data']['reasoning'] | null>(null);
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  
+  // LLM Provider state
+  const [llmProviders, setLlmProviders] = useState<LLMProviderInfo[]>([]);
+  const [activeProvider, setActiveProvider] = useState<LLMProviderType>('lm-studio');
+  const [showLLMSettings, setShowLLMSettings] = useState(false);
+  const [llmLoading, setLlmLoading] = useState(false);
 
   // Check backend health on mount
   useEffect(() => {
     checkBackendHealth();
   }, []);
+
+  // Load LLM providers when backend is online
+  useEffect(() => {
+    if (backendStatus === 'online') {
+      loadLLMProviders();
+    }
+  }, [backendStatus]);
 
   // Start session when backend is online
   useEffect(() => {
@@ -58,6 +71,42 @@ const AppBackend: React.FC<AppBackendProps> = ({ userEmail, userName, onBack }) 
     } catch {
       setBackendStatus('offline');
       setError('Backend server is not running. Please start it with: cd packages/backend && pnpm dev');
+    }
+  };
+
+  const loadLLMProviders = async () => {
+    try {
+      const result = await apiClient.getLLMProviders();
+      setLlmProviders(result.providers);
+      setActiveProvider(result.activeProvider);
+    } catch (err) {
+      console.error('Failed to load LLM providers:', err);
+    }
+  };
+
+  const handleProviderChange = async (type: LLMProviderType) => {
+    setLlmLoading(true);
+    try {
+      await apiClient.setLLMProvider(type);
+      setActiveProvider(type);
+      // Refresh provider status
+      await loadLLMProviders();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to change provider');
+    } finally {
+      setLlmLoading(false);
+    }
+  };
+
+  const handleCheckAvailability = async () => {
+    setLlmLoading(true);
+    try {
+      await apiClient.checkLLMAvailability();
+      await loadLLMProviders();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to check availability');
+    } finally {
+      setLlmLoading(false);
     }
   };
 
@@ -174,11 +223,71 @@ const AppBackend: React.FC<AppBackendProps> = ({ userEmail, userName, onBack }) 
           <span className={styles.sessionInfo}>
             📧 {userEmail} | Session: {sessionId?.slice(-8)}
           </span>
+          <button 
+            onClick={() => setShowLLMSettings(!showLLMSettings)} 
+            className={styles.settingsButton}
+            title="LLM Settings"
+          >
+            🤖 {llmProviders.find(p => p.type === activeProvider)?.name || 'LLM'}
+          </button>
           <button onClick={onBack} className={styles.backButton}>
             ← Back to Menu
           </button>
         </div>
       </div>
+
+      {/* LLM Provider Settings Panel */}
+      {showLLMSettings && (
+        <div className={styles.llmSettings}>
+          <div className={styles.llmSettingsHeader}>
+            <h3>🤖 LLM Provider Settings</h3>
+            <button onClick={() => setShowLLMSettings(false)} className={styles.closeButton}>×</button>
+          </div>
+          <div className={styles.providerList}>
+            {llmProviders.map((provider) => (
+              <div 
+                key={provider.type} 
+                className={`${styles.providerCard} ${provider.type === activeProvider ? styles.providerActive : ''}`}
+              >
+                <div className={styles.providerInfo}>
+                  <div className={styles.providerName}>
+                    {provider.type === 'lm-studio' ? '🖥️' : provider.type === 'openai' ? '🧠' : '🔮'}
+                    {' '}{provider.name}
+                  </div>
+                  <div className={styles.providerModel}>Model: {provider.model}</div>
+                  <div className={styles.providerStatus}>
+                    Status: {' '}
+                    <span className={provider.available === true ? styles.statusOnline : 
+                                    provider.available === false ? styles.statusOffline : 
+                                    styles.statusUnknown}>
+                      {provider.available === true ? '🟢 Available' : 
+                       provider.available === false ? '🔴 Unavailable' : 
+                       '⚪ Unknown'}
+                    </span>
+                    {!provider.configured && <span className={styles.notConfigured}> (Not configured)</span>}
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleProviderChange(provider.type)}
+                  disabled={llmLoading || provider.type === activeProvider || !provider.configured}
+                  className={`${styles.selectProviderButton} ${provider.type === activeProvider ? styles.selectedProvider : ''}`}
+                >
+                  {provider.type === activeProvider ? '✓ Active' : 'Select'}
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className={styles.llmActions}>
+            <button 
+              onClick={handleCheckAvailability} 
+              disabled={llmLoading}
+              className={styles.checkButton}
+            >
+              {llmLoading ? '⏳ Checking...' : '🔄 Check Availability'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className={styles.error}>

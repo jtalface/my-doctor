@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import mongoose from "mongoose";
-import { llmService } from "../services";
+import { llmManager } from "../services";
 
 const router: Router = Router();
 
@@ -18,14 +18,20 @@ router.get("/", async (_req: Request, res: Response) => {
     3: "disconnecting"
   };
   const mongoStatus = stateMap[mongoState] || "unknown";
-  const llmStatus = llmService.getAvailabilityStatus();
+  
+  const activeProvider = llmManager.getActiveProvider();
+  const llmStatus = activeProvider.getAvailabilityStatus();
 
   return res.status(200).json({
     status: "ok",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     mongodb: mongoStatus,
-    llm: llmStatus === null ? "unknown" : llmStatus ? "available" : "unavailable"
+    llm: {
+      status: llmStatus === null ? "unknown" : llmStatus ? "available" : "unavailable",
+      provider: activeProvider.type,
+      name: activeProvider.name
+    }
   });
 });
 
@@ -52,13 +58,16 @@ router.get("/ready", async (_req: Request, res: Response) => {
 /**
  * GET /api/health/llm
  * 
- * Check LLM availability
+ * Check LLM availability (checks active provider)
  */
 router.get("/llm", async (_req: Request, res: Response) => {
-  const available = await llmService.checkAvailability();
+  const activeProvider = llmManager.getActiveProvider();
+  const available = await activeProvider.checkAvailability();
 
   return res.status(200).json({
     status: available ? "available" : "unavailable",
+    provider: activeProvider.type,
+    name: activeProvider.name,
     timestamp: new Date().toISOString()
   });
 });

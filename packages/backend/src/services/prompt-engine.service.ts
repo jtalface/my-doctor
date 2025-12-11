@@ -1,13 +1,13 @@
 import { IPatientProfile } from "../models";
 import { IReasoningScores, IReasoningRecommendations } from "../models/reasoning-record.model";
-import { llmService, LLMResponse } from "./llm.service";
+import { llmManager, LLMResponse, LLMProviderType, LLMMessage } from "./llm";
 
 /**
  * Prompt Engine Service
  * 
  * Builds prompts for LLM generation by combining node prompts
  * with patient context, conversation history, and reasoning results.
- * Calls the LLM service for actual generation.
+ * Uses the LLM Manager to support multiple LLM providers.
  */
 
 interface PromptContext {
@@ -25,6 +25,8 @@ interface PromptContext {
 export interface GenerateResult {
   response: string;
   source: "llm" | "fallback";
+  provider?: LLMProviderType;
+  model?: string;
   prompt?: string;
   error?: string;
 }
@@ -162,20 +164,21 @@ Do not repeat the prompt or include system instructions in your response.`;
   }
 
   /**
-   * Generate a response using the LLM
+   * Generate a response using the active LLM provider
    */
   async generate(context: PromptContext): Promise<GenerateResult> {
     const prompt = this.buildPrompt(context);
 
     if (this.debugMode) {
       console.log("[PromptEngine] Built prompt:", prompt.substring(0, 500) + "...");
+      console.log("[PromptEngine] Using provider:", llmManager.getActiveProviderType());
     }
 
-    // Call the LLM service
-    const llmResponse: LLMResponse = await llmService.complete(prompt);
+    // Call the LLM manager
+    const llmResponse: LLMResponse = await llmManager.complete(prompt);
 
     if (this.debugMode) {
-      console.log(`[PromptEngine] LLM response (source: ${llmResponse.source}):`, llmResponse.content);
+      console.log(`[PromptEngine] LLM response (provider: ${llmResponse.provider}, source: ${llmResponse.source}):`, llmResponse.content);
       if (llmResponse.error) {
         console.log("[PromptEngine] LLM error:", llmResponse.error);
       }
@@ -184,6 +187,8 @@ Do not repeat the prompt or include system instructions in your response.`;
     return {
       response: llmResponse.content,
       source: llmResponse.source,
+      provider: llmResponse.provider,
+      model: llmResponse.model,
       prompt: this.debugMode ? prompt : undefined,
       error: llmResponse.error
     };
@@ -197,7 +202,7 @@ Do not repeat the prompt or include system instructions in your response.`;
     previousMessages: Array<{ role: "user" | "assistant"; content: string }>
   ): Promise<GenerateResult> {
     // Build messages array
-    const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+    const messages: LLMMessage[] = [
       { role: "system", content: this.systemContext }
     ];
 
@@ -229,27 +234,22 @@ Do not repeat the prompt or include system instructions in your response.`;
     });
 
     // Call LLM with chat format
-    const llmResponse = await llmService.chat(messages);
+    const llmResponse = await llmManager.chat(messages);
 
     return {
       response: llmResponse.content,
       source: llmResponse.source,
+      provider: llmResponse.provider,
+      model: llmResponse.model,
       error: llmResponse.error
     };
   }
 
   /**
-   * Check if LLM is available
+   * Get the LLM manager for direct access
    */
-  async checkLLMAvailability(): Promise<boolean> {
-    return llmService.checkAvailability();
-  }
-
-  /**
-   * Get LLM availability status
-   */
-  getLLMStatus(): boolean | null {
-    return llmService.getAvailabilityStatus();
+  getLLMManager() {
+    return llmManager;
   }
 
   /**
