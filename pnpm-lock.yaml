@@ -54,6 +54,9 @@ importers:
       mongoose:
         specifier: ^8.0.3
         version: 8.20.2
+      openai:
+        specifier: ^6.10.0
+        version: 6.10.0
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
@@ -2434,6 +2437,19 @@ packages:
     engines: {node: '>= 0.8'}
     dependencies:
       ee-first: 1.1.1
+    dev: false
+
+  /openai@6.10.0:
+    resolution: {integrity: sha512-ITxOGo7rO3XRMiKA5l7tQ43iNNu+iXGFAcf2t+aWVzzqRaS0i7m1K2BhxNdaveB+5eENhO0VY1FkiZzhBk4v3A==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.25 || ^4.0
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
     dev: false
 
   /ordered-binary@1.6.0:

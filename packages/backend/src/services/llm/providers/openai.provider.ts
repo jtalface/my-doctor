@@ -1,14 +1,14 @@
 /**
  * OpenAI Provider
  * 
- * Connects to OpenAI's API for ChatGPT and other models.
+ * Connects to OpenAI's API for ChatGPT and other models using the official SDK.
  */
 
+import OpenAI from "openai";
 import { LLMProvider, LLMConfig, LLMMessage, LLMResponse } from "../types";
 
 const DEFAULT_CONFIG: LLMConfig = {
   apiKey: process.env.OPENAI_API_KEY || "",
-  baseUrl: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
   model: process.env.OPENAI_MODEL || "gpt-4o-mini",
   maxTokens: 300,
   temperature: 0.7,
@@ -26,10 +26,12 @@ export class OpenAIProvider implements LLMProvider {
   readonly name = "OpenAI (ChatGPT)";
   
   private config: LLMConfig;
+  private client: OpenAI;
   private isAvailable: boolean | null = null;
 
   constructor(config: Partial<LLMConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
+    this.client = new OpenAI({ apiKey: this.config.apiKey });
   }
 
   async checkAvailability(): Promise<boolean> {
@@ -39,21 +41,11 @@ export class OpenAIProvider implements LLMProvider {
     }
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-      const res = await fetch(`${this.config.baseUrl}/models`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${this.config.apiKey}`
-        },
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-      this.isAvailable = res.ok;
-      return this.isAvailable;
-    } catch {
+      await this.client.models.list();
+      this.isAvailable = true;
+      return true;
+    } catch (error) {
+      console.warn("[OpenAIProvider] Availability check failed:", error);
       this.isAvailable = false;
       return false;
     }
@@ -74,40 +66,17 @@ export class OpenAIProvider implements LLMProvider {
     }
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
-
-      const res = await fetch(`${this.config.baseUrl}/chat/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.config.apiKey}`
-        },
-        body: JSON.stringify({
-          model: this.config.model,
-          messages: [
-            { role: "system", content: SYSTEM_MESSAGE },
-            { role: "user", content: prompt }
-          ],
-          max_tokens: this.config.maxTokens,
-          temperature: this.config.temperature
-        }),
-        signal: controller.signal
+      const completion = await this.client.chat.completions.create({
+        model: this.config.model,
+        temperature: this.config.temperature,
+        max_tokens: this.config.maxTokens,
+        messages: [
+          { role: "system", content: SYSTEM_MESSAGE },
+          { role: "user", content: prompt }
+        ]
       });
 
-      clearTimeout(timeoutId);
-
-      if (!res.ok) {
-        const errorBody = await res.text();
-        throw new Error(`HTTP ${res.status}: ${errorBody}`);
-      }
-
-      const json = await res.json() as {
-        choices: Array<{ message: { content: string } }>;
-        usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
-      };
-
-      const content = json.choices[0].message.content.trim();
+      const content = completion.choices[0]?.message?.content?.trim() ?? "";
       this.isAvailable = true;
 
       return {
@@ -115,10 +84,10 @@ export class OpenAIProvider implements LLMProvider {
         source: "llm",
         provider: this.type,
         model: this.config.model,
-        usage: json.usage ? {
-          promptTokens: json.usage.prompt_tokens,
-          completionTokens: json.usage.completion_tokens,
-          totalTokens: json.usage.total_tokens
+        usage: completion.usage ? {
+          promptTokens: completion.usage.prompt_tokens,
+          completionTokens: completion.usage.completion_tokens,
+          totalTokens: completion.usage.total_tokens
         } : undefined
       };
     } catch (error) {
@@ -147,43 +116,20 @@ export class OpenAIProvider implements LLMProvider {
     }
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
-
       // Ensure system message is present
       const hasSystem = messages.some(m => m.role === "system");
       const messagesWithSystem = hasSystem 
         ? messages 
         : [{ role: "system" as const, content: SYSTEM_MESSAGE }, ...messages];
 
-      const res = await fetch(`${this.config.baseUrl}/chat/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.config.apiKey}`
-        },
-        body: JSON.stringify({
-          model: this.config.model,
-          messages: messagesWithSystem,
-          max_tokens: this.config.maxTokens,
-          temperature: this.config.temperature
-        }),
-        signal: controller.signal
+      const completion = await this.client.chat.completions.create({
+        model: this.config.model,
+        temperature: this.config.temperature,
+        max_tokens: this.config.maxTokens,
+        messages: messagesWithSystem
       });
 
-      clearTimeout(timeoutId);
-
-      if (!res.ok) {
-        const errorBody = await res.text();
-        throw new Error(`HTTP ${res.status}: ${errorBody}`);
-      }
-
-      const json = await res.json() as {
-        choices: Array<{ message: { content: string } }>;
-        usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
-      };
-
-      const content = json.choices[0].message.content.trim();
+      const content = completion.choices[0]?.message?.content?.trim() ?? "";
       this.isAvailable = true;
 
       return {
@@ -191,10 +137,10 @@ export class OpenAIProvider implements LLMProvider {
         source: "llm",
         provider: this.type,
         model: this.config.model,
-        usage: json.usage ? {
-          promptTokens: json.usage.prompt_tokens,
-          completionTokens: json.usage.completion_tokens,
-          totalTokens: json.usage.total_tokens
+        usage: completion.usage ? {
+          promptTokens: completion.usage.prompt_tokens,
+          completionTokens: completion.usage.completion_tokens,
+          totalTokens: completion.usage.total_tokens
         } : undefined
       };
     } catch (error) {
@@ -213,7 +159,6 @@ export class OpenAIProvider implements LLMProvider {
   }
 
   getConfig(): LLMConfig {
-    // Don't expose full API key
     return {
       ...this.config,
       apiKey: this.config.apiKey ? "***configured***" : ""
@@ -222,7 +167,8 @@ export class OpenAIProvider implements LLMProvider {
 
   updateConfig(config: Partial<LLMConfig>): void {
     this.config = { ...this.config, ...config };
-    // Reset availability when config changes
+    // Reinitialize client with new config
+    this.client = new OpenAI({ apiKey: this.config.apiKey });
     this.isAvailable = null;
   }
 
@@ -251,4 +197,3 @@ export class OpenAIProvider implements LLMProvider {
     return "I've noted that. Let's continue with the next question.";
   }
 }
-
