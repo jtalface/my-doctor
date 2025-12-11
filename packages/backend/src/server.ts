@@ -1,3 +1,4 @@
+import "dotenv/config";  // Load .env FIRST before any other imports
 import express, { Express, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import mongoose from "mongoose";

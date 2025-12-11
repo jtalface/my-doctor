@@ -89,6 +89,15 @@ export interface HealthResponse {
 
 export type LLMProviderType = 'lm-studio' | 'openai' | 'anthropic';
 
+export interface LLMConfig {
+  apiKey?: string;        // Used by OpenAI, Anthropic (SDK-based)
+  baseUrl?: string;       // Used by LM Studio (local server)
+  model: string;
+  maxTokens: number;
+  temperature: number;
+  timeout: number;
+}
+
 export interface LLMProviderInfo {
   type: LLMProviderType;
   name: string;
@@ -109,6 +118,11 @@ export interface LLMTestResponse {
   provider: LLMProviderType;
   model?: string;
   error?: string;
+  usage?: {
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+  };
 }
 
 class ApiClient {
@@ -244,7 +258,7 @@ class ApiClient {
   async getActiveLLMProvider(): Promise<{
     type: LLMProviderType;
     name: string;
-    config: Record<string, unknown>;
+    config: LLMConfig;
     available: boolean | null;
   }> {
     const response = await fetch(`${this.baseUrl}/llm/provider`);
@@ -283,10 +297,13 @@ class ApiClient {
 
   /**
    * Update configuration for a specific LLM provider
+   * 
+   * For OpenAI: Only apiKey and model are relevant (SDK-based)
+   * For LM Studio: baseUrl, model, timeout are relevant (local server)
    */
-  async updateLLMProviderConfig(type: LLMProviderType, config: Record<string, unknown>): Promise<{
+  async updateLLMProviderConfig(type: LLMProviderType, config: Partial<LLMConfig>): Promise<{
     message: string;
-    config: Record<string, unknown>;
+    config: LLMConfig;
   }> {
     const response = await fetch(`${this.baseUrl}/llm/provider/${type}/config`, {
       method: 'POST',
