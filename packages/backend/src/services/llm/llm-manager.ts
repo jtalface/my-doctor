@@ -4,6 +4,7 @@
  * Manages multiple LLM providers and allows switching between them.
  */
 
+import { config } from "../../config";
 import { LLMProvider, LLMProviderType, LLMResponse, LLMMessage, LLMProviderInfo, LLMConfig } from "./types";
 import { LMStudioProvider, OpenAIProvider } from "./providers";
 
@@ -14,12 +15,21 @@ export class LLMManager {
   constructor() {
     this.providers = new Map();
     
-    // Initialize all providers
-    this.providers.set("lm-studio", new LMStudioProvider());
-    this.providers.set("openai", new OpenAIProvider());
+    // Initialize providers with config
+    this.providers.set("lm-studio", new LMStudioProvider({
+      baseUrl: config.llm.lmStudio.url,
+      model: config.llm.lmStudio.model,
+      timeout: config.llm.lmStudio.timeout,
+    }));
     
-    // Default to LM Studio (local)
-    this.activeProvider = (process.env.DEFAULT_LLM_PROVIDER as LLMProviderType) || "lm-studio";
+    this.providers.set("openai", new OpenAIProvider({
+      apiKey: config.llm.openai.apiKey,
+      model: config.llm.openai.model,
+      timeout: config.llm.openai.timeout,
+    }));
+    
+    // Set default provider from config
+    this.activeProvider = config.llm.defaultProvider;
   }
 
   /**

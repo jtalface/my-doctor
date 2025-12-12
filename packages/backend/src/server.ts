@@ -1,13 +1,8 @@
-import "dotenv/config";  // Load .env FIRST before any other imports
+import { config, logConfig } from "./config";
 import express, { Express, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import apiRoutes from "./api";
-
-// Configuration
-const PORT = process.env.PORT || 3002;
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://mydoctor:mydoctor123@localhost:27017/mydoctor?authSource=admin";
-const NODE_ENV = process.env.NODE_ENV || "development";
 
 /**
  * MyDoctor Backend Server
@@ -30,9 +25,7 @@ class Server {
   private setupMiddleware(): void {
     // CORS
     this.app.use(cors({
-      origin: NODE_ENV === "production" 
-        ? process.env.ALLOWED_ORIGINS?.split(",") 
-        : "*",
+      origin: config.isProduction ? config.corsOrigins : "*",
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"]
     }));
@@ -41,8 +34,8 @@ class Server {
     this.app.use(express.json({ limit: "1mb" }));
     this.app.use(express.urlencoded({ extended: true }));
 
-    // Request logging
-    if (NODE_ENV === "development") {
+    // Request logging (development only)
+    if (config.isDevelopment) {
       this.app.use((req: Request, _res: Response, next: NextFunction) => {
         console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
         next();
@@ -59,11 +52,13 @@ class Server {
       res.json({
         name: "MyDoctor API",
         version: "1.0.0",
+        environment: config.nodeEnv,
         description: "AI-powered medical assistant backend",
         endpoints: {
           health: "/api/health",
           session: "/api/session",
-          user: "/api/user"
+          user: "/api/user",
+          llm: "/api/llm"
         }
       });
     });
@@ -91,7 +86,7 @@ class Server {
       res.status(500).json({
         error: "Internal Server Error",
         code: "INTERNAL_ERROR",
-        details: NODE_ENV === "development" ? err.message : undefined
+        details: config.isDevelopment ? err.message : undefined
       });
     });
 
@@ -114,9 +109,7 @@ class Server {
     try {
       console.log("[Server] Connecting to MongoDB...");
       
-      await mongoose.connect(MONGODB_URI, {
-        // Connection options
-      });
+      await mongoose.connect(config.mongoUri);
 
       console.log("[Server] MongoDB connected successfully");
 
@@ -140,27 +133,20 @@ class Server {
    */
   async start(): Promise<void> {
     try {
+      // Log configuration
+      logConfig();
+
       // Connect to database
       await this.connectDatabase();
 
       // Start listening
-      this.app.listen(PORT, () => {
+      this.app.listen(config.port, () => {
         console.log(`
-╔════════════════════════════════════════════════════════════╗
-║                                                            ║
-║   🏥 MyDoctor Backend Server                               ║
-║                                                            ║
-║   Environment: ${NODE_ENV.padEnd(42)}║
-║   Port: ${String(PORT).padEnd(48)}║
-║   MongoDB: ${MONGODB_URI.substring(0, 40).padEnd(45)}║
-║                                                            ║
-║   API Endpoints:                                           ║
-║   • POST /api/session/start    - Start new session         ║
-║   • POST /api/session/:id/input - Process user input       ║
-║   • GET  /api/session/:id      - Get session details       ║
-║   • GET  /api/health           - Health check              ║
-║                                                            ║
-╚════════════════════════════════════════════════════════════╝
+🏥 MyDoctor Backend Server is running!
+
+   → Local:   http://localhost:${config.port}
+   → Health:  http://localhost:${config.port}/api/health
+   → LLM:     http://localhost:${config.port}/api/llm/providers
         `);
       });
 
@@ -198,4 +184,3 @@ process.on("SIGTERM", () => server.shutdown());
 server.start();
 
 export default server;
-

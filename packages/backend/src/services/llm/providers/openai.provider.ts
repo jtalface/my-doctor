@@ -9,7 +9,7 @@ import { LLMProvider, LLMConfig, LLMMessage, LLMResponse } from "../types";
 
 const DEFAULT_CONFIG: LLMConfig = {
   apiKey: process.env.OPENAI_API_KEY || "",
-  model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+  model: process.env.OPENAI_MODEL || "gpt-5-nano",
   maxTokens: 300,
   temperature: 0.7,
   timeout: parseInt(process.env.OPENAI_TIMEOUT || "30000", 10)
@@ -68,8 +68,7 @@ export class OpenAIProvider implements LLMProvider {
     try {
       const completion = await this.client.chat.completions.create({
         model: this.config.model,
-        temperature: this.config.temperature,
-        max_tokens: this.config.maxTokens,
+        max_completion_tokens: this.config.maxTokens,
         messages: [
           { role: "system", content: SYSTEM_MESSAGE },
           { role: "user", content: prompt }
@@ -124,8 +123,7 @@ export class OpenAIProvider implements LLMProvider {
 
       const completion = await this.client.chat.completions.create({
         model: this.config.model,
-        temperature: this.config.temperature,
-        max_tokens: this.config.maxTokens,
+        max_completion_tokens: this.config.maxTokens,
         messages: messagesWithSystem
       });
 
