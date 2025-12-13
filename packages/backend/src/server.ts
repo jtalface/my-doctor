@@ -140,7 +140,7 @@ class Server {
       await this.connectDatabase();
 
       // Start listening
-      this.app.listen(config.port, () => {
+      this.app.listen(config.port, '0.0.0.0', () => {
         console.log(`
 🏥 MyDoctor Backend Server is running!
 
