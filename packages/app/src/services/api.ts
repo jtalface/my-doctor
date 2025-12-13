@@ -4,7 +4,15 @@
  * Service for communicating with the MyDoctor backend
  */
 
-const API_BASE_URL = 'http://localhost:3002/api';
+// API URL configuration:
+// - Development (localhost): http://localhost:3002/api
+// - Production (via Nginx proxy): /api
+const isLocalhost = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+const API_BASE_URL = isLocalhost 
+  ? 'http://localhost:3002/api' 
+  : '/api';
 
 export interface StartSessionResponse {
   success: boolean;
