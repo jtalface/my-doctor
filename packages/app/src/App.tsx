@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import styles from './App.module.css';
-import { NodeInput, NavigationControls } from './components';
+import { NodeInput, NavigationControls, Footer } from './components';
 
 // Using the new state-machine package (v2)
 import { 
@@ -118,46 +118,49 @@ const App: React.FC<AppProps> = ({ onBack, nodeType }) => {
   const config = nodeConfigs[nodeType];
 
   return (
-    <div className={styles.container}>
-      {onBack && (
-        <button className={styles.backButton} onClick={onBack}>
-          ← Back to Selection
-        </button>
-      )}
-      <div className={styles.versionBadge}>
-        v2 - {config.label} ({getNodeCount(config.nodes)} states)
-      </div>
-      <h1 className={styles.title}>MyDoctor 👋</h1>
-      <p className={styles.subtitle}>
-        AI-powered health assistant with enhanced features
-      </p>
-      <div className={styles.stateInfo}>
-        <p><strong>Current State:</strong> {currentState}</p>
-        <p><strong>Prompt:</strong> {prompt}</p>
-        {response && (
-          <div className={styles.response}>
-            <strong>Response:</strong>
-            <pre>{response}</pre>
-          </div>
+    <>
+      <div className={`${styles.container} ${styles.containerWithFooter}`}>
+        {onBack && (
+          <button className={styles.backButton} onClick={onBack}>
+            ← Back to Selection
+          </button>
         )}
+        <div className={styles.versionBadge}>
+          v2 - {config.label} ({getNodeCount(config.nodes)} states)
+        </div>
+        <h1 className={styles.title}>MyDoctor 👋</h1>
+        <p className={styles.subtitle}>
+          AI-powered health assistant with enhanced features
+        </p>
+        <div className={styles.stateInfo}>
+          <p><strong>Current State:</strong> {currentState}</p>
+          <p><strong>Prompt:</strong> {prompt}</p>
+          {response && (
+            <div className={styles.response}>
+              <strong>Response:</strong>
+              <pre>{response}</pre>
+            </div>
+          )}
+        </div>
+        <NavigationControls
+          canGoBack={canGoBack}
+          onBack={handleGoBack}
+          historyCount={historyCount}
+          className={styles.navigationControls}
+          buttonClassName={styles.navButton}
+        />
+        <NodeInput 
+          node={currentNode}
+          onInput={handleUserInput}
+          className={styles.buttonGroup}
+          styles={{
+            buttonClassName: styles.demoButton,
+            inputClassName: styles.textInput
+          }}
+        />
       </div>
-      <NavigationControls
-        canGoBack={canGoBack}
-        onBack={handleGoBack}
-        historyCount={historyCount}
-        className={styles.navigationControls}
-        buttonClassName={styles.navButton}
-      />
-      <NodeInput 
-        node={currentNode}
-        onInput={handleUserInput}
-        className={styles.buttonGroup}
-        styles={{
-          buttonClassName: styles.demoButton,
-          inputClassName: styles.textInput
-        }}
-      />
-    </div>
+      <Footer />
+    </>
   );
 };
 

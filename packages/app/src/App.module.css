@@ -968,3 +968,117 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ========================================
+   SLEEK FOOTER
+   ======================================== */
+
+.footerContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.footerMain {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.875rem 2rem;
+  background: rgba(10, 10, 20, 0.9);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.footerBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.footerLogo {
+  font-size: 1.15rem;
+  filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.4));
+  animation: logoPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+    filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.4));
+  }
+  50% { 
+    opacity: 0.9; 
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px rgba(118, 75, 162, 0.6));
+  }
+}
+
+.footerDivider {
+  width: 1px;
+  height: 16px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(102, 126, 234, 0.4) 50%,
+    transparent 100%
+  );
+}
+
+.footerCopyright {
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.footerLink {
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  background: linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  font-weight: 600;
+}
+
+.footerLink::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #a78bfa, #818cf8, #c084fc);
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.footerLink:hover {
+  filter: brightness(1.2);
+}
+
+.footerLink:hover::after {
+  width: 100%;
+}
+
+.footerGlow {
+  display: none;
+}
+
+/* Adjust container padding to account for fixed footer */
+.containerWithFooter {
+  padding-bottom: 5rem;
+}

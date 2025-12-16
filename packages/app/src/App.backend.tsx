@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient, SendInputResponse, LLMProviderType, LLMProviderInfo } from './services/api';
+import { Footer } from './components';
 import styles from './App.module.css';
 
 interface AppBackendProps {
@@ -180,44 +181,51 @@ const AppBackend: React.FC<AppBackendProps> = ({ userEmail, userName, onBack }) 
   // Render backend offline state
   if (backendStatus === 'offline') {
     return (
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1>🏥 MyDoctor - Full Mode</h1>
-          <button onClick={onBack} className={styles.backButton}>
-            ← Back to Menu
-          </button>
+      <>
+        <div className={`${styles.container} ${styles.containerWithFooter}`}>
+          <div className={styles.header}>
+            <h1>🏥 MyDoctor - Full Mode</h1>
+            <button onClick={onBack} className={styles.backButton}>
+              ← Back to Menu
+            </button>
+          </div>
+          <div className={styles.error}>
+            <h2>⚠️ Backend Offline</h2>
+            <p>The backend server is not running.</p>
+            <pre className={styles.code}>
+              cd packages/backend && pnpm dev
+            </pre>
+            <button onClick={checkBackendHealth} className={styles.demoButton}>
+              Retry Connection
+            </button>
+          </div>
         </div>
-        <div className={styles.error}>
-          <h2>⚠️ Backend Offline</h2>
-          <p>The backend server is not running.</p>
-          <pre className={styles.code}>
-            cd packages/backend && pnpm dev
-          </pre>
-          <button onClick={checkBackendHealth} className={styles.demoButton}>
-            Retry Connection
-          </button>
-        </div>
-      </div>
+        <Footer />
+      </>
     );
   }
 
   // Render loading state
   if (backendStatus === 'checking' || (!sessionId && loading)) {
     return (
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1>🏥 MyDoctor - Full Mode</h1>
+      <>
+        <div className={`${styles.container} ${styles.containerWithFooter}`}>
+          <div className={styles.header}>
+            <h1>🏥 MyDoctor - Full Mode</h1>
+          </div>
+          <div className={styles.loading}>
+            <p>🔄 {backendStatus === 'checking' ? 'Connecting to backend...' : 'Starting session...'}</p>
+          </div>
         </div>
-        <div className={styles.loading}>
-          <p>🔄 {backendStatus === 'checking' ? 'Connecting to backend...' : 'Starting session...'}</p>
-        </div>
-      </div>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
+    <>
+      <div className={`${styles.container} ${styles.containerWithFooter}`}>
+        <div className={styles.header}>
         <h1>🏥 MyDoctor - Full Mode</h1>
         <div className={styles.headerButtons}>
           <span className={styles.sessionInfo}>
@@ -426,16 +434,9 @@ const AppBackend: React.FC<AppBackendProps> = ({ userEmail, userName, onBack }) 
           </div>
         )}
       </div>
-
-      {/* Footer with session info */}
-      <div className={styles.footer}>
-        <p>
-          🔒 Full Mode: Sessions are saved to MongoDB | 
-          🧠 Medical reasoning enabled | 
-          📊 Health records tracked
-        </p>
-      </div>
     </div>
+    <Footer />
+  </>
   );
 };
 
