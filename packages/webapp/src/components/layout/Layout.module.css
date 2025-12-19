@@ -1,0 +1,20 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-secondary);
+}
+
+.main {
+  flex: 1;
+  /* Account for bottom nav + footer on mobile */
+  padding-bottom: calc(var(--space-16) + 60px + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 1024px) {
+  .main {
+    /* Account for footer on desktop (no bottom nav) */
+    padding-bottom: 60px;
+  }
+}
+

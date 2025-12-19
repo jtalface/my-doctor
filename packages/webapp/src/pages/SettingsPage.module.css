@@ -1,0 +1,115 @@
+.container {
+  min-height: 100vh;
+  background-color: var(--bg-secondary);
+}
+
+.header {
+  padding: var(--space-4);
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.main {
+  padding: var(--space-4);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: var(--space-6);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--space-3) 0;
+}
+
+.settingsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.settingsRow:last-child {
+  border-bottom: none;
+}
+
+.settingsRow:hover {
+  background-color: var(--bg-secondary);
+}
+
+.settingsRow.danger .rowLabel {
+  color: var(--color-error-600);
+}
+
+.rowLabel {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+}
+
+.rowRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.rowValue {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.arrow {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+}
+
+/* Toggle */
+.toggle {
+  position: relative;
+  width: 52px;
+  height: 32px;
+  background-color: var(--color-gray-300);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.toggle.toggleOn {
+  background-color: var(--color-primary-500);
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 28px;
+  height: 28px;
+  background-color: white;
+  border-radius: var(--radius-full);
+  transition: transform var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle.toggleOn .toggleThumb {
+  transform: translateX(20px);
+}
+
+.signOut {
+  margin-top: var(--space-4);
+}
+

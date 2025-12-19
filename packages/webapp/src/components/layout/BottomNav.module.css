@@ -1,0 +1,61 @@
+.bottomNav {
+  position: fixed;
+  bottom: 50px; /* Account for footer height */
+  left: 0;
+  right: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  padding: var(--space-2) var(--space-4);
+  padding-bottom: calc(var(--space-2) + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 1024px) {
+  .bottomNav {
+    display: none;
+  }
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  min-width: 64px;
+}
+
+.navItem:hover {
+  background-color: var(--bg-secondary);
+}
+
+.icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+.navItem.active {
+  background-color: var(--color-primary-50);
+}
+
+.navItem.active .icon {
+  transform: scale(1.1);
+}
+
+.navItem.active .label {
+  color: var(--color-primary-600);
+  font-weight: var(--font-weight-semibold);
+}
+

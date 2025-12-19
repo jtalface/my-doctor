@@ -164,7 +164,7 @@ LM_STUDIO_TIMEOUT=30000
 
 # OpenAI (replace with your API key)
 OPENAI_API_KEY=sk-your-openai-api-key
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-5-nano
 OPENAI_TIMEOUT=30000
 
 # Debug

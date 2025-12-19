@@ -1,0 +1,109 @@
+.userInput {
+  width: 100%;
+}
+
+/* Choice Input */
+.choiceContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .choiceContainer {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+.choiceButton {
+  flex: 1;
+  min-width: 200px;
+  padding: var(--space-4) var(--space-5);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.choiceButton:hover:not(:disabled) {
+  border-color: var(--color-primary-400);
+  background-color: var(--color-primary-50);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.choiceButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.choiceButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Text Input */
+.textContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.textArea {
+  width: 100%;
+  padding: var(--space-4);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color var(--transition-fast);
+}
+
+.textArea::placeholder {
+  color: var(--text-muted);
+}
+
+.textArea:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+}
+
+.textArea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.textFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.charCount {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+
+/* Continue Button */
+.continueContainer {
+  display: flex;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .continueContainer button {
+    max-width: 300px;
+  }
+}
+

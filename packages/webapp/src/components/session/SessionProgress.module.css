@@ -1,0 +1,65 @@
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Bar variant */
+.barContainer {
+  flex: 1;
+  height: 8px;
+  background-color: var(--color-gray-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  background-color: var(--color-primary-500);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-normal);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Percentage variant */
+.percentageContainer {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.percentageValue {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-600);
+}
+
+.percentageLabel {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* Steps variant */
+.stepsContainer {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.stepsValue {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.stepsLabel {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+

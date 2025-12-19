@@ -1,0 +1,233 @@
+{
+  "metadata": {
+    "name": "MyDoctor Health Checkup",
+    "version": "1.0.0",
+    "description": "AI-powered general health assessment flow"
+  },
+  "initialState": "welcome",
+  "nodes": {
+    "welcome": {
+      "id": "welcome",
+      "prompt": "Welcome to your health checkup! I'm here to help you understand your health better. Before we begin, I'd like to ask you a few questions about how you're feeling today.",
+      "helpText": "This checkup takes about 5-10 minutes. Your responses are confidential.",
+      "inputType": "choice",
+      "choices": ["Let's get started", "I have a specific concern"],
+      "transitions": {
+        "Let's get started": "general_feeling",
+        "I have a specific concern": "chief_complaint"
+      }
+    },
+    "chief_complaint": {
+      "id": "chief_complaint",
+      "prompt": "What's your main health concern today?",
+      "helpText": "Describe what's been bothering you in your own words.",
+      "inputType": "text",
+      "transitions": {
+        "default": "symptom_duration"
+      }
+    },
+    "symptom_duration": {
+      "id": "symptom_duration",
+      "prompt": "How long have you been experiencing this?",
+      "inputType": "choice",
+      "choices": ["Less than a day", "1-3 days", "4-7 days", "1-2 weeks", "More than 2 weeks"],
+      "transitions": {
+        "default": "symptom_severity"
+      }
+    },
+    "symptom_severity": {
+      "id": "symptom_severity",
+      "prompt": "On a scale of 1-10, how would you rate the severity?",
+      "helpText": "1 = barely noticeable, 10 = worst imaginable",
+      "inputType": "choice",
+      "choices": ["1-3 (Mild)", "4-6 (Moderate)", "7-8 (Severe)", "9-10 (Very Severe)"],
+      "transitions": {
+        "9-10 (Very Severe)": "red_flag_check",
+        "default": "general_feeling"
+      }
+    },
+    "red_flag_check": {
+      "id": "red_flag_check",
+      "prompt": "I want to make sure you're safe. Are you experiencing any of the following?",
+      "helpText": "Please select all that apply",
+      "inputType": "choice",
+      "choices": [
+        "Chest pain or pressure",
+        "Difficulty breathing",
+        "Sudden severe headache",
+        "Numbness or weakness on one side",
+        "None of the above"
+      ],
+      "isRedFlagNode": true,
+      "transitions": {
+        "Chest pain or pressure": "emergency_redirect",
+        "Difficulty breathing": "emergency_redirect",
+        "Sudden severe headache": "emergency_redirect",
+        "Numbness or weakness on one side": "emergency_redirect",
+        "None of the above": "general_feeling"
+      }
+    },
+    "emergency_redirect": {
+      "id": "emergency_redirect",
+      "prompt": "Based on what you've shared, I recommend you seek immediate medical attention. Please call emergency services (911) or go to your nearest emergency room.",
+      "helpText": "This is not a diagnosis, but these symptoms require urgent evaluation.",
+      "inputType": "choice",
+      "choices": ["I understand", "I need more information"],
+      "isTerminal": false,
+      "isRedFlag": true,
+      "transitions": {
+        "default": "summary"
+      }
+    },
+    "general_feeling": {
+      "id": "general_feeling",
+      "prompt": "How would you describe your overall energy level lately?",
+      "inputType": "choice",
+      "choices": ["Great - full of energy", "Good - normal for me", "Fair - a bit tired", "Poor - very fatigued"],
+      "transitions": {
+        "default": "sleep_quality"
+      }
+    },
+    "sleep_quality": {
+      "id": "sleep_quality",
+      "prompt": "How well have you been sleeping?",
+      "helpText": "Think about the past 2 weeks",
+      "inputType": "choice",
+      "choices": ["Very well", "Fairly well", "Not very well", "Poorly"],
+      "transitions": {
+        "default": "stress_level"
+      }
+    },
+    "stress_level": {
+      "id": "stress_level",
+      "prompt": "How would you rate your stress level recently?",
+      "inputType": "choice",
+      "choices": ["Low - feeling calm", "Moderate - manageable", "High - often stressed", "Very high - overwhelmed"],
+      "transitions": {
+        "Very high - overwhelmed": "mental_health_check",
+        "default": "exercise_habits"
+      }
+    },
+    "mental_health_check": {
+      "id": "mental_health_check",
+      "prompt": "Over the past 2 weeks, have you had little interest or pleasure in doing things?",
+      "helpText": "This is a standard screening question. Your answer is confidential.",
+      "inputType": "choice",
+      "choices": ["Not at all", "Several days", "More than half the days", "Nearly every day"],
+      "transitions": {
+        "default": "mental_health_followup"
+      }
+    },
+    "mental_health_followup": {
+      "id": "mental_health_followup",
+      "prompt": "Over the past 2 weeks, have you felt down, depressed, or hopeless?",
+      "inputType": "choice",
+      "choices": ["Not at all", "Several days", "More than half the days", "Nearly every day"],
+      "transitions": {
+        "default": "exercise_habits"
+      }
+    },
+    "exercise_habits": {
+      "id": "exercise_habits",
+      "prompt": "How often do you engage in physical activity?",
+      "helpText": "Include walking, sports, gym, or any movement",
+      "inputType": "choice",
+      "choices": ["Daily", "3-5 times per week", "1-2 times per week", "Rarely or never"],
+      "transitions": {
+        "default": "diet_habits"
+      }
+    },
+    "diet_habits": {
+      "id": "diet_habits",
+      "prompt": "How would you describe your eating habits?",
+      "inputType": "choice",
+      "choices": ["Very healthy - mostly whole foods", "Pretty good - balanced diet", "Could be better", "Poor - lots of processed food"],
+      "transitions": {
+        "default": "chronic_conditions"
+      }
+    },
+    "chronic_conditions": {
+      "id": "chronic_conditions",
+      "prompt": "Do you have any diagnosed chronic conditions?",
+      "helpText": "Select all that apply",
+      "inputType": "choice",
+      "choices": ["Diabetes", "High blood pressure", "Heart disease", "Asthma/COPD", "Arthritis", "None"],
+      "transitions": {
+        "default": "medications"
+      }
+    },
+    "medications": {
+      "id": "medications",
+      "prompt": "Are you currently taking any medications?",
+      "inputType": "choice",
+      "choices": ["Yes, prescription medications", "Yes, over-the-counter only", "No medications"],
+      "transitions": {
+        "Yes, prescription medications": "medication_details",
+        "default": "allergies"
+      }
+    },
+    "medication_details": {
+      "id": "medication_details",
+      "prompt": "Please list your current medications (or type 'skip' if you prefer not to share)",
+      "inputType": "text",
+      "transitions": {
+        "default": "allergies"
+      }
+    },
+    "allergies": {
+      "id": "allergies",
+      "prompt": "Do you have any known allergies?",
+      "inputType": "choice",
+      "choices": ["No known allergies", "Drug allergies", "Food allergies", "Environmental allergies", "Multiple allergies"],
+      "transitions": {
+        "default": "family_history"
+      }
+    },
+    "family_history": {
+      "id": "family_history",
+      "prompt": "Is there any significant medical history in your immediate family?",
+      "helpText": "Parents, siblings - select the most relevant",
+      "inputType": "choice",
+      "choices": ["Heart disease", "Diabetes", "Cancer", "Mental health conditions", "No significant history", "Prefer not to say"],
+      "transitions": {
+        "default": "screening_reminder"
+      }
+    },
+    "screening_reminder": {
+      "id": "screening_reminder",
+      "prompt": "Based on general guidelines, have you had any of these screenings recently?",
+      "helpText": "Regular screenings help catch issues early",
+      "inputType": "choice",
+      "choices": ["Blood pressure check (within 1 year)", "Blood work/labs (within 1 year)", "Annual physical exam", "None recently"],
+      "transitions": {
+        "default": "additional_concerns"
+      }
+    },
+    "additional_concerns": {
+      "id": "additional_concerns",
+      "prompt": "Is there anything else you'd like to discuss or any other symptoms you've noticed?",
+      "inputType": "choice",
+      "choices": ["No, I think we covered everything", "Yes, I have something to add"],
+      "transitions": {
+        "Yes, I have something to add": "additional_details",
+        "default": "summary"
+      }
+    },
+    "additional_details": {
+      "id": "additional_details",
+      "prompt": "Please share any additional concerns or information:",
+      "inputType": "text",
+      "transitions": {
+        "default": "summary"
+      }
+    },
+    "summary": {
+      "id": "summary",
+      "prompt": "Thank you for completing your health checkup! I'm preparing your personalized summary...",
+      "helpText": "This summary is for educational purposes only and is not a medical diagnosis.",
+      "inputType": "none",
+      "isTerminal": true,
+      "transitions": {}
+    }
+  }
+}

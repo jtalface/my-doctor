@@ -1,0 +1,102 @@
+.footerContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.footerMain {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.875rem 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-top: 1px solid var(--border-color, #E5E7EB);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.footerBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.footerLogo {
+  font-size: 1.15rem;
+  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.3));
+  animation: logoPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.3));
+  }
+  50% { 
+    opacity: 0.9; 
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 10px rgba(79, 70, 229, 0.5));
+  }
+}
+
+.footerDivider {
+  width: 1px;
+  height: 16px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--color-primary-300, #A5B4FC) 50%,
+    transparent 100%
+  );
+}
+
+.footerCopyright {
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: var(--text-muted, #9CA3AF);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.footerLink {
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  background: linear-gradient(135deg, #1F2937 0%, #111827 50%, #374151 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  font-weight: 600;
+}
+
+.footerLink::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #1F2937, #111827, #374151);
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.footerLink:hover {
+  filter: brightness(1.1);
+}
+
+.footerLink:hover::after {
+  width: 100%;
+}
+
