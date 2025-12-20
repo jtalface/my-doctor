@@ -261,7 +261,20 @@ class Orchestrator {
       return null;
     }
 
-    return this.buildResponse(sessionId, node);
+    // If session is at a terminal state, fetch the summary from the database
+    let summary;
+    if (node.isTerminal) {
+      const { Session } = await import('../models/session.model.js');
+      const session = await Session.findById(sessionId);
+      console.log('[Orchestrator] Terminal session found:', session?._id, 'Has summary:', !!session?.summary);
+      if (session?.summary) {
+        summary = session.summary;
+      } else {
+        console.log('[Orchestrator] No summary in database for session:', sessionId);
+      }
+    }
+
+    return this.buildResponse(sessionId, node, undefined, summary);
   }
 }
 

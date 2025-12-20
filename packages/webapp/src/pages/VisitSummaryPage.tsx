@@ -48,8 +48,11 @@ export function VisitSummaryPage() {
         const response = await api.getSession(id);
         if (response.summary) {
           setSummary(response.summary);
+        } else {
+          setError('This session has not been completed yet or has no summary available.');
         }
       } catch (err) {
+        console.error('Error loading session:', err);
         setError(err instanceof Error ? err.message : 'Failed to load session');
       } finally {
         setIsLoading(false);

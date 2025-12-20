@@ -97,6 +97,8 @@ cd ~/my-doctor/packages/webapp-backend
 pnpm build
 ```
 
+> **Note:** The build script automatically creates the `dist/state` directory and copies the state machine configuration.
+
 ---
 
 ## Step 5: Create Webapp Frontend Environment File
