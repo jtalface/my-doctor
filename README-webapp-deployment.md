@@ -80,9 +80,11 @@ OPENAI_TIMEOUT=30000
 # Debug (set to false in production)
 DEBUG_MODE=false
 
-# CORS - add your EC2 IP and domain
-CORS_ORIGINS=http://YOUR_EC2_PUBLIC_IP,https://YOUR_DOMAIN
+# CORS - IMPORTANT: Use your actual EC2 public IP
+CORS_ORIGINS=http://YOUR_EC2_PUBLIC_IP
 ```
+
+> 💡 **Tip:** Copy credentials from your existing backend: `cat ~/my-doctor/packages/backend/.env.production`
 
 Save: `Ctrl+O`, `Enter`, `Ctrl+X`
 
@@ -97,24 +99,32 @@ pnpm build
 
 ---
 
-## Step 5: Build Webapp Frontend
+## Step 5: Create Webapp Frontend Environment File
 
-First, create a production environment file for the frontend:
+**IMPORTANT:** This step is critical for the frontend to connect properly.
 
 ```bash
 nano ~/my-doctor/packages/webapp/.env.production
 ```
 
-Paste:
+Paste (replace with your EC2 public IP):
 
 ```env
-# API URL - point to your EC2 (via Nginx proxy)
-VITE_API_URL=http://YOUR_EC2_PUBLIC_IP/api
+# IMPORTANT: Use your EC2 public IP WITHOUT /api suffix
+VITE_API_URL=http://YOUR_EC2_PUBLIC_IP
 ```
 
-> Note: If you have HTTPS set up, use `https://` instead.
+**Example:**
+```env
+VITE_API_URL=http://54.123.45.67
+```
 
-Save and exit, then build:
+> ⚠️ **Common Mistakes:**
+> - ❌ `VITE_API_URL=/api` (causes double /api/api/)
+> - ❌ `VITE_API_URL=http://localhost:3003` (won't work from browser)
+> - ✅ `VITE_API_URL=http://YOUR_EC2_PUBLIC_IP` (correct!)
+
+Save and build:
 
 ```bash
 cd ~/my-doctor/packages/webapp
@@ -125,9 +135,9 @@ pnpm build
 
 ## Step 6: Update Nginx Configuration
 
-You have two options:
+You have three options:
 
-### Option A: Replace Old App with Webapp (Simple)
+### Option A: Webapp Only (Simple)
 
 Use this if you only want the new webapp.
 
@@ -161,7 +171,7 @@ server {
 
 ---
 
-### Option B: Run Both Apps Simultaneously (Recommended)
+### Option B: Both Apps Simultaneously (Recommended) ✅
 
 Use this to keep both the old app and new webapp running:
 
@@ -178,7 +188,7 @@ server {
     # NEW WEBAPP (default - root path)
     # ===========================================
     
-    # Webapp Frontend (static files)
+    # Webapp Frontend
     location / {
         root /home/ec2-user/my-doctor/packages/webapp/dist;
         index index.html;
@@ -191,7 +201,7 @@ server {
         }
     }
 
-    # Webapp API proxy (port 3003)
+    # Webapp API → port 3003
     location /api {
         proxy_pass http://localhost:3003;
         proxy_http_version 1.1;
@@ -208,24 +218,19 @@ server {
         root /home/ec2-user/my-doctor/packages/webapp/dist;
         add_header Cache-Control "no-cache";
     }
-    
-    location /sw.js {
-        root /home/ec2-user/my-doctor/packages/webapp/dist;
-        add_header Cache-Control "no-cache";
-    }
 
     # ===========================================
     # OLD APP (accessible via /v1 path)
     # ===========================================
     
-    # Old App Frontend (static files)
+    # Old App Frontend
     location /v1 {
         alias /home/ec2-user/my-doctor/packages/app/dist;
         index index.html;
         try_files $uri $uri/ /v1/index.html;
     }
 
-    # Old App API proxy (port 3002)
+    # Old App API → port 3002
     location /v1/api {
         rewrite ^/v1/api(.*)$ /api$1 break;
         proxy_pass http://localhost:3002;
@@ -244,7 +249,7 @@ With this configuration:
 
 ---
 
-### Option C: Use Different Ports
+### Option C: Different Ports
 
 If you prefer accessing each app on a different port:
 
@@ -291,10 +296,6 @@ server {
     }
 }
 ```
-
-With this configuration:
-- **New Webapp**: `http://YOUR_EC2_IP/` (port 80)
-- **Old App**: `http://YOUR_EC2_IP:8080/` (port 8080)
 
 > ⚠️ Don't forget to add port 8080 to your EC2 Security Group if using Option C!
 
@@ -391,7 +392,7 @@ curl http://YOUR_EC2_PUBLIC_IP/v1/api/health
 2. **iPhone (Safari)**: Tap Share → "Add to Home Screen"
 3. **Android (Chrome)**: Tap menu → "Install app" or "Add to Home Screen"
 
-The app will now work from anywhere, not just your local network!
+The app will now work from anywhere, not just your local network! 🎉
 
 ---
 
@@ -470,7 +471,13 @@ sudo tail -f /var/log/nginx/error.log
    curl http://YOUR_EC2_PUBLIC_IP/api/health
    ```
 
-3. Check CORS settings in `.env.production`
+3. Verify CORS settings in `.env.production`
+
+4. Check if frontend has correct API URL:
+   ```bash
+   cat ~/my-doctor/packages/webapp/.env.production
+   # Should be: VITE_API_URL=http://YOUR_EC2_PUBLIC_IP
+   ```
 
 ### 502 Bad Gateway
 
@@ -487,6 +494,20 @@ Permission issue:
 sudo chmod 755 /home/ec2-user
 sudo chmod -R 755 /home/ec2-user/my-doctor/packages/webapp/dist
 ```
+
+### 404 Not Found on API calls
+
+Check if you have double `/api` in requests:
+- Wrong: `http://YOUR_IP/api/api/user`
+- Correct: `http://YOUR_IP/api/user`
+
+Fix by setting `VITE_API_URL=http://YOUR_EC2_PUBLIC_IP` (without /api suffix)
+
+### MongoDB Connection Failed
+
+1. Check Atlas Network Access - is EC2 IP whitelisted?
+2. Verify connection string in `.env.production`
+3. Check username/password are correct
 
 ### PWA not installing
 
@@ -512,7 +533,7 @@ sudo crontab -e
 # Add: 0 0 * * * certbot renew --quiet
 ```
 
-Update your `.env.production` files to use `https://` URLs.
+Update your env files to use `https://` URLs.
 
 ---
 
