@@ -125,17 +125,59 @@ pnpm build
 
 ## Step 6: Update Nginx Configuration
 
+You have two options:
+
+### Option A: Replace Old App with Webapp (Simple)
+
+Use this if you only want the new webapp.
+
 ```bash
 sudo nano /etc/nginx/conf.d/mydoctor.conf
 ```
-
-Replace the entire contents with:
 
 ```nginx
 server {
     listen 80;
     server_name YOUR_EC2_PUBLIC_IP;
 
+    # Webapp Frontend (static files)
+    location / {
+        root /home/ec2-user/my-doctor/packages/webapp/dist;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    # API proxy to webapp-backend (port 3003)
+    location /api {
+        proxy_pass http://localhost:3003;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+---
+
+### Option B: Run Both Apps Simultaneously (Recommended)
+
+Use this to keep both the old app and new webapp running:
+
+```bash
+sudo nano /etc/nginx/conf.d/mydoctor.conf
+```
+
+```nginx
+server {
+    listen 80;
+    server_name YOUR_EC2_PUBLIC_IP;
+
+    # ===========================================
+    # NEW WEBAPP (default - root path)
+    # ===========================================
+    
     # Webapp Frontend (static files)
     location / {
         root /home/ec2-user/my-doctor/packages/webapp/dist;
@@ -149,7 +191,7 @@ server {
         }
     }
 
-    # API proxy to webapp-backend
+    # Webapp API proxy (port 3003)
     location /api {
         proxy_pass http://localhost:3003;
         proxy_http_version 1.1;
@@ -157,13 +199,11 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
-        # WebSocket support (if needed)
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
     }
 
-    # PWA manifest and service worker
+    # PWA files
     location /manifest.json {
         root /home/ec2-user/my-doctor/packages/webapp/dist;
         add_header Cache-Control "no-cache";
@@ -173,12 +213,96 @@ server {
         root /home/ec2-user/my-doctor/packages/webapp/dist;
         add_header Cache-Control "no-cache";
     }
+
+    # ===========================================
+    # OLD APP (accessible via /v1 path)
+    # ===========================================
+    
+    # Old App Frontend (static files)
+    location /v1 {
+        alias /home/ec2-user/my-doctor/packages/app/dist;
+        index index.html;
+        try_files $uri $uri/ /v1/index.html;
+    }
+
+    # Old App API proxy (port 3002)
+    location /v1/api {
+        rewrite ^/v1/api(.*)$ /api$1 break;
+        proxy_pass http://localhost:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 }
 ```
 
-Replace `YOUR_EC2_PUBLIC_IP` with your actual EC2 public IP.
+With this configuration:
+- **New Webapp**: `http://YOUR_EC2_IP/` → webapp + webapp-backend (port 3003)
+- **Old App**: `http://YOUR_EC2_IP/v1/` → app + backend (port 3002)
 
-Test and restart Nginx:
+---
+
+### Option C: Use Different Ports
+
+If you prefer accessing each app on a different port:
+
+```nginx
+# New Webapp on port 80
+server {
+    listen 80;
+    server_name YOUR_EC2_PUBLIC_IP;
+
+    location / {
+        root /home/ec2-user/my-doctor/packages/webapp/dist;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api {
+        proxy_pass http://localhost:3003;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+# Old App on port 8080
+server {
+    listen 8080;
+    server_name YOUR_EC2_PUBLIC_IP;
+
+    location / {
+        root /home/ec2-user/my-doctor/packages/app/dist;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api {
+        proxy_pass http://localhost:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+With this configuration:
+- **New Webapp**: `http://YOUR_EC2_IP/` (port 80)
+- **Old App**: `http://YOUR_EC2_IP:8080/` (port 8080)
+
+> ⚠️ Don't forget to add port 8080 to your EC2 Security Group if using Option C!
+
+---
+
+### Apply Configuration
+
+After editing, test and restart Nginx:
 
 ```bash
 sudo nginx -t
@@ -187,17 +311,42 @@ sudo systemctl restart nginx
 
 ---
 
-## Step 7: Start Webapp Backend with PM2
+## Step 7: Start Backends with PM2
+
+### Start Webapp Backend (port 3003)
 
 ```bash
 cd ~/my-doctor/packages/webapp-backend
 NODE_ENV=production pm2 start dist/server.js --name mydoctor-webapp-api
 ```
 
-Save the PM2 configuration:
+### Start Old Backend (port 3002) - if running both apps
+
+```bash
+cd ~/my-doctor/packages/backend
+NODE_ENV=production pm2 start dist/server.js --name mydoctor-api
+```
+
+### Save PM2 Configuration
 
 ```bash
 pm2 save
+```
+
+### Verify Both Are Running
+
+```bash
+pm2 status
+```
+
+Expected output:
+```
+┌─────────────────────┬────┬─────────┬──────┬───────┐
+│ name                │ id │ status  │ cpu  │ port  │
+├─────────────────────┼────┼─────────┼──────┼───────┤
+│ mydoctor-api        │ 0  │ online  │ 0%   │ 3002  │
+│ mydoctor-webapp-api │ 1  │ online  │ 0%   │ 3003  │
+└─────────────────────┴────┴─────────┴──────┴───────┘
 ```
 
 ---
@@ -210,34 +359,29 @@ pm2 save
 pm2 status
 ```
 
-You should see:
-```
-┌─────────────────────┬────┬─────────┬──────┐
-│ name                │ id │ status  │ cpu  │
-├─────────────────────┼────┼─────────┼──────┤
-│ mydoctor-api        │ 0  │ online  │ 0%   │
-│ mydoctor-webapp-api │ 1  │ online  │ 0%   │
-└─────────────────────┴────┴─────────┴──────┘
-```
-
 ### Test Endpoints
 
 ```bash
-# Test webapp backend health
+# Test webapp-backend (port 3003)
 curl http://localhost:3003/api/health
 
-# Test via Nginx
+# Test old backend (port 3002)
+curl http://localhost:3002/api/health
+
+# Test webapp via Nginx
 curl http://YOUR_EC2_PUBLIC_IP/api/health
+
+# Test old app via Nginx (if using Option B with /v1 path)
+curl http://YOUR_EC2_PUBLIC_IP/v1/api/health
 ```
 
 ### Access from Browser/Phone
 
-Open in your browser or phone:
-
-| Endpoint | URL |
-|----------|-----|
-| Webapp | `http://YOUR_EC2_PUBLIC_IP` |
-| API Health | `http://YOUR_EC2_PUBLIC_IP/api/health` |
+| App | URL | Backend Port |
+|-----|-----|--------------|
+| **New Webapp** | `http://YOUR_EC2_PUBLIC_IP/` | 3003 |
+| **Old App (Option B)** | `http://YOUR_EC2_PUBLIC_IP/v1/` | 3002 |
+| **Old App (Option C)** | `http://YOUR_EC2_PUBLIC_IP:8080/` | 3002 |
 
 ---
 
