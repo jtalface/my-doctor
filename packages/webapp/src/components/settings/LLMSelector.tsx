@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api, LLMStatus, LLMProvider } from '../../services/api';
+import { api, LLMStatus } from '../../services/api';
 import styles from './LLMSelector.module.css';
 
 interface LLMSelectorProps {
