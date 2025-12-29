@@ -57,15 +57,27 @@ export class OpenAIProvider implements LLMProvider {
       throw new Error('OpenAI is not available');
     }
 
+    if (config.debugMode) {
+      console.log('[OpenAI] Sending chat request with', messages.length, 'messages');
+    }
+
     const completion = await this.client.chat.completions.create({
       model: this.model,
       messages: messages.map(m => ({
         role: m.role,
         content: m.content,
       })),
-      max_completion_tokens: options?.maxTokens || 512,
+      max_completion_tokens: options?.maxTokens || 1024, // Default for reasoning + concise output
       stop: options?.stopSequences,
     });
+
+    if (config.debugMode) {
+      console.log('[OpenAI] Response:', {
+        content: completion.choices[0]?.message?.content?.substring(0, 100) + '...',
+        usage: completion.usage,
+        finish_reason: completion.choices[0]?.finish_reason,
+      });
+    }
 
     return {
       content: completion.choices[0]?.message?.content || '',

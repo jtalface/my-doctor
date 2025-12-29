@@ -21,7 +21,11 @@ IMPORTANT GUIDELINES:
 - You ask clarifying questions when needed
 - You flag concerning symptoms appropriately
 
-Keep responses concise, friendly, and educational.`;
+RESPONSE FORMAT:
+- Keep responses VERY brief: 2-3 sentences maximum
+- Focus on one key point or piece of advice
+- Be warm and encouraging but concise
+- Avoid long lists or detailed explanations`;
 
   async generate(context: PromptContext): Promise<string> {
     const provider = llmManager.getActiveProvider();
@@ -41,7 +45,7 @@ Keep responses concise, friendly, and educational.`;
         { role: 'user', content: userPrompt },
       ], {
         temperature: 0.7,
-        maxTokens: 512,
+        maxTokens: 1024, // Reasoning + concise output (2-3 sentences)
       });
 
       return response.content;
@@ -63,8 +67,8 @@ Keep responses concise, friendly, and educational.`;
       prompt += `Patient Context: ${JSON.stringify(context.patientProfile)}\n\n`;
     }
 
-    prompt += `Please provide a helpful, educational response to the user's answer. `;
-    prompt += `Acknowledge their response and provide relevant health information or ask follow-up questions.`;
+    prompt += `Please provide a brief, helpful response (2-3 sentences max). `;
+    prompt += `Acknowledge their answer with ONE key insight or piece of guidance. Be warm but concise.`;
     
     return prompt;
   }
@@ -112,7 +116,7 @@ Keep it concise and educational.`;
         { role: 'user', content: summaryPrompt },
       ], {
         temperature: 0.5,
-        maxTokens: 1024,
+        maxTokens: 3072, // Increased for gpt-5-nano reasoning + summary output
       });
 
       return response.content;
