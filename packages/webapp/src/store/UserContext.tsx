@@ -6,9 +6,10 @@ interface UserContextType {
   profile: PatientProfile | null;
   isLoading: boolean;
   isNewUser: boolean;
-  login: (email: string, name: string) => Promise<{ isNew: boolean }>;
+  login: (email: string, name: string, language?: string) => Promise<{ isNew: boolean }>;
   logout: () => void;
   updateProfile: (updates: Partial<PatientProfile>) => Promise<void>;
+  updateLanguage: (language: string) => Promise<void>;
   setIsNewUser: (value: boolean) => void;
   refreshUser: () => Promise<void>;
 }
@@ -44,8 +45,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
     loadUser();
   }, []);
 
-  const login = async (email: string, name: string) => {
-    const userData = await api.createUser({ email, name, isGuest: false });
+  const login = async (email: string, name: string, language?: string) => {
+    const userData = await api.createUser({ 
+      email, 
+      name, 
+      isGuest: false,
+      preferences: language ? { language } : undefined,
+    });
     localStorage.setItem(USER_ID_KEY, userData.id);
     setUser(userData);
     
@@ -73,6 +79,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setProfile(updatedProfile);
   };
 
+  const updateLanguage = async (language: string) => {
+    if (!user) return;
+    const updatedUser = await api.updateUser(user.id, {
+      preferences: {
+        ...user.preferences,
+        language,
+      },
+    });
+    setUser(updatedUser);
+  };
+
   const refreshUser = async () => {
     await loadUser();
   };
@@ -85,7 +102,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       isNewUser, 
       login, 
       logout, 
-      updateProfile, 
+      updateProfile,
+      updateLanguage,
       setIsNewUser,
       refreshUser,
     }}>

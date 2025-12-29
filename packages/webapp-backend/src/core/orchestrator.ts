@@ -2,6 +2,8 @@ import { stateLoader, StateNode } from './state-loader.js';
 import { sessionMemoryService } from '../services/session-memory.service.js';
 import { promptEngineService } from '../services/prompt-engine.service.js';
 import { config } from '../config/index.js';
+import { User } from '../models/user.model.js';
+import { DEFAULT_LANGUAGE } from '../config/languages.js';
 
 export interface OrchestratorResponse {
   sessionId: string;
@@ -79,6 +81,10 @@ class Orchestrator {
       throw new Error(`Node ${sessionData.currentState} not found`);
     }
 
+    // Get user language preference
+    const user = await User.findById(sessionData.userId);
+    const language = user?.preferences?.language || DEFAULT_LANGUAGE;
+
     // Run reasoning analysis
     const reasoning = this.analyzeInput(sessionId, currentNode, input);
 
@@ -88,6 +94,7 @@ class Orchestrator {
       prompt: currentNode.prompt,
       input,
       reasoning,
+      language,
     });
 
     // Save step to memory
@@ -201,6 +208,11 @@ class Orchestrator {
     reasoning?: ReasoningResult
   ): Promise<{ redFlags: string[]; recommendations: string[]; screenings: string[]; notes: string }> {
     const history = await sessionMemoryService.getHistory(sessionId);
+    const sessionData = await sessionMemoryService.get(sessionId);
+    
+    // Get user language preference
+    const user = await User.findById(sessionData?.userId);
+    const language = user?.preferences?.language || DEFAULT_LANGUAGE;
     
     const steps = history.map(h => ({
       nodeId: h.nodeId,
@@ -208,7 +220,7 @@ class Orchestrator {
       response: h.response,
     }));
 
-    const notes = await promptEngineService.generateSummary(steps, reasoning);
+    const notes = await promptEngineService.generateSummary(steps, reasoning, language);
 
     return {
       redFlags: reasoning?.redFlags || [],

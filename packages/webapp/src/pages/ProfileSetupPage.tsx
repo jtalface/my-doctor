@@ -1,19 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
+import { LanguageSelector } from '@components/settings';
 import { useUser } from '../store/UserContext';
+import { DEFAULT_LANGUAGE, type LanguageCode } from '../config/languages';
 import styles from './ProfileSetupPage.module.css';
 
 type Step = 'personal' | 'medical' | 'lifestyle';
 
 export function ProfileSetupPage() {
   const navigate = useNavigate();
-  const { user, updateProfile, setIsNewUser } = useUser();
+  const { user, updateProfile, updateLanguage, setIsNewUser } = useUser();
   const [step, setStep] = useState<Step>('personal');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   // Personal Info
+  const [language, setLanguage] = useState<LanguageCode>(
+    (user?.preferences?.language as LanguageCode) || DEFAULT_LANGUAGE
+  );
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [sexAtBirth, setSexAtBirth] = useState<'male' | 'female' | 'other' | ''>('');
   const [heightCm, setHeightCm] = useState('');
@@ -38,6 +43,10 @@ export function ProfileSetupPage() {
       setIsLoading(true);
       setError('');
       try {
+        // Update language preference
+        await updateLanguage(language);
+        
+        // Update profile
         await updateProfile({
           demographics: {
             dateOfBirth: dateOfBirth || undefined,
@@ -125,6 +134,10 @@ export function ProfileSetupPage() {
               <h2 className={styles.sectionTitle}>Personal Information</h2>
               <p className={styles.sectionDesc}>Basic information helps us personalize your health recommendations</p>
               <div className={styles.form}>
+                <div className={styles.inputGroup}>
+                  <label htmlFor="language">Preferred Language</label>
+                  <LanguageSelector value={language} onChange={setLanguage} />
+                </div>
                 <div className={styles.inputGroup}>
                   <label htmlFor="dob">Date of Birth</label>
                   <input 

@@ -1,5 +1,6 @@
 import { llmManager } from './llm/index.js';
 import { config } from '../config/index.js';
+import { getLanguageInfo, DEFAULT_LANGUAGE, type LanguageCode } from '../config/languages.js';
 
 export interface PromptContext {
   nodeId: string;
@@ -8,10 +9,11 @@ export interface PromptContext {
   memory?: any;
   reasoning?: any;
   patientProfile?: any;
+  language?: string;
 }
 
 class PromptEngineService {
-  private systemPrompt = `You are a helpful medical education assistant named MyDoctor.
+  private baseSystemPrompt = `You are a helpful medical education assistant named MyDoctor.
 
 IMPORTANT GUIDELINES:
 - You do NOT diagnose conditions or prescribe treatments
@@ -27,6 +29,32 @@ RESPONSE FORMAT:
 - Be warm and encouraging but concise
 - Avoid long lists or detailed explanations`;
 
+  /**
+   * Gets language-specific instruction for LLM responses
+   */
+  private getLanguageInstruction(languageCode: string): string {
+    const language = getLanguageInfo(languageCode);
+    
+    const languageInstructions: Record<LanguageCode, string> = {
+      en: 'Respond in English.',
+      pt: 'Responda em Português (Portuguese). Use linguagem clara e acessível.',
+      fr: 'Répondez en Français (French). Utilisez un langage clair et accessible.',
+      sw: 'Jibu kwa Kiswahili (Swahili). Tumia lugha wazi na inayoeleweka.',
+    };
+    
+    return languageInstructions[language.code as LanguageCode] || languageInstructions[DEFAULT_LANGUAGE];
+  }
+
+  /**
+   * Builds a complete system prompt with language instruction
+   */
+  private buildSystemPrompt(languageCode?: string): string {
+    const language = languageCode || DEFAULT_LANGUAGE;
+    const languageInstruction = this.getLanguageInstruction(language);
+    
+    return `${this.baseSystemPrompt}\n\nLANGUAGE INSTRUCTION:\n${languageInstruction}`;
+  }
+
   async generate(context: PromptContext): Promise<string> {
     const provider = llmManager.getActiveProvider();
     
@@ -39,9 +67,14 @@ RESPONSE FORMAT:
 
     try {
       const userPrompt = this.buildUserPrompt(context);
+      const systemPrompt = this.buildSystemPrompt(context.language);
+      
+      if (config.debugMode) {
+        console.log(`[PromptEngine] Generating response in language: ${context.language || DEFAULT_LANGUAGE}`);
+      }
       
       const response = await provider.chat([
-        { role: 'system', content: this.systemPrompt },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ], {
         temperature: 0.7,
@@ -87,7 +120,8 @@ RESPONSE FORMAT:
 
   async generateSummary(
     steps: Array<{ nodeId: string; input: any; response: string }>,
-    reasoning: any
+    reasoning: any,
+    language?: string
   ): Promise<string> {
     const provider = llmManager.getActiveProvider();
     
@@ -111,8 +145,14 @@ Please provide:
 
 Keep it concise and educational.`;
 
+      const systemPrompt = this.buildSystemPrompt(language);
+      
+      if (config.debugMode) {
+        console.log(`[PromptEngine] Generating summary in language: ${language || DEFAULT_LANGUAGE}`);
+      }
+
       const response = await provider.chat([
-        { role: 'system', content: this.systemPrompt },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: summaryPrompt },
       ], {
         temperature: 0.5,

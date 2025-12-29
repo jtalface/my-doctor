@@ -155,7 +155,12 @@ class ApiClient {
   }
 
   // User endpoints
-  async createUser(data: { email?: string; name?: string; isGuest?: boolean }): Promise<User> {
+  async createUser(data: { 
+    email?: string; 
+    name?: string; 
+    isGuest?: boolean;
+    preferences?: { language?: string };
+  }): Promise<User> {
     return this.request('/api/user', {
       method: 'POST',
       body: JSON.stringify(data),

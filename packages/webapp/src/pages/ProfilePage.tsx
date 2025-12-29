@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useUser } from '../store/UserContext';
+import { getLanguageInfo } from '../config/languages';
 import styles from './ProfilePage.module.css';
 
 export function ProfilePage() {
@@ -63,9 +64,12 @@ export function ProfilePage() {
     return labels[value] || value.charAt(0).toUpperCase() + value.slice(1);
   };
 
+  const languageInfo = getLanguageInfo(user?.preferences?.language || 'en');
+
   const profileData = {
     name: user?.name || 'Guest User',
     email: user?.email || 'No email',
+    language: `${languageInfo.flag} ${languageInfo.nativeName}`,
     dob: formatDate(profile?.demographics?.dateOfBirth),
     sex: formatSex(profile?.demographics?.sexAtBirth),
     height: formatHeight(profile?.demographics?.heightCm),
@@ -106,6 +110,7 @@ export function ProfilePage() {
           <h3 className={styles.sectionTitle}>Personal Information</h3>
           <Card variant="default" padding="none">
             <CardContent>
+              <ProfileRow label="Preferred Language" value={profileData.language} />
               <ProfileRow label="Date of Birth" value={profileData.dob} />
               <ProfileRow label="Sex at Birth" value={profileData.sex} />
               <ProfileRow label="Height" value={profileData.height} />
