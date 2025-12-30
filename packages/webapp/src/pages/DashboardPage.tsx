@@ -89,9 +89,9 @@ export function DashboardPage() {
             <div className={styles.alertContent}>
               <div className={styles.alertIcon}>⚠️</div>
               <div className={styles.alertText}>
-                <h3 className={styles.alertTitle}>Connection Issue</h3>
+                <h3 className={styles.alertTitle}>{t('dashboard_connection_issue')}</h3>
                 <p className={styles.alertDescription}>
-                  Unable to connect to the server. Some features may be unavailable.
+                  {t('dashboard_connection_message')}
                 </p>
               </div>
             </div>
@@ -106,15 +106,15 @@ export function DashboardPage() {
             <div className={styles.alertContent}>
               <div className={styles.alertIcon}>🚨</div>
               <div className={styles.alertText}>
-                <h3 className={styles.alertTitle}>Important Health Notes</h3>
+                <h3 className={styles.alertTitle}>{t('dashboard_health_notes')}</h3>
                 <p className={styles.alertDescription}>
-                  Your recent checkup flagged some items to discuss with your doctor.
+                  {t('dashboard_health_notes_message')}
                 </p>
               </div>
             </div>
             <div className={styles.alertActions}>
               <Link to={`/checkup/summary/${completedSessions[0]?._id}`}>
-                <Button variant="ghost" size="sm">View Details</Button>
+                <Button variant="ghost" size="sm">{t('dashboard_view_details')}</Button>
               </Link>
             </div>
           </CardContent>
@@ -127,8 +127,8 @@ export function DashboardPage() {
           <Card variant="interactive" padding="lg">
             <CardContent>
               <div className={styles.actionIcon}>🩺</div>
-              <h3 className={styles.actionTitle}>Start New Checkup</h3>
-              <p className={styles.actionDesc}>Quick wellness assessment</p>
+              <h3 className={styles.actionTitle}>{t('dashboard_start_new_checkup')}</h3>
+              <p className={styles.actionDesc}>{t('dashboard_quick_wellness')}</p>
             </CardContent>
           </Card>
         </Link>
@@ -137,11 +137,14 @@ export function DashboardPage() {
           <Card variant="interactive" padding="lg">
             <CardContent>
               <div className={styles.actionIcon}>📊</div>
-              <h3 className={styles.actionTitle}>View Health History</h3>
+              <h3 className={styles.actionTitle}>{t('dashboard_view_health_history')}</h3>
               <p className={styles.actionDesc}>
                 {sessions.length > 0 
-                  ? `${sessions.length} session${sessions.length > 1 ? 's' : ''} recorded`
-                  : 'Review past sessions & trends'
+                  ? t('dashboard_sessions_count', { 
+                      count: sessions.length, 
+                      plural: sessions.length > 1 ? 's' : '' 
+                    })
+                  : t('dashboard_review_past_sessions')
                 }
               </p>
             </CardContent>
@@ -151,22 +154,22 @@ export function DashboardPage() {
 
       {/* Recent Activity */}
       <section className={styles.recentActivity}>
-        <h2 className={styles.sectionTitle}>Recent Activity</h2>
+        <h2 className={styles.sectionTitle}>{t('dashboard_recent_activity')}</h2>
         
         {isLoading ? (
           <div className={styles.loadingState}>
             <div className={styles.spinner} />
-            <p>Loading sessions...</p>
+            <p>{t('dashboard_loading_sessions')}</p>
           </div>
         ) : sessions.length === 0 ? (
           <Card variant="outline" padding="lg">
             <CardContent>
               <div className={styles.emptyState}>
                 <span className={styles.emptyIcon}>📋</span>
-                <h3>No sessions yet</h3>
-                <p>Start your first health checkup to see your activity here.</p>
+                <h3>{t('dashboard_no_sessions_yet')}</h3>
+                <p>{t('dashboard_start_first_checkup')}</p>
                 <Link to="/checkup/start">
-                  <Button>Start Checkup</Button>
+                  <Button>{t('dashboard_start_checkup')}</Button>
                 </Link>
               </div>
             </CardContent>
@@ -189,14 +192,14 @@ export function DashboardPage() {
                         </span>
                         <div>
                           <h4 className={styles.activityTitle}>
-                            Health Checkup
+                            {t('dashboard_health_checkup_title')}
                             {session.summary?.redFlags?.length ? ' ⚠️' : ''}
                           </h4>
                           <p className={styles.activityDate}>
                             {formatDate(session.startedAt)}
                             <span className={styles.statusLabel}>
-                              {session.status === 'completed' ? ' • Completed' : 
-                               session.status === 'abandoned' ? ' • Abandoned' : ' • In Progress'}
+                              {session.status === 'completed' ? ` • ${t('dashboard_status_completed')}` : 
+                               session.status === 'abandoned' ? ` • ${t('dashboard_status_abandoned')}` : ` • ${t('dashboard_status_in_progress')}`}
                             </span>
                           </p>
                         </div>

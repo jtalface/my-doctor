@@ -2,11 +2,13 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Footer } from '@components/layout';
 import { useUser } from '../store/UserContext';
+import { useTranslate } from '../i18n';
 import styles from './SplashPage.module.css';
 
 export function SplashPage() {
   const navigate = useNavigate();
   const { user, isLoading } = useUser();
+  const t = useTranslate();
 
   useEffect(() => {
     // Wait for user context to finish loading
@@ -31,8 +33,8 @@ export function SplashPage() {
       <div className={styles.container}>
         <div className={styles.content}>
           <div className={styles.logo}>🏥</div>
-          <h1 className={styles.title}>MyDoctor</h1>
-          <p className={styles.subtitle}>Your AI Health Companion</p>
+          <h1 className={styles.title}>{t('splash_title')}</h1>
+          <p className={styles.subtitle}>{t('splash_subtitle')}</p>
           <div className={styles.loader}>
             <div className={styles.dot} />
             <div className={styles.dot} />

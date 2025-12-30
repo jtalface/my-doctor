@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
+import { useTranslate } from '../i18n';
 import { api } from '../services/api';
 import styles from './CheckupConsentPage.module.css';
 
@@ -9,6 +10,7 @@ const USER_ID_KEY = 'mydoctor_user_id';
 
 export function CheckupConsentPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const [consent1, setConsent1] = useState(false);
   const [consent2, setConsent2] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +44,7 @@ export function CheckupConsentPage() {
 
   const handleContinue = async () => {
     if (!userId) {
-      setError('User not initialized. Please refresh the page.');
+      setError(t('consent_error_user_init'));
       return;
     }
 
@@ -56,7 +58,7 @@ export function CheckupConsentPage() {
       // Navigate to the session with the real session ID
       navigate(`/checkup/session/${result.sessionId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to start session');
+      setError(err instanceof Error ? err.message : t('consent_error_start_session'));
       setIsLoading(false);
     }
   };
@@ -64,26 +66,25 @@ export function CheckupConsentPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <Link to="/checkup/start" className={styles.backButton}>← Back</Link>
-        <span className={styles.step}>Step 1 of 2</span>
+        <Link to="/checkup/start" className={styles.backButton}>{t('common_back')}</Link>
+        <span className={styles.step}>{t('consent_step')}</span>
       </header>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>Before We Begin</h1>
-        <p className={styles.subtitle}>Please review and acknowledge the following:</p>
+        <h1 className={styles.title}>{t('consent_title')}</h1>
+        <p className={styles.subtitle}>{t('consent_subtitle')}</p>
 
         <div className={styles.cards}>
           <Card variant="outline" padding="md">
             <CardContent>
               <div className={styles.cardHeader}>
                 <span className={styles.cardIcon}>🔒</span>
-                <h3 className={styles.cardTitle}>Privacy & Data Use</h3>
+                <h3 className={styles.cardTitle}>{t('consent_privacy_title')}</h3>
               </div>
               <p className={styles.cardText}>
-                Your responses are stored securely and used only to provide personalized 
-                health education. We never share your data with third parties without consent.
+                {t('consent_privacy_text')}
               </p>
-              <Button variant="ghost" size="sm">Read Full Privacy Policy</Button>
+              <Button variant="ghost" size="sm">{t('consent_read_policy')}</Button>
             </CardContent>
           </Card>
 
@@ -91,15 +92,13 @@ export function CheckupConsentPage() {
             <CardContent>
               <div className={styles.cardHeader}>
                 <span className={styles.cardIcon}>⚠️</span>
-                <h3 className={styles.cardTitle}>Important Disclaimer</h3>
+                <h3 className={styles.cardTitle}>{t('consent_disclaimer_title')}</h3>
               </div>
               <p className={styles.cardText}>
-                MyDoctor provides health education only. This is <strong>NOT</strong> a substitute 
-                for professional medical advice, diagnosis, or treatment. Always consult a 
-                qualified healthcare provider for medical concerns.
+                {t('consent_disclaimer_text')}
               </p>
               <p className={styles.emergencyText}>
-                <strong>In case of emergency, call 911 immediately.</strong>
+                <strong>{t('consent_emergency')}</strong>
               </p>
             </CardContent>
           </Card>
@@ -116,7 +115,7 @@ export function CheckupConsentPage() {
               {consent1 ? '☑️' : '☐'}
             </span>
             <span className={styles.checkboxLabel}>
-              I understand this is for educational purposes only and not medical advice.
+              {t('consent_checkbox1')}
             </span>
           </label>
 
@@ -130,7 +129,7 @@ export function CheckupConsentPage() {
               {consent2 ? '☑️' : '☐'}
             </span>
             <span className={styles.checkboxLabel}>
-              I consent to the storage of my health information as described in the Privacy Policy.
+              {t('consent_checkbox2')}
             </span>
           </label>
         </div>
@@ -138,7 +137,7 @@ export function CheckupConsentPage() {
         {error && (
           <div className={styles.error}>
             <p>{error}</p>
-            <button onClick={() => setError(null)}>Dismiss</button>
+            <button onClick={() => setError(null)}>{t('consent_dismiss')}</button>
           </div>
         )}
 
@@ -149,7 +148,7 @@ export function CheckupConsentPage() {
           disabled={!consent1 || !consent2 || isLoading}
           isLoading={isLoading}
         >
-          {isLoading ? 'Starting...' : 'I Understand, Continue'}
+          {isLoading ? t('consent_starting') : t('consent_continue')}
         </Button>
       </main>
     </div>

@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useUser } from '../store/UserContext';
+import { useTranslate } from '../i18n';
 import { api, SessionHistoryItem } from '../services/api';
 import styles from './HealthHistoryPage.module.css';
 
 export function HealthHistoryPage() {
   const { user } = useUser();
+  const t = useTranslate();
   const [sessions, setSessions] = useState<SessionHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export function HealthHistoryPage() {
       setSessions(userSessions);
     } catch (err) {
       console.error('Failed to load sessions:', err);
-      setError('Failed to load your health history');
+      setError(t('history_error'));
     } finally {
       setIsLoading(false);
     }
@@ -55,14 +57,14 @@ export function HealthHistoryPage() {
 
   // Calculate duration between start and end
   const calculateDuration = (startedAt: string, completedAt?: string) => {
-    if (!completedAt) return 'In progress';
+    if (!completedAt) return t('history_status_in_progress');
     
     const start = new Date(startedAt).getTime();
     const end = new Date(completedAt).getTime();
     const durationMs = end - start;
     const minutes = Math.round(durationMs / 1000 / 60);
     
-    return `${minutes} min`;
+    return t('history_duration_min', { minutes });
   };
 
   // Group sessions by month
@@ -87,12 +89,12 @@ export function HealthHistoryPage() {
     return (
       <div className={styles.container}>
         <header className={styles.header}>
-          <h1 className={styles.title}>Health History</h1>
+          <h1 className={styles.title}>{t('history_title')}</h1>
         </header>
         <main className={styles.main}>
           <div className={styles.loadingState}>
             <div className={styles.spinner} />
-            <p>Loading your health history...</p>
+            <p>{t('history_loading')}</p>
           </div>
         </main>
       </div>
@@ -103,16 +105,16 @@ export function HealthHistoryPage() {
     return (
       <div className={styles.container}>
         <header className={styles.header}>
-          <h1 className={styles.title}>Health History</h1>
+          <h1 className={styles.title}>{t('history_title')}</h1>
         </header>
         <main className={styles.main}>
           <Card variant="outline" padding="lg">
             <CardContent>
               <div className={styles.errorState}>
                 <span className={styles.errorIcon}>⚠️</span>
-                <h3>Error Loading History</h3>
+                <h3>{t('history_error_title')}</h3>
                 <p>{error}</p>
-                <Button onClick={loadSessions}>Try Again</Button>
+                <Button onClick={loadSessions}>{t('history_try_again')}</Button>
               </div>
             </CardContent>
           </Card>
@@ -125,17 +127,17 @@ export function HealthHistoryPage() {
     return (
       <div className={styles.container}>
         <header className={styles.header}>
-          <h1 className={styles.title}>Health History</h1>
+          <h1 className={styles.title}>{t('history_title')}</h1>
         </header>
         <main className={styles.main}>
           <Card variant="outline" padding="lg">
             <CardContent>
               <div className={styles.emptyState}>
                 <span className={styles.emptyIcon}>📋</span>
-                <h3>No Sessions Yet</h3>
-                <p>Start your first health checkup to see your history here.</p>
+                <h3>{t('history_empty_title')}</h3>
+                <p>{t('history_empty_desc')}</p>
                 <Link to="/checkup/start">
-                  <Button>Start Checkup</Button>
+                  <Button>{t('history_empty_button')}</Button>
                 </Link>
               </div>
             </CardContent>
@@ -148,18 +150,18 @@ export function HealthHistoryPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Health History</h1>
+        <h1 className={styles.title}>{t('history_title')}</h1>
       </header>
 
       <main className={styles.main}>
         <div className={styles.searchBar}>
           <input
             type="text"
-            placeholder="🔍 Search sessions..."
+            placeholder={t('history_search_placeholder')}
             className={styles.searchInput}
           />
           <Button variant="outline" size="sm">
-            📅 Filter
+            📅 {t('history_filter')}
           </Button>
         </div>
 
@@ -187,7 +189,7 @@ export function HealthHistoryPage() {
                           </span>
                           <div>
                             <h3 className={styles.sessionTitle}>
-                              Health Checkup
+                              {t('history_health_checkup')}
                             </h3>
                             <p className={styles.sessionMeta}>
                               {formatDate(session.startedAt)} • {calculateDuration(session.startedAt, session.completedAt)}
@@ -197,17 +199,17 @@ export function HealthHistoryPage() {
                         <div className={styles.sessionRight}>
                           {flagCount > 0 && isCompleted && (
                             <span className={styles.flagBadge}>
-                              ⚠️ {flagCount} flagged
+                              ⚠️ {t('history_flagged_count', { count: flagCount })}
                             </span>
                           )}
                           {isCompleted && flagCount === 0 && (
-                            <span className={styles.completed}>✓ Completed</span>
+                            <span className={styles.completed}>✓ {t('history_status_completed')}</span>
                           )}
                           {isAbandoned && (
-                            <span className={styles.abandoned}>Abandoned</span>
+                            <span className={styles.abandoned}>{t('history_status_abandoned')}</span>
                           )}
                           {!isCompleted && !isAbandoned && (
-                            <span className={styles.inProgress}>⏳ In Progress</span>
+                            <span className={styles.inProgress}>⏳ {t('history_status_in_progress')}</span>
                           )}
                           <span className={styles.arrow}>▶</span>
                         </div>

@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@components/common';
 import { PromptPanel, UserInput, LLMResponse, SessionProgress } from '@components/session';
+import { useTranslate } from '../i18n';
 import { api, SessionResponse, SessionNode } from '../services/api';
 import styles from './CheckupSessionPage.module.css';
 
 export function CheckupSessionPage() {
   const { id: sessionId } = useParams();
   const navigate = useNavigate();
+  const t = useTranslate();
   
   // Session state
   const [isLoading, setIsLoading] = useState(true);
@@ -94,7 +96,7 @@ export function CheckupSessionPage() {
   };
 
   const handleExit = async () => {
-    if (sessionId && window.confirm('Are you sure you want to exit? Your progress will be saved.')) {
+    if (sessionId && window.confirm(t('session_exit_confirm'))) {
       try {
         await api.abandonSession(sessionId);
       } catch (err) {
@@ -116,7 +118,7 @@ export function CheckupSessionPage() {
       <div className={styles.container}>
         <div className={styles.loadingState}>
           <div className={styles.spinner} />
-          <p>Loading your session...</p>
+          <p>{t('session_loading')}</p>
         </div>
       </div>
     );
@@ -128,10 +130,10 @@ export function CheckupSessionPage() {
       <div className={styles.container}>
         <div className={styles.errorState}>
           <p className={styles.errorIcon}>⚠️</p>
-          <h2>Something went wrong</h2>
+          <h2>{t('session_error_title')}</h2>
           <p>{error}</p>
           <Button onClick={() => navigate('/dashboard')}>
-            Return to Dashboard
+            {t('common_return_to_dashboard')}
           </Button>
         </div>
       </div>
@@ -142,9 +144,9 @@ export function CheckupSessionPage() {
     return (
       <div className={styles.container}>
         <div className={styles.errorState}>
-          <p>No session data available</p>
+          <p>{t('session_no_data')}</p>
           <Button onClick={() => navigate('/dashboard')}>
-            Return to Dashboard
+            {t('common_return_to_dashboard')}
           </Button>
         </div>
       </div>
@@ -158,9 +160,9 @@ export function CheckupSessionPage() {
         <button 
           className={styles.exitButton}
           onClick={handleExit}
-          aria-label="Exit session"
+          aria-label={t('session_exit_label')}
         >
-          ✕ Exit
+          ✕ {t('session_exit')}
         </button>
         <SessionProgress 
           current={progress.current} 
@@ -217,7 +219,7 @@ export function CheckupSessionPage() {
           onClick={handleBack}
           disabled={isProcessing}
         >
-          ← Back
+          {t('session_back')}
         </Button>
         
         {llmResponse && !currentNode.isTerminal && (
@@ -225,7 +227,7 @@ export function CheckupSessionPage() {
             onClick={handleContinue}
             disabled={isProcessing}
           >
-            Continue →
+            {t('session_continue')}
           </Button>
         )}
       </footer>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
+import { useTranslate } from '../i18n';
 import { api, SessionSummary } from '../services/api';
 import styles from './VisitSummaryPage.module.css';
 
@@ -22,6 +23,7 @@ export function VisitSummaryPage() {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const t = useTranslate();
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,11 +51,11 @@ export function VisitSummaryPage() {
         if (response.summary) {
           setSummary(response.summary);
         } else {
-          setError('This session has not been completed yet or has no summary available.');
+          setError(t('visit_summary_error_no_summary'));
         }
       } catch (err) {
         console.error('Error loading session:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load session');
+        setError(err instanceof Error ? err.message : t('visit_summary_error_load_failed'));
       } finally {
         setIsLoading(false);
       }
@@ -67,7 +69,7 @@ export function VisitSummaryPage() {
       <div className={styles.container}>
         <div className={styles.loadingState}>
           <div className={styles.spinner} />
-          <p>Loading summary...</p>
+          <p>{t('visit_summary_loading')}</p>
         </div>
       </div>
     );
@@ -78,9 +80,9 @@ export function VisitSummaryPage() {
       <div className={styles.container}>
         <div className={styles.errorState}>
           <span className={styles.errorIcon}>⚠️</span>
-          <h2>Unable to Load Summary</h2>
-          <p>{error || 'No summary data available'}</p>
-          <Button onClick={() => navigate('/dashboard')}>Return to Dashboard</Button>
+          <h2>{t('visit_summary_error_title')}</h2>
+          <p>{error || t('visit_summary_error_no_data')}</p>
+          <Button onClick={() => navigate('/dashboard')}>{t('common_return_to_dashboard')}</Button>
         </div>
       </div>
     );
@@ -93,21 +95,21 @@ export function VisitSummaryPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <Link to="/dashboard" className={styles.backButton}>← Home</Link>
-        <span className={styles.badge}>Session Complete ✓</span>
+        <Link to="/dashboard" className={styles.backButton}>{t('visit_summary_home')}</Link>
+        <span className={styles.badge}>{t('visit_summary_badge')}</span>
       </header>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>Your Visit Summary</h1>
+        <h1 className={styles.title}>{t('visit_summary_title')}</h1>
         <p className={styles.date}>{formatDate()}</p>
 
         {/* Red Flags - Warning Section */}
         {hasRedFlags && (
           <Card variant="outline" padding="md" className={`${styles.section} ${styles.warningCard}`}>
             <CardContent>
-              <h2 className={styles.sectionTitle}>🚨 Items Requiring Attention</h2>
+              <h2 className={styles.sectionTitle}>{t('visit_summary_red_flags_title')}</h2>
               <p className={styles.warningText}>
-                Please discuss these with a healthcare provider:
+                {t('visit_summary_red_flags_subtitle')}
               </p>
               <ul className={styles.flagList}>
                 {summary.redFlags.map((flag, i) => (
@@ -122,7 +124,7 @@ export function VisitSummaryPage() {
         {hasRecommendations && (
           <Card variant="default" padding="md" className={styles.section}>
             <CardContent>
-              <h2 className={styles.sectionTitle}>💡 Recommendations</h2>
+              <h2 className={styles.sectionTitle}>{t('visit_summary_recommendations_title')}</h2>
               <ul className={styles.recommendationList}>
                 {summary.recommendations.map((rec, i) => (
                   <li key={i} className={styles.recommendationItem}>
@@ -139,8 +141,8 @@ export function VisitSummaryPage() {
         {hasScreenings && (
           <Card variant="default" padding="md" className={styles.section}>
             <CardContent>
-              <h2 className={styles.sectionTitle}>📋 Recommended Screenings</h2>
-              <p className={styles.sectionSubtitle}>Based on your responses, consider:</p>
+              <h2 className={styles.sectionTitle}>{t('visit_summary_screenings_title')}</h2>
+              <p className={styles.sectionSubtitle}>{t('visit_summary_screenings_subtitle')}</p>
               <ul className={styles.screeningList}>
                 {summary.screenings.map((screening, i) => (
                   <li key={i} className={styles.screeningItem}>
@@ -157,7 +159,7 @@ export function VisitSummaryPage() {
         {summary.notes && (
           <Card variant="default" padding="md" className={styles.section}>
             <CardContent>
-              <h2 className={styles.sectionTitle}>🤖 AI Summary</h2>
+              <h2 className={styles.sectionTitle}>{t('visit_summary_ai_summary_title')}</h2>
               <div className={styles.aiSummary}>
                 {summary.notes.split('\n').map((line, i) => (
                   <p key={i}>{line}</p>
@@ -173,9 +175,9 @@ export function VisitSummaryPage() {
             <CardContent>
               <div className={styles.emptyState}>
                 <span className={styles.emptyIcon}>✨</span>
-                <h3>All Clear!</h3>
-                <p>No specific concerns were identified during this checkup.</p>
-                <p>Continue maintaining your healthy habits!</p>
+                <h3>{t('visit_summary_all_clear_title')}</h3>
+                <p>{t('visit_summary_all_clear_message')}</p>
+                <p>{t('visit_summary_all_clear_encouragement')}</p>
               </div>
             </CardContent>
           </Card>
@@ -185,9 +187,7 @@ export function VisitSummaryPage() {
         <Card variant="outline" padding="sm" className={styles.disclaimer}>
           <CardContent>
             <p>
-              <strong>Important:</strong> This summary is for educational purposes only and is 
-              not a medical diagnosis. Always consult with a qualified healthcare provider 
-              for medical advice.
+              <strong>{t('visit_summary_disclaimer_label')}</strong> {t('visit_summary_disclaimer_text')}
             </p>
           </CardContent>
         </Card>
@@ -195,15 +195,15 @@ export function VisitSummaryPage() {
         {/* Actions */}
         <div className={styles.actions}>
           <Button variant="outline" size="md" disabled>
-            📥 Download PDF (Coming Soon)
+            {t('visit_summary_download_pdf')}
           </Button>
           <Button variant="outline" size="md" disabled>
-            📤 Share Summary (Coming Soon)
+            {t('visit_summary_share_summary')}
           </Button>
         </div>
 
         <Button fullWidth size="lg" onClick={() => navigate('/dashboard')}>
-          Return to Dashboard
+          {t('common_return_to_dashboard')}
         </Button>
       </main>
     </div>

@@ -1,36 +1,38 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@components/common';
+import { useTranslate } from '../i18n';
 import styles from './CheckupStartPage.module.css';
-
-const sessionTypes = [
-  {
-    id: 'annual-checkup',
-    icon: '🩺',
-    title: 'Annual Wellness Checkup',
-    description: 'Complete health assessment covering medical history, systems review, and preventive screening recommendations.',
-    duration: '15-20 minutes',
-    featured: true,
-  },
-  {
-    id: 'symptom-check',
-    icon: '🤒',
-    title: 'Symptom Checker',
-    description: 'Describe what you\'re experiencing and receive educational guidance.',
-    duration: '5-10 minutes',
-    featured: false,
-  },
-  {
-    id: 'medication-review',
-    icon: '💊',
-    title: 'Medication Review',
-    description: 'Review your current medications and receive educational information.',
-    duration: '5 minutes',
-    featured: false,
-  },
-];
 
 export function CheckupStartPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
+
+  const sessionTypes = [
+    {
+      id: 'annual-checkup',
+      icon: '🩺',
+      title: t('checkup_start_annual_title'),
+      description: t('checkup_start_annual_desc'),
+      duration: t('checkup_start_annual_duration'),
+      featured: true,
+    },
+    {
+      id: 'symptom-check',
+      icon: '🤒',
+      title: t('checkup_start_symptom_title'),
+      description: t('checkup_start_symptom_desc'),
+      duration: t('checkup_start_symptom_duration'),
+      featured: false,
+    },
+    {
+      id: 'medication-review',
+      icon: '💊',
+      title: t('checkup_start_medication_title'),
+      description: t('checkup_start_medication_desc'),
+      duration: t('checkup_start_medication_duration'),
+      featured: false,
+    },
+  ];
 
   const handleStartSession = (type: string) => {
     // TODO: Create session via API
@@ -40,12 +42,12 @@ export function CheckupStartPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <Link to="/dashboard" className={styles.backButton}>← Back</Link>
-        <h1 className={styles.title}>Start Checkup</h1>
+        <Link to="/dashboard" className={styles.backButton}>{t('common_back')}</Link>
+        <h1 className={styles.title}>{t('checkup_start_title')}</h1>
       </header>
 
       <main className={styles.main}>
-        <p className={styles.subtitle}>What would you like to do today?</p>
+        <p className={styles.subtitle}>{t('checkup_start_subtitle')}</p>
 
         <div className={styles.sessionTypes}>
           {sessionTypes.map((type) => (
