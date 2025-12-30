@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@components/common';
+import { LanguageSelector } from '@components/settings';
 import { Footer } from '@components/layout';
 import { useUser } from '../store/UserContext';
+import { DEFAULT_LANGUAGE, type LanguageCode } from '../config/languages';
 import styles from './LoginPage.module.css';
 
 export function LoginPage() {
@@ -10,6 +12,7 @@ export function LoginPage() {
   const { login } = useUser();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [language, setLanguage] = useState<LanguageCode>(DEFAULT_LANGUAGE);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -19,7 +22,7 @@ export function LoginPage() {
     setError('');
     
     try {
-      const { isNew } = await login(email, name);
+      const { isNew } = await login(email, name, language);
       
       if (isNew) {
         navigate('/profile/setup');
@@ -78,6 +81,11 @@ export function LoginPage() {
                   required
                 />
               </div>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="language" className={styles.label}>Preferred Language</label>
+              <LanguageSelector value={language} onChange={setLanguage} />
             </div>
             
             <Button 

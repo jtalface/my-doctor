@@ -9,7 +9,7 @@ const router: RouterType = Router();
 // POST /api/user - Create or get guest user
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { email, name, isGuest = true } = req.body;
+    const { email, name, isGuest = true, preferences } = req.body;
 
     // For guests, create a temporary user
     if (isGuest) {
@@ -45,6 +45,11 @@ router.post('/', async (req: Request, res: Response) => {
         email,
         name: name || email.split('@')[0],
         isGuest: false,
+        preferences: preferences || {
+          notifications: true,
+          dataSharing: false,
+          language: 'en',
+        },
       });
       await user.save();
 
@@ -60,6 +65,7 @@ router.post('/', async (req: Request, res: Response) => {
       name: user.name,
       email: user.email,
       isGuest: false,
+      preferences: user.preferences,
     });
   } catch (error) {
     console.error('[API] Error creating user:', error);
