@@ -4,6 +4,7 @@ import { Button } from '@components/common';
 import { LanguageSelector } from '@components/settings';
 import { Footer } from '@components/layout';
 import { useUser } from '../store/UserContext';
+import { useTranslate } from '../i18n';
 import { DEFAULT_LANGUAGE, type LanguageCode } from '../config/languages';
 import styles from './LoginPage.module.css';
 
@@ -15,6 +16,9 @@ export function LoginPage() {
   const [language, setLanguage] = useState<LanguageCode>(DEFAULT_LANGUAGE);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Pass selected language to translation hook so UI updates immediately
+  const t = useTranslate(language);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +35,7 @@ export function LoginPage() {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Failed to sign in: ${errorMessage}`);
+      setError(`${t('login_error_prefix')}${errorMessage}`);
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);
@@ -41,18 +45,18 @@ export function LoginPage() {
   return (
     <>
       <div className={styles.container}>
-        <Link to="/" className={styles.backButton}>← Back</Link>
+        <Link to="/" className={styles.backButton}>{t('common_back')}</Link>
         
         <div className={styles.content}>
           <div className={styles.logo}>🏥</div>
-          <h1 className={styles.title}>Welcome to MyDoctor</h1>
-          <p className={styles.subtitle}>Sign in or create your account</p>
+          <h1 className={styles.title}>{t('login_title')}</h1>
+          <p className={styles.subtitle}>{t('login_subtitle')}</p>
           
           {error && <p className={styles.error}>{error}</p>}
           
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
-              <label htmlFor="name" className={styles.label}>Your Name</label>
+              <label htmlFor="name" className={styles.label}>{t('login_name_label')}</label>
               <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>👤</span>
                 <input
@@ -60,7 +64,7 @@ export function LoginPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
+                  placeholder={t('login_name_placeholder')}
                   className={styles.input}
                   required
                 />
@@ -68,7 +72,7 @@ export function LoginPage() {
             </div>
             
             <div className={styles.inputGroup}>
-              <label htmlFor="email" className={styles.label}>Email address</label>
+              <label htmlFor="email" className={styles.label}>{t('login_email_label')}</label>
               <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>📧</span>
                 <input
@@ -76,7 +80,7 @@ export function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
+                  placeholder={t('login_email_placeholder')}
                   className={styles.input}
                   required
                 />
@@ -84,7 +88,7 @@ export function LoginPage() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label htmlFor="language" className={styles.label}>Preferred Language</label>
+              <label htmlFor="language" className={styles.label}>{t('login_language_label')}</label>
               <LanguageSelector value={language} onChange={setLanguage} />
             </div>
             
@@ -94,12 +98,12 @@ export function LoginPage() {
               size="lg"
               isLoading={isLoading}
             >
-              Continue
+              {t('common_continue')}
             </Button>
           </form>
           
           <p className={styles.hint}>
-            New users will be guided through profile setup
+            {t('login_hint')}
           </p>
         </div>
       </div>

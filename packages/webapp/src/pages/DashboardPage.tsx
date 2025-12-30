@@ -4,6 +4,7 @@ import { Card, CardContent, Button } from '@components/common';
 import { LLMSelector } from '@components/settings';
 import { api, SessionHistoryItem, HealthStatus } from '../services/api';
 import { useUser } from '../store/UserContext';
+import { useTranslate } from '../i18n';
 import styles from './DashboardPage.module.css';
 
 // Storage key for user ID
@@ -18,15 +19,16 @@ function formatDate(dateString: string): string {
   });
 }
 
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
-}
-
 export function DashboardPage() {
   const { user } = useUser();
+  const t = useTranslate();
+  
+  const getGreeting = (): string => {
+    const hour = new Date().getHours();
+    if (hour < 12) return t('dashboard_greeting_morning');
+    if (hour < 17) return t('dashboard_greeting_afternoon');
+    return t('dashboard_greeting_evening');
+  };
   const [sessions, setSessions] = useState<SessionHistoryItem[]>([]);
   const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,13 +70,13 @@ export function DashboardPage() {
           {healthStatus && (
             <p className={styles.statusBadge}>
               <span className={backendAvailable ? styles.statusOnline : styles.statusOffline}>●</span>
-              {backendAvailable ? 'Connected' : 'Offline'}
+              {backendAvailable ? t('dashboard_status_connected') : t('dashboard_status_offline')}
             </p>
           )}
         </div>
         {backendAvailable && (
           <div className={styles.llmSelector}>
-            <span className={styles.llmLabel}>AI Model:</span>
+            <span className={styles.llmLabel}>{t('dashboard_llm_label')}</span>
             <LLMSelector compact />
           </div>
         )}
