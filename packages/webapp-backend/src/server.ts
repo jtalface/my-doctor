@@ -1,9 +1,11 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import { config } from './config/index.js';
 import { sessionRoutes, userRoutes, healthRoutes } from './api/index.js';
+import { authRoutes, authenticate, apiRateLimiter, authErrorHandler } from './auth/index.js';
 import { llmManager } from './services/llm/manager.js';
 import { stateLoader } from './core/state-loader.js';
 
@@ -29,9 +31,10 @@ app.use(cors({
     console.log(`[CORS] Blocked origin: ${origin}`);
     callback(new Error('Not allowed by CORS'));
   },
-  credentials: true,
+  credentials: true, // Required for cookies
 }));
 app.use(express.json());
+app.use(cookieParser()); // Parse cookies for refresh token
 
 // Request logging in debug mode
 if (config.debugMode) {
@@ -41,12 +44,17 @@ if (config.debugMode) {
   });
 }
 
-// API Routes
-app.use('/api/session', sessionRoutes);
-app.use('/api/user', userRoutes);
+// ============================================
+// PUBLIC ROUTES (no authentication required)
+// ============================================
+
+// Health check endpoint (always public)
 app.use('/api/health', healthRoutes);
 
-// Root endpoint
+// Auth routes (login, register, etc.)
+app.use('/api/auth', authRoutes);
+
+// Root endpoint (public)
 app.get('/', (_req, res) => {
   res.json({
     name: 'MyDoctor Webapp API',
@@ -55,13 +63,29 @@ app.get('/', (_req, res) => {
     description: 'Backend API for MyDoctor Web Application',
     endpoints: {
       health: '/api/health',
-      session: '/api/session',
-      user: '/api/user',
+      auth: '/api/auth',
+      session: '/api/session (authenticated)',
+      user: '/api/user (authenticated)',
     },
   });
 });
 
-// Error handler
+// ============================================
+// PROTECTED ROUTES (authentication required)
+// ============================================
+
+// Apply rate limiting and authentication to protected routes
+app.use('/api/session', apiRateLimiter, authenticate, sessionRoutes);
+app.use('/api/user', apiRateLimiter, authenticate, userRoutes);
+
+// ============================================
+// ERROR HANDLERS
+// ============================================
+
+// Auth error handler
+app.use(authErrorHandler);
+
+// General error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('[Server] Error:', err);
   res.status(500).json({

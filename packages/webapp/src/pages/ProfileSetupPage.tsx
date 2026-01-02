@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
-import { useUser } from '../store/UserContext';
+import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
 import styles from './ProfileSetupPage.module.css';
 
@@ -9,7 +9,7 @@ type Step = 'personal' | 'medical' | 'lifestyle';
 
 export function ProfileSetupPage() {
   const navigate = useNavigate();
-  const { user, updateProfile, setIsNewUser } = useUser();
+  const { user, updateProfile, setIsNewUser } = useAuth();
   const t = useTranslate();
   const [step, setStep] = useState<Step>('personal');
   const [isLoading, setIsLoading] = useState(false);

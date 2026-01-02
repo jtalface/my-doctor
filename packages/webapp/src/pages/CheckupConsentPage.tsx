@@ -1,49 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useTranslate } from '../i18n';
+import { useAuth } from '../auth';
 import { api } from '../services/api';
 import styles from './CheckupConsentPage.module.css';
-
-// Storage key for user ID
-const USER_ID_KEY = 'mydoctor_user_id';
 
 export function CheckupConsentPage() {
   const navigate = useNavigate();
   const t = useTranslate();
+  const { user: authUser } = useAuth();
   const [consent1, setConsent1] = useState(false);
   const [consent2, setConsent2] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  // Get or create user on mount
-  useEffect(() => {
-    const initUser = async () => {
-      // Check for existing user ID in localStorage
-      let storedUserId = localStorage.getItem(USER_ID_KEY);
-      
-      if (!storedUserId) {
-        try {
-          // Create a guest user
-          const user = await api.createUser({ isGuest: true });
-          storedUserId = user.id;
-          localStorage.setItem(USER_ID_KEY, storedUserId);
-        } catch (err) {
-          console.error('Failed to create user:', err);
-          // Use a temporary ID if API fails
-          storedUserId = `temp_${Date.now()}`;
-        }
-      }
-      
-      setUserId(storedUserId);
-    };
-    
-    initUser();
-  }, []);
 
   const handleContinue = async () => {
-    if (!userId) {
+    if (!authUser?.id) {
       setError(t('consent_error_user_init'));
       return;
     }
@@ -53,7 +26,7 @@ export function CheckupConsentPage() {
     
     try {
       // Start a new session via the API
-      const result = await api.startSession(userId);
+      const result = await api.startSession(authUser.id);
       
       // Navigate to the session with the real session ID
       navigate(`/checkup/session/${result.sessionId}`);
@@ -154,4 +127,3 @@ export function CheckupConsentPage() {
     </div>
   );
 }
-

@@ -3,83 +3,57 @@ import type { Router as RouterType } from 'express';
 import { User } from '../models/user.model.js';
 import { PatientProfile } from '../models/patient-profile.model.js';
 import mongoose from 'mongoose';
+import { AuthenticatedRequest } from '../auth/auth.types.js';
 
 const router: RouterType = Router();
 
-// POST /api/user - Create or get guest user
-router.post('/', async (req: Request, res: Response) => {
+/**
+ * All routes in this file require authentication.
+ * The authenticate middleware in server.ts adds req.user with userId and email.
+ */
+
+// GET /api/user - Get current authenticated user
+router.get('/', async (req: Request, res: Response) => {
   try {
-    const { email, name, isGuest = true, preferences } = req.body;
-
-    // For guests, create a temporary user
-    if (isGuest) {
-      const guestUser = new User({
-        email: `guest_${Date.now()}@mydoctor.temp`,
-        name: name || 'Guest User',
-        isGuest: true,
-      });
-      await guestUser.save();
-
-      // Create empty patient profile
-      const profile = new PatientProfile({
-        userId: guestUser._id,
-      });
-      await profile.save();
-
-      return res.json({
-        id: guestUser._id,
-        name: guestUser.name,
-        isGuest: true,
-      });
-    }
-
-    // For registered users
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required for non-guest users' });
-    }
-
-    let user = await User.findOne({ email });
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.userId;
     
-    if (!user) {
-      user = new User({
-        email,
-        name: name || email.split('@')[0],
-        isGuest: false,
-        preferences: preferences || {
-          notifications: true,
-          dataSharing: false,
-          language: 'en',
-        },
-      });
-      await user.save();
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
 
-      // Create empty patient profile
-      const profile = new PatientProfile({
-        userId: user._id,
-      });
-      await profile.save();
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
     res.json({
       id: user._id,
       name: user.name,
       email: user.email,
-      isGuest: false,
+      isGuest: user.isGuest,
       preferences: user.preferences,
+      createdAt: user.createdAt,
     });
   } catch (error) {
-    console.error('[API] Error creating user:', error);
+    console.error('[API] Error getting user:', error);
     res.status(500).json({ 
-      error: 'Failed to create user',
+      error: 'Failed to get user',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
 
-// GET /api/user/:id - Get user details
+// GET /api/user/:id - Get user by ID (for backward compatibility)
 router.get('/:id', async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const { id } = req.params;
+    
+    // Users can only access their own data
+    if (authReq.user?.userId !== id) {
+      return res.status(403).json({ error: 'Forbidden: Cannot access other users data' });
+    }
     
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid user ID' });
@@ -107,11 +81,67 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// PATCH /api/user/:id - Update user
+// PATCH /api/user - Update current user
+router.patch('/', async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const updates = req.body;
+
+    // Don't allow updating sensitive fields
+    delete updates.passwordHash;
+    delete updates.email;
+    delete updates.failedLoginAttempts;
+    delete updates.lockoutUntil;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: updates },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      preferences: user.preferences,
+    });
+  } catch (error) {
+    console.error('[API] Error updating user:', error);
+    res.status(500).json({ 
+      error: 'Failed to update user',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// PATCH /api/user/:id - Update user by ID (for backward compatibility)
 router.patch('/:id', async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const { id } = req.params;
+    
+    // Users can only update their own data
+    if (authReq.user?.userId !== id) {
+      return res.status(403).json({ error: 'Forbidden: Cannot modify other users' });
+    }
+
     const updates = req.body;
+
+    // Don't allow updating sensitive fields
+    delete updates.passwordHash;
+    delete updates.email;
+    delete updates.failedLoginAttempts;
+    delete updates.lockoutUntil;
 
     const user = await User.findByIdAndUpdate(
       id,
@@ -138,10 +168,41 @@ router.patch('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/user/:id/profile - Get patient profile
+// GET /api/user/profile - Get current user's patient profile
+router.get('/me/profile', async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    const profile = await PatientProfile.findOne({ userId });
+    if (!profile) {
+      return res.status(404).json({ error: 'Profile not found' });
+    }
+
+    res.json(profile);
+  } catch (error) {
+    console.error('[API] Error getting profile:', error);
+    res.status(500).json({ 
+      error: 'Failed to get profile',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// GET /api/user/:id/profile - Get patient profile by user ID (for backward compatibility)
 router.get('/:id/profile', async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const { id } = req.params;
+    
+    // Users can only access their own profile
+    if (authReq.user?.userId !== id) {
+      return res.status(403).json({ error: 'Forbidden: Cannot access other users profile' });
+    }
     
     const profile = await PatientProfile.findOne({ userId: id });
     if (!profile) {
@@ -158,10 +219,45 @@ router.get('/:id/profile', async (req: Request, res: Response) => {
   }
 });
 
-// PATCH /api/user/:id/profile - Update patient profile
+// PATCH /api/user/profile - Update current user's patient profile
+router.patch('/me/profile', async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const updates = req.body;
+
+    const profile = await PatientProfile.findOneAndUpdate(
+      { userId },
+      { $set: { ...updates, lastUpdated: new Date() } },
+      { new: true, upsert: true }
+    );
+
+    res.json(profile);
+  } catch (error) {
+    console.error('[API] Error updating profile:', error);
+    res.status(500).json({ 
+      error: 'Failed to update profile',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// PATCH /api/user/:id/profile - Update patient profile by user ID (for backward compatibility)
 router.patch('/:id/profile', async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const { id } = req.params;
+    
+    // Users can only update their own profile
+    if (authReq.user?.userId !== id) {
+      return res.status(403).json({ error: 'Forbidden: Cannot modify other users profile' });
+    }
+
     const updates = req.body;
 
     const profile = await PatientProfile.findOneAndUpdate(
@@ -180,5 +276,61 @@ router.patch('/:id/profile', async (req: Request, res: Response) => {
   }
 });
 
-export default router;
+// GET /api/user/sessions - Get all sessions for current user
+router.get('/me/sessions', async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
 
+    // Import Session model dynamically to avoid circular dependencies
+    const { Session } = await import('../models/session.model.js');
+    
+    const sessions = await Session.find({ userId })
+      .sort({ startedAt: -1 })
+      .select('_id status startedAt completedAt summary.redFlags')
+      .lean();
+
+    res.json(sessions);
+  } catch (error) {
+    console.error('[API] Error getting sessions:', error);
+    res.status(500).json({ 
+      error: 'Failed to get sessions',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// GET /api/user/:id/sessions - Get sessions by user ID (for backward compatibility)
+router.get('/:id/sessions', async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const { id } = req.params;
+    
+    // Users can only access their own sessions
+    if (authReq.user?.userId !== id) {
+      return res.status(403).json({ error: 'Forbidden: Cannot access other users sessions' });
+    }
+
+    // Import Session model dynamically to avoid circular dependencies
+    const { Session } = await import('../models/session.model.js');
+    
+    const sessions = await Session.find({ userId: id })
+      .sort({ startedAt: -1 })
+      .select('_id status startedAt completedAt summary.redFlags')
+      .lean();
+
+    res.json(sessions);
+  } catch (error) {
+    console.error('[API] Error getting sessions:', error);
+    res.status(500).json({ 
+      error: 'Failed to get sessions',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+export default router;

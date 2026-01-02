@@ -1,4 +1,5 @@
 // API client for webapp-backend
+import { getAccessToken } from '../auth/authService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003';
 
@@ -33,6 +34,7 @@ export interface SessionResponse {
   llmResponse?: string;
   progress: SessionProgress;
   summary?: SessionSummary;
+  startedAt?: string;
 }
 
 export interface User {
@@ -116,6 +118,9 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  /**
+   * Make an unauthenticated request (for public endpoints like /health)
+   */
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -132,13 +137,45 @@ class ApiClient {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(error.error || `HTTP ${response.status}`);
+      throw new Error(error.error || error.message || `HTTP ${response.status}`);
     }
 
     return response.json();
   }
 
-  // Health endpoints
+  /**
+   * Make an authenticated request (for protected endpoints)
+   */
+  private async authRequest<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+    const token = await getAccessToken();
+    
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(url, {
+      ...options,
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        ...options.headers,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(error.error || error.message || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  // Health endpoints (PUBLIC - no auth required)
   async getHealth(): Promise<HealthStatus> {
     return this.request('/api/health');
   }
@@ -154,80 +191,68 @@ class ApiClient {
     });
   }
 
-  // User endpoints
-  async createUser(data: { 
-    email?: string; 
-    name?: string; 
-    isGuest?: boolean;
-    preferences?: { language?: string };
-  }): Promise<User> {
-    return this.request('/api/user', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
+  // User endpoints (PROTECTED - auth required)
   async getUser(userId: string): Promise<User> {
-    return this.request(`/api/user/${userId}`);
+    return this.authRequest(`/api/user/${userId}`);
   }
 
   async updateUser(userId: string, updates: Partial<User>): Promise<User> {
-    return this.request(`/api/user/${userId}`, {
+    return this.authRequest(`/api/user/${userId}`, {
       method: 'PATCH',
       body: JSON.stringify(updates),
     });
   }
 
   async getUserProfile(userId: string): Promise<PatientProfile> {
-    return this.request(`/api/user/${userId}/profile`);
+    return this.authRequest(`/api/user/${userId}/profile`);
   }
 
   async updateUserProfile(userId: string, updates: Partial<PatientProfile>): Promise<PatientProfile> {
-    return this.request(`/api/user/${userId}/profile`, {
+    return this.authRequest(`/api/user/${userId}/profile`, {
       method: 'PATCH',
       body: JSON.stringify(updates),
     });
   }
 
-  // Session endpoints
+  // Session endpoints (PROTECTED - auth required)
   async startSession(userId: string): Promise<SessionResponse> {
-    return this.request('/api/session/start', {
+    return this.authRequest('/api/session/start', {
       method: 'POST',
       body: JSON.stringify({ userId }),
     });
   }
 
   async sendInput(sessionId: string, input: string): Promise<SessionResponse> {
-    return this.request(`/api/session/${sessionId}/input`, {
+    return this.authRequest(`/api/session/${sessionId}/input`, {
       method: 'POST',
       body: JSON.stringify({ input }),
     });
   }
 
   async getSession(sessionId: string): Promise<SessionResponse> {
-    return this.request(`/api/session/${sessionId}`);
+    return this.authRequest(`/api/session/${sessionId}`);
   }
 
   async getUserSessions(userId: string): Promise<SessionHistoryItem[]> {
-    return this.request(`/api/session/user/${userId}`);
+    return this.authRequest(`/api/session/user/${userId}`);
   }
 
   async abandonSession(sessionId: string): Promise<{ success: boolean }> {
-    return this.request(`/api/session/${sessionId}`, {
+    return this.authRequest(`/api/session/${sessionId}`, {
       method: 'DELETE',
     });
   }
 
-  // Health record endpoints
+  // Health record endpoints (PROTECTED - auth required)
   async getHealthRecord(userId: string): Promise<any> {
-    return this.request(`/api/health/record/${userId}`);
+    return this.authRequest(`/api/health/record/${userId}`);
   }
 
   async addVital(
     userId: string,
     vital: { type: string; value: number | object; unit: string; source?: string }
   ): Promise<any> {
-    return this.request(`/api/health/record/${userId}/vital`, {
+    return this.authRequest(`/api/health/record/${userId}/vital`, {
       method: 'POST',
       body: JSON.stringify(vital),
     });
@@ -237,7 +262,7 @@ class ApiClient {
     userId: string,
     event: { type: string; description: string; severity?: string; sessionId?: string }
   ): Promise<any> {
-    return this.request(`/api/health/record/${userId}/event`, {
+    return this.authRequest(`/api/health/record/${userId}/event`, {
       method: 'POST',
       body: JSON.stringify(event),
     });

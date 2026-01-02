@@ -3,12 +3,9 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { LLMSelector } from '@components/settings';
 import { api, SessionHistoryItem, HealthStatus } from '../services/api';
-import { useUser } from '../store/UserContext';
+import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
 import styles from './DashboardPage.module.css';
-
-// Storage key for user ID
-const USER_ID_KEY = 'mydoctor_user_id';
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -20,7 +17,7 @@ function formatDate(dateString: string): string {
 }
 
 export function DashboardPage() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const t = useTranslate();
   
   const getGreeting = (): string => {
@@ -37,15 +34,14 @@ export function DashboardPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Check backend health
+        // Check backend health (public endpoint)
         const health = await api.getHealth();
         setHealthStatus(health);
         setBackendAvailable(true);
 
-        // Get user's sessions
-        const userId = localStorage.getItem(USER_ID_KEY);
-        if (userId) {
-          const userSessions = await api.getUserSessions(userId);
+        // Get user's sessions (using authenticated user ID)
+        if (user?.id) {
+          const userSessions = await api.getUserSessions(user.id);
           setSessions(userSessions);
         }
       } catch (err) {
@@ -57,7 +53,7 @@ export function DashboardPage() {
     };
 
     loadData();
-  }, []);
+  }, [user?.id]);
 
   const completedSessions = sessions.filter(s => s.status === 'completed');
   const hasRedFlags = completedSessions.some(s => s.summary?.redFlags?.length);

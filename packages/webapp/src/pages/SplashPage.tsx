@@ -1,22 +1,22 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Footer } from '@components/layout';
-import { useUser } from '../store/UserContext';
+import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
 import styles from './SplashPage.module.css';
 
 export function SplashPage() {
   const navigate = useNavigate();
-  const { user, isLoading } = useUser();
+  const { isAuthenticated, isLoading } = useAuth();
   const t = useTranslate();
 
   useEffect(() => {
-    // Wait for user context to finish loading
+    // Wait for auth context to finish loading
     if (isLoading) return;
 
     // Small delay for splash screen effect
     const timer = setTimeout(() => {
-      if (user) {
+      if (isAuthenticated) {
         // User is authenticated, go to dashboard
         navigate('/dashboard');
       } else {
@@ -26,7 +26,7 @@ export function SplashPage() {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [navigate, user, isLoading]);
+  }, [navigate, isAuthenticated, isLoading]);
 
   return (
     <>

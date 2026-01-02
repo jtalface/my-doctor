@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
-import { useUser } from '../store/UserContext';
+import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
 import { api, SessionHistoryItem } from '../services/api';
 import styles from './HealthHistoryPage.module.css';
 
 export function HealthHistoryPage() {
-  const { user } = useUser();
+  const { user: authUser } = useAuth();
   const t = useTranslate();
   const [sessions, setSessions] = useState<SessionHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,10 +15,10 @@ export function HealthHistoryPage() {
 
   useEffect(() => {
     loadSessions();
-  }, [user]);
+  }, [authUser?.id]);
 
   const loadSessions = async () => {
-    if (!user) {
+    if (!authUser?.id) {
       setIsLoading(false);
       return;
     }
@@ -26,7 +26,7 @@ export function HealthHistoryPage() {
     try {
       setIsLoading(true);
       setError(null);
-      const userSessions = await api.getUserSessions(user.id);
+      const userSessions = await api.getUserSessions(authUser.id);
       setSessions(userSessions);
     } catch (err) {
       console.error('Failed to load sessions:', err);
@@ -169,7 +169,7 @@ export function HealthHistoryPage() {
           <section key={monthYear} className={styles.monthSection}>
             <h2 className={styles.monthTitle}>{monthYear}</h2>
             
-            {sessionsByMonth[monthYear].map(session => {
+            {(sessionsByMonth[monthYear] || []).map(session => {
               const flagCount = session.summary?.redFlags?.length || 0;
               const isCompleted = session.status === 'completed';
               const isAbandoned = session.status === 'abandoned';

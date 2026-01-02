@@ -21,14 +21,49 @@ export const translations = {
     
     // Login Page
     login_title: 'Welcome to MyDoctor',
-    login_subtitle: 'Sign in or create your account',
-    login_name_label: 'Your Name',
-    login_name_placeholder: 'John Doe',
+    login_subtitle: 'Sign in to your account',
     login_email_label: 'Email address',
     login_email_placeholder: 'your@email.com',
+    login_password_label: 'Password',
+    login_password_placeholder: 'Enter your password',
     login_language_label: 'Preferred Language',
-    login_hint: 'New users will be guided through profile setup',
-    login_error_prefix: 'Failed to sign in: ',
+    login_remember_me: 'Remember me',
+    login_forgot_password: 'Forgot password?',
+    login_sign_in: 'Sign In',
+    login_or: 'or',
+    login_create_account: 'Create Account',
+    login_error_unknown: 'An unknown error occurred',
+    login_show_password: 'Show password',
+    login_hide_password: 'Hide password',
+    
+    // Register Page
+    register_title: 'Create Account',
+    register_subtitle: 'Join MyDoctor for personalized health guidance',
+    register_name_label: 'Full Name',
+    register_name_placeholder: 'John Doe',
+    register_email_label: 'Email address',
+    register_email_placeholder: 'your@email.com',
+    register_password_label: 'Password',
+    register_password_placeholder: 'Create a strong password',
+    register_confirm_password_label: 'Confirm Password',
+    register_confirm_password_placeholder: 'Enter password again',
+    register_language_label: 'Preferred Language',
+    register_create_account: 'Create Account',
+    register_terms_prefix: 'By creating an account, you agree to our',
+    register_terms_of_service: 'Terms of Service',
+    register_terms_and: 'and',
+    register_privacy_policy: 'Privacy Policy',
+    register_or: 'or',
+    register_already_have_account: 'Already have an account?',
+    register_sign_in: 'Sign In',
+    register_email_exists: 'This email is already registered.',
+    register_sign_in_instead: 'Sign in instead',
+    register_error_name_required: 'Name is required',
+    register_error_invalid_email: 'Please enter a valid email address',
+    register_error_email_exists: 'This email is already registered',
+    register_error_password_short: 'Password must be at least 8 characters',
+    register_error_passwords_mismatch: 'Passwords do not match',
+    register_error_unknown: 'Registration failed. Please try again.',
     
     // Dashboard
     dashboard_greeting_morning: 'Good morning',
@@ -211,17 +246,11 @@ export const translations = {
     summary_new_checkup: 'Start New Checkup',
     summary_view_history: 'View History',
     
-    // Settings
-    settings_title: 'Settings',
-    settings_preferences: 'Preferences',
-    settings_language: 'Language',
-    settings_notifications: 'Notifications',
-    settings_data_sharing: 'Data Sharing',
-    settings_about: 'About',
-    settings_version: 'Version',
-    settings_save: 'Save Changes',
-    
-    // Common Actions
+    // Common translations (missing keys that pages need)
+    common_not_set: 'Not set',
+    common_guest_user: 'Guest User',
+    common_no_email: 'No email',
+    common_none: 'None',
     common_return_to_dashboard: 'Return to Dashboard',
     
     // NotFound Page
@@ -256,7 +285,13 @@ export const translations = {
     visit_summary_download_pdf: '📥 Download PDF (Coming Soon)',
     visit_summary_share_summary: '📤 Share Summary (Coming Soon)',
     
-    // Settings Extended
+    // Settings
+    settings_title: 'Settings',
+    settings_notifications: 'Notifications',
+    settings_data_sharing: 'Data Sharing',
+    settings_about: 'About',
+    settings_version: 'Version',
+    settings_save: 'Save Changes',
     settings_account: 'Account',
     settings_email: 'Email',
     settings_change_password: 'Change Password',
@@ -276,6 +311,7 @@ export const translations = {
     settings_app_version: 'App Version',
     settings_help_support: 'Help & Support',
     settings_send_feedback: 'Send Feedback',
+    settings_coming_soon: 'Coming soon',
     settings_sign_out: 'Sign Out',
     
     // Checkup Consent Page
@@ -336,14 +372,49 @@ export const translations = {
     
     // Login Page
     login_title: 'Bem-vindo ao MyDoctor',
-    login_subtitle: 'Entre ou crie sua conta',
-    login_name_label: 'Seu Nome',
-    login_name_placeholder: 'João Silva',
+    login_subtitle: 'Entre na sua conta',
     login_email_label: 'Endereço de e-mail',
     login_email_placeholder: 'seu@email.com',
+    login_password_label: 'Senha',
+    login_password_placeholder: 'Digite sua senha',
     login_language_label: 'Idioma Preferido',
-    login_hint: 'Novos usuários serão guiados pela configuração do perfil',
-    login_error_prefix: 'Falha ao entrar: ',
+    login_remember_me: 'Lembrar-me',
+    login_forgot_password: 'Esqueceu a senha?',
+    login_sign_in: 'Entrar',
+    login_or: 'ou',
+    login_create_account: 'Criar Conta',
+    login_error_unknown: 'Ocorreu um erro desconhecido',
+    login_show_password: 'Mostrar senha',
+    login_hide_password: 'Ocultar senha',
+    
+    // Register Page
+    register_title: 'Criar Conta',
+    register_subtitle: 'Junte-se ao MyDoctor para orientação de saúde personalizada',
+    register_name_label: 'Nome Completo',
+    register_name_placeholder: 'João Silva',
+    register_email_label: 'Endereço de e-mail',
+    register_email_placeholder: 'seu@email.com',
+    register_password_label: 'Senha',
+    register_password_placeholder: 'Crie uma senha forte',
+    register_confirm_password_label: 'Confirmar Senha',
+    register_confirm_password_placeholder: 'Digite a senha novamente',
+    register_language_label: 'Idioma Preferido',
+    register_create_account: 'Criar Conta',
+    register_terms_prefix: 'Ao criar uma conta, você concorda com nossos',
+    register_terms_of_service: 'Termos de Serviço',
+    register_terms_and: 'e',
+    register_privacy_policy: 'Política de Privacidade',
+    register_or: 'ou',
+    register_already_have_account: 'Já tem uma conta?',
+    register_sign_in: 'Entrar',
+    register_email_exists: 'Este e-mail já está registrado.',
+    register_sign_in_instead: 'Entre aqui',
+    register_error_name_required: 'Nome é obrigatório',
+    register_error_invalid_email: 'Por favor, insira um e-mail válido',
+    register_error_email_exists: 'Este e-mail já está registrado',
+    register_error_password_short: 'A senha deve ter pelo menos 8 caracteres',
+    register_error_passwords_mismatch: 'As senhas não coincidem',
+    register_error_unknown: 'Falha no registro. Por favor, tente novamente.',
     
     // Dashboard
     dashboard_greeting_morning: 'Bom dia',
@@ -526,17 +597,11 @@ export const translations = {
     summary_new_checkup: 'Iniciar Nova Consulta',
     summary_view_history: 'Ver Histórico',
     
-    // Settings
-    settings_title: 'Configurações',
-    settings_preferences: 'Preferências',
-    settings_language: 'Idioma',
-    settings_notifications: 'Notificações',
-    settings_data_sharing: 'Compartilhamento de Dados',
-    settings_about: 'Sobre',
-    settings_version: 'Versão',
-    settings_save: 'Salvar Alterações',
-    
-    // Common Actions
+    // Common translations
+    common_not_set: 'Não definido',
+    common_guest_user: 'Usuário Convidado',
+    common_no_email: 'Sem e-mail',
+    common_none: 'Nenhum',
     common_return_to_dashboard: 'Voltar ao Painel',
     
     // NotFound Page
@@ -571,7 +636,13 @@ export const translations = {
     visit_summary_download_pdf: '📥 Baixar PDF (Em Breve)',
     visit_summary_share_summary: '📤 Compartilhar Resumo (Em Breve)',
     
-    // Settings Extended
+    // Settings
+    settings_title: 'Configurações',
+    settings_notifications: 'Notificações',
+    settings_data_sharing: 'Compartilhamento de Dados',
+    settings_about: 'Sobre',
+    settings_version: 'Versão',
+    settings_save: 'Salvar Alterações',
     settings_account: 'Conta',
     settings_email: 'E-mail',
     settings_change_password: 'Mudar Senha',
@@ -591,6 +662,7 @@ export const translations = {
     settings_app_version: 'Versão do Aplicativo',
     settings_help_support: 'Ajuda e Suporte',
     settings_send_feedback: 'Enviar Feedback',
+    settings_coming_soon: 'Em breve',
     settings_sign_out: 'Sair',
     
     // Checkup Consent Page
@@ -651,14 +723,49 @@ export const translations = {
     
     // Login Page
     login_title: 'Bienvenue sur MyDoctor',
-    login_subtitle: 'Connectez-vous ou créez votre compte',
-    login_name_label: 'Votre Nom',
-    login_name_placeholder: 'Jean Dupont',
+    login_subtitle: 'Connectez-vous à votre compte',
     login_email_label: 'Adresse e-mail',
     login_email_placeholder: 'votre@email.com',
+    login_password_label: 'Mot de passe',
+    login_password_placeholder: 'Entrez votre mot de passe',
     login_language_label: 'Langue Préférée',
-    login_hint: 'Les nouveaux utilisateurs seront guidés dans la configuration du profil',
-    login_error_prefix: 'Échec de la connexion: ',
+    login_remember_me: 'Se souvenir de moi',
+    login_forgot_password: 'Mot de passe oublié?',
+    login_sign_in: 'Se Connecter',
+    login_or: 'ou',
+    login_create_account: 'Créer un Compte',
+    login_error_unknown: 'Une erreur inconnue s\'est produite',
+    login_show_password: 'Afficher le mot de passe',
+    login_hide_password: 'Masquer le mot de passe',
+    
+    // Register Page
+    register_title: 'Créer un Compte',
+    register_subtitle: 'Rejoignez MyDoctor pour des conseils de santé personnalisés',
+    register_name_label: 'Nom Complet',
+    register_name_placeholder: 'Jean Dupont',
+    register_email_label: 'Adresse e-mail',
+    register_email_placeholder: 'votre@email.com',
+    register_password_label: 'Mot de passe',
+    register_password_placeholder: 'Créez un mot de passe fort',
+    register_confirm_password_label: 'Confirmer le Mot de Passe',
+    register_confirm_password_placeholder: 'Entrez le mot de passe à nouveau',
+    register_language_label: 'Langue Préférée',
+    register_create_account: 'Créer un Compte',
+    register_terms_prefix: 'En créant un compte, vous acceptez nos',
+    register_terms_of_service: 'Conditions d\'Utilisation',
+    register_terms_and: 'et',
+    register_privacy_policy: 'Politique de Confidentialité',
+    register_or: 'ou',
+    register_already_have_account: 'Vous avez déjà un compte?',
+    register_sign_in: 'Se Connecter',
+    register_email_exists: 'Cet e-mail est déjà enregistré.',
+    register_sign_in_instead: 'Connectez-vous ici',
+    register_error_name_required: 'Le nom est requis',
+    register_error_invalid_email: 'Veuillez entrer une adresse e-mail valide',
+    register_error_email_exists: 'Cet e-mail est déjà enregistré',
+    register_error_password_short: 'Le mot de passe doit contenir au moins 8 caractères',
+    register_error_passwords_mismatch: 'Les mots de passe ne correspondent pas',
+    register_error_unknown: 'L\'inscription a échoué. Veuillez réessayer.',
     
     // Dashboard
     dashboard_greeting_morning: 'Bonjour',
@@ -841,17 +948,11 @@ export const translations = {
     summary_new_checkup: 'Commencer un Nouveau Bilan',
     summary_view_history: 'Voir l\'Historique',
     
-    // Settings
-    settings_title: 'Paramètres',
-    settings_preferences: 'Préférences',
-    settings_language: 'Langue',
-    settings_notifications: 'Notifications',
-    settings_data_sharing: 'Partage de Données',
-    settings_about: 'À Propos',
-    settings_version: 'Version',
-    settings_save: 'Enregistrer les Modifications',
-    
-    // Common Actions
+    // Common translations
+    common_not_set: 'Non défini',
+    common_guest_user: 'Utilisateur Invité',
+    common_no_email: 'Pas d\'e-mail',
+    common_none: 'Aucun',
     common_return_to_dashboard: 'Retour au Tableau de Bord',
     
     // NotFound Page
@@ -886,7 +987,13 @@ export const translations = {
     visit_summary_download_pdf: '📥 Télécharger PDF (Bientôt)',
     visit_summary_share_summary: '📤 Partager le Résumé (Bientôt)',
     
-    // Settings Extended
+    // Settings
+    settings_title: 'Paramètres',
+    settings_notifications: 'Notifications',
+    settings_data_sharing: 'Partage de Données',
+    settings_about: 'À Propos',
+    settings_version: 'Version',
+    settings_save: 'Enregistrer les Modifications',
     settings_account: 'Compte',
     settings_email: 'E-mail',
     settings_change_password: 'Changer le Mot de Passe',
@@ -906,6 +1013,7 @@ export const translations = {
     settings_app_version: 'Version de l\'Application',
     settings_help_support: 'Aide et Support',
     settings_send_feedback: 'Envoyer des Commentaires',
+    settings_coming_soon: 'Bientôt disponible',
     settings_sign_out: 'Se Déconnecter',
     
     // Checkup Consent Page
@@ -966,14 +1074,49 @@ export const translations = {
     
     // Login Page
     login_title: 'Karibu MyDoctor',
-    login_subtitle: 'Ingia au unda akaunti yako',
-    login_name_label: 'Jina Lako',
-    login_name_placeholder: 'John Doe',
+    login_subtitle: 'Ingia kwenye akaunti yako',
     login_email_label: 'Anwani ya Barua Pepe',
     login_email_placeholder: 'barua@pepe.com',
+    login_password_label: 'Nenosiri',
+    login_password_placeholder: 'Ingiza nenosiri lako',
     login_language_label: 'Lugha Unayopendelea',
-    login_hint: 'Watumiaji wapya wataongozwa kupitia usanidi wa wasifu',
-    login_error_prefix: 'Imeshindwa kuingia: ',
+    login_remember_me: 'Nikumbuke',
+    login_forgot_password: 'Umesahau nenosiri?',
+    login_sign_in: 'Ingia',
+    login_or: 'au',
+    login_create_account: 'Unda Akaunti',
+    login_error_unknown: 'Hitilafu isiyojulikana imetokea',
+    login_show_password: 'Onyesha nenosiri',
+    login_hide_password: 'Ficha nenosiri',
+    
+    // Register Page
+    register_title: 'Unda Akaunti',
+    register_subtitle: 'Jiunge na MyDoctor kwa ushauri wa afya binafsi',
+    register_name_label: 'Jina Kamili',
+    register_name_placeholder: 'John Doe',
+    register_email_label: 'Anwani ya Barua Pepe',
+    register_email_placeholder: 'barua@pepe.com',
+    register_password_label: 'Nenosiri',
+    register_password_placeholder: 'Unda nenosiri imara',
+    register_confirm_password_label: 'Thibitisha Nenosiri',
+    register_confirm_password_placeholder: 'Ingiza nenosiri tena',
+    register_language_label: 'Lugha Unayopendelea',
+    register_create_account: 'Unda Akaunti',
+    register_terms_prefix: 'Kwa kuunda akaunti, unakubali',
+    register_terms_of_service: 'Masharti ya Huduma',
+    register_terms_and: 'na',
+    register_privacy_policy: 'Sera ya Faragha',
+    register_or: 'au',
+    register_already_have_account: 'Tayari una akaunti?',
+    register_sign_in: 'Ingia',
+    register_email_exists: 'Barua pepe hii tayari imesajiliwa.',
+    register_sign_in_instead: 'Ingia hapa',
+    register_error_name_required: 'Jina linahitajika',
+    register_error_invalid_email: 'Tafadhali ingiza barua pepe halali',
+    register_error_email_exists: 'Barua pepe hii tayari imesajiliwa',
+    register_error_password_short: 'Nenosiri lazima liwe na angalau herufi 8',
+    register_error_passwords_mismatch: 'Nenosiri hazilingani',
+    register_error_unknown: 'Usajili umeshindwa. Tafadhali jaribu tena.',
     
     // Dashboard
     dashboard_greeting_morning: 'Habari za asubuhi',
@@ -1156,17 +1299,11 @@ export const translations = {
     summary_new_checkup: 'Anza Ukaguzi Mpya',
     summary_view_history: 'Tazama Historia',
     
-    // Settings
-    settings_title: 'Mipangilio',
-    settings_preferences: 'Mapendeleo',
-    settings_language: 'Lugha',
-    settings_notifications: 'Arifa',
-    settings_data_sharing: 'Kushiriki Data',
-    settings_about: 'Kuhusu',
-    settings_version: 'Toleo',
-    settings_save: 'Hifadhi Mabadiliko',
-    
-    // Common Actions
+    // Common translations
+    common_not_set: 'Haijawekwa',
+    common_guest_user: 'Mtumiaji Mgeni',
+    common_no_email: 'Hakuna barua pepe',
+    common_none: 'Hakuna',
     common_return_to_dashboard: 'Rudi kwa Dashibodi',
     
     // NotFound Page
@@ -1201,7 +1338,13 @@ export const translations = {
     visit_summary_download_pdf: '📥 Pakua PDF (Inakuja Hivi Karibuni)',
     visit_summary_share_summary: '📤 Shiriki Muhtasari (Inakuja Hivi Karibuni)',
     
-    // Settings Extended
+    // Settings
+    settings_title: 'Mipangilio',
+    settings_notifications: 'Arifa',
+    settings_data_sharing: 'Kushiriki Data',
+    settings_about: 'Kuhusu',
+    settings_version: 'Toleo',
+    settings_save: 'Hifadhi Mabadiliko',
     settings_account: 'Akaunti',
     settings_email: 'Barua Pepe',
     settings_change_password: 'Badilisha Nenosiri',
@@ -1221,6 +1364,7 @@ export const translations = {
     settings_app_version: 'Toleo la Programu',
     settings_help_support: 'Msaada na Usaidizi',
     settings_send_feedback: 'Tuma Maoni',
+    settings_coming_soon: 'Inakuja hivi karibuni',
     settings_sign_out: 'Toka',
     
     // Checkup Consent Page

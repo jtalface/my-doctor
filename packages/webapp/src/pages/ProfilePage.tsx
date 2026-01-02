@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
-import { useUser } from '../store/UserContext';
+import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
 import { getLanguageInfo } from '../config/languages';
 import styles from './ProfilePage.module.css';
 
 export function ProfilePage() {
   const navigate = useNavigate();
-  const { user, profile, logout } = useUser();
+  const { user, profile, logout } = useAuth();
   const t = useTranslate();
 
   // Format date from ISO string
@@ -133,7 +133,7 @@ export function ProfilePage() {
         </section>
 
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>{t('profile_lifestyle')}</h3>
+          <h3 className={styles.sectionTitle}>{t('profile_section_lifestyle')}</h3>
           <Card variant="default" padding="none">
             <CardContent>
               <ProfileRow label={t('profile_smoking_status')} value={profileData.smoking} />

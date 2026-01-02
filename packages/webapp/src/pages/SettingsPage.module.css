@@ -35,30 +35,55 @@
   margin: 0 0 var(--space-3) 0;
 }
 
+/* Settings Row */
 .settingsRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: var(--space-4);
   border-bottom: 1px solid var(--border-color);
-  cursor: pointer;
 }
 
 .settingsRow:last-child {
   border-bottom: none;
 }
 
-.settingsRow:hover {
+.settingsRow.clickable {
+  cursor: pointer;
+}
+
+.settingsRow.clickable:hover {
   background-color: var(--bg-secondary);
+}
+
+.settingsRow.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.settingsRow.disabled:hover {
+  background-color: transparent;
 }
 
 .settingsRow.danger .rowLabel {
   color: var(--color-error-600);
 }
 
+.rowLeft {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 .rowLabel {
   font-size: var(--font-size-base);
   color: var(--text-primary);
+}
+
+.rowHint {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .rowRight {
@@ -93,6 +118,11 @@
   background-color: var(--color-primary-500);
 }
 
+.toggle.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .toggleThumb {
   position: absolute;
   top: 2px;
@@ -109,7 +139,39 @@
   transform: translateX(20px);
 }
 
+/* Language Selector Wrapper */
+.languageSelectorWrapper {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.languageSelectorWrapper:last-child {
+  border-bottom: none;
+}
+
+.languageSelectorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.cancelButton {
+  background: none;
+  border: none;
+  color: var(--color-primary-600);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.cancelButton:hover {
+  background-color: var(--color-primary-50);
+}
+
+/* Sign Out */
 .signOut {
   margin-top: var(--space-4);
 }
-

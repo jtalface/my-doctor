@@ -1,3 +1,5 @@
+/* RegisterPage.module.css */
+
 .container {
   display: flex;
   flex-direction: column;
@@ -28,6 +30,7 @@
   max-width: 400px;
   margin: 0 auto;
   width: 100%;
+  padding: var(--space-8) 0;
 }
 
 .logo {
@@ -40,6 +43,7 @@
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin: 0 0 var(--space-2) 0;
+  text-align: center;
 }
 
 .subtitle {
@@ -51,8 +55,8 @@
 
 .error {
   width: 100%;
-  background-color: var(--color-error-50, #FEE2E2);
-  color: var(--color-error-600, #DC2626);
+  background-color: var(--color-error-50);
+  color: var(--color-error-600);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
@@ -110,6 +114,14 @@
   color: var(--text-muted);
 }
 
+.inputError {
+  border-color: var(--color-error-500);
+}
+
+.inputError:focus {
+  border-color: var(--color-error-600);
+}
+
 .togglePassword {
   position: absolute;
   right: var(--space-3);
@@ -126,36 +138,73 @@
   opacity: 1;
 }
 
-.optionsRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-4);
+.checking {
+  position: absolute;
+  right: var(--space-3);
+  font-size: 1rem;
+  animation: pulse 1s infinite;
 }
 
-.rememberMe {
+.successIcon {
+  position: absolute;
+  right: var(--space-3);
+  font-size: 1rem;
+  color: var(--color-success-500);
+}
+
+.errorIcon {
+  position: absolute;
+  right: var(--space-3);
+  font-size: 1rem;
+  color: var(--color-error-500);
+}
+
+.fieldError {
+  font-size: var(--font-size-xs);
+  color: var(--color-error-600);
+  margin-top: var(--space-2);
+}
+
+.fieldError a {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+.requirements {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-2) 0 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.requirement {
+  padding: 2px 0;
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: var(--font-size-sm);
+}
+
+.requirement::before {
+  content: '•';
+  color: var(--text-muted);
+}
+
+.terms {
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  cursor: pointer;
+  text-align: center;
+  margin-top: var(--space-4);
+  line-height: 1.6;
 }
 
-.rememberMe input {
-  width: 1rem;
-  height: 1rem;
-  cursor: pointer;
-}
-
-.forgotPassword {
-  font-size: var(--font-size-sm);
+.terms a {
   color: var(--color-primary-600);
-  text-decoration: none;
+  text-decoration: underline;
 }
 
-.forgotPassword:hover {
-  text-decoration: underline;
+.terms a:hover {
+  color: var(--color-primary-700);
 }
 
 .divider {
@@ -176,16 +225,47 @@
 
 .divider span {
   padding: 0 var(--space-4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.registerLink {
-  text-decoration: none;
-  width: 100%;
-}
-
-.hint {
-  margin-top: var(--space-6);
-  text-align: center;
+.loginLink {
   font-size: var(--font-size-sm);
-  color: var(--text-muted);
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+.loginLink a {
+  color: var(--color-primary-600);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.loginLink a:hover {
+  text-decoration: underline;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .content {
+    padding: var(--space-4) 0;
+  }
+  
+  .title {
+    font-size: var(--font-size-xl);
+  }
+  
+  .subtitle {
+    font-size: var(--font-size-sm);
+  }
 }

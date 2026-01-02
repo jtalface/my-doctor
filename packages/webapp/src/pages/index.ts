@@ -1,5 +1,6 @@
 export { SplashPage } from './SplashPage';
 export { LoginPage } from './LoginPage';
+export { RegisterPage } from './RegisterPage';
 export { ProfileSetupPage } from './ProfileSetupPage';
 export { DashboardPage } from './DashboardPage';
 export { CheckupStartPage } from './CheckupStartPage';

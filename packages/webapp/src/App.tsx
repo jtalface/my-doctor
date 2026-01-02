@@ -1,10 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
 import { Layout } from '@components/layout/Layout';
-import { UserProvider } from './store/UserContext';
+import { AuthProvider, ProtectedRoute } from './auth';
 
 // Pages
 import { SplashPage } from '@pages/SplashPage';
 import { LoginPage } from '@pages/LoginPage';
+import { RegisterPage } from '@pages/RegisterPage';
 import { ProfileSetupPage } from '@pages/ProfileSetupPage';
 import { DashboardPage } from '@pages/DashboardPage';
 import { CheckupStartPage } from '@pages/CheckupStartPage';
@@ -19,31 +20,78 @@ import { NotFoundPage } from '@pages/NotFoundPage';
 
 function App() {
   return (
-    <UserProvider>
+    <AuthProvider>
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<SplashPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/profile/setup" element={<ProfileSetupPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        
+        {/* Semi-protected route (new users only) */}
+        <Route path="/profile/setup" element={
+          <ProtectedRoute>
+            <ProfileSetupPage />
+          </ProtectedRoute>
+        } />
         
         {/* Protected routes with layout */}
         <Route element={<Layout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/checkup/start" element={<CheckupStartPage />} />
-          <Route path="/checkup/consent" element={<CheckupConsentPage />} />
-          <Route path="/checkup/session/:id" element={<CheckupSessionPage />} />
-          <Route path="/checkup/alert" element={<RedFlagAlertPage />} />
-          <Route path="/checkup/summary/:id" element={<VisitSummaryPage />} />
-          <Route path="/history" element={<HealthHistoryPage />} />
-          <Route path="/history/:id" element={<VisitSummaryPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/checkup/start" element={
+            <ProtectedRoute>
+              <CheckupStartPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/checkup/consent" element={
+            <ProtectedRoute>
+              <CheckupConsentPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/checkup/session/:id" element={
+            <ProtectedRoute>
+              <CheckupSessionPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/checkup/alert" element={
+            <ProtectedRoute>
+              <RedFlagAlertPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/checkup/summary/:id" element={
+            <ProtectedRoute>
+              <VisitSummaryPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/history" element={
+            <ProtectedRoute>
+              <HealthHistoryPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/history/:id" element={
+            <ProtectedRoute>
+              <VisitSummaryPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          } />
         </Route>
         
         {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </UserProvider>
+    </AuthProvider>
   );
 }
 
