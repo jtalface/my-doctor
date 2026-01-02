@@ -307,6 +307,32 @@ export async function getPasswordRequirements(): Promise<string[]> {
 }
 
 /**
+ * Change password
+ */
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  const token = await getAccessToken();
+  
+  if (!token) {
+    throw new Error('Not authenticated');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to change password' }));
+    throw new Error(error.message || 'Failed to change password');
+  }
+}
+
+/**
  * Try to restore session from refresh token
  */
 export async function tryRestoreSession(): Promise<AuthUser | null> {

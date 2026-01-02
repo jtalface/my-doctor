@@ -85,12 +85,20 @@ export function HealthHistoryPage() {
   const sessionsByMonth = groupSessionsByMonth();
   const months = Object.keys(sessionsByMonth);
 
+  const renderHeader = () => (
+    <header className={styles.header}>
+      <div className={styles.headerLeft}>
+        <Link to="/dashboard" className={styles.backButton}>←</Link>
+        <h1 className={styles.title}>{t('history_title')}</h1>
+      </div>
+      <div className={styles.headerRight} />
+    </header>
+  );
+
   if (isLoading) {
     return (
       <div className={styles.container}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>{t('history_title')}</h1>
-        </header>
+        {renderHeader()}
         <main className={styles.main}>
           <div className={styles.loadingState}>
             <div className={styles.spinner} />
@@ -104,9 +112,7 @@ export function HealthHistoryPage() {
   if (error) {
     return (
       <div className={styles.container}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>{t('history_title')}</h1>
-        </header>
+        {renderHeader()}
         <main className={styles.main}>
           <Card variant="outline" padding="lg">
             <CardContent>
@@ -126,9 +132,7 @@ export function HealthHistoryPage() {
   if (sessions.length === 0) {
     return (
       <div className={styles.container}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>{t('history_title')}</h1>
-        </header>
+        {renderHeader()}
         <main className={styles.main}>
           <Card variant="outline" padding="lg">
             <CardContent>
@@ -149,9 +153,7 @@ export function HealthHistoryPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{t('history_title')}</h1>
-      </header>
+      {renderHeader()}
 
       <main className={styles.main}>
         <div className={styles.searchBar}>

@@ -12,8 +12,8 @@
 }
 
 .logo {
-  font-size: 4rem;
-  margin-bottom: var(--space-4);
+  display: block;
+  margin: 0 auto var(--space-4) auto;
   animation: float 3s ease-in-out infinite;
 }
 

@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { Logo } from '@components/common';
 import styles from './Header.module.css';
 
 export function Header() {
@@ -8,8 +9,7 @@ export function Header() {
     <header className={styles.header}>
       <div className={styles.container}>
         <Link to="/dashboard" className={styles.logo}>
-          <span className={styles.logoIcon}>🏥</span>
-          <span className={styles.logoText}>MyDoctor</span>
+          <Logo size="sm" variant="mark" />
         </Link>
         
         <nav className={styles.nav} aria-label="Main navigation">

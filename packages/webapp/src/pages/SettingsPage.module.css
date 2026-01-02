@@ -4,9 +4,35 @@
 }
 
 .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: var(--space-4);
   background-color: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  transition: background-color var(--transition-fast);
+}
+
+.backButton:hover {
+  background-color: var(--bg-secondary);
 }
 
 .title {
@@ -14,6 +40,10 @@
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin: 0;
+}
+
+.headerRight {
+  width: 36px; /* Balance the back button */
 }
 
 .main {

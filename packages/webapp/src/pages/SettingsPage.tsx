@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
-import { LLMSelector, LanguageSelector } from '@components/settings';
+import { LLMSelector, LanguageSelector, ChangePasswordModal } from '@components/settings';
 import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
 import { getLanguageInfo, type LanguageCode } from '../config/languages';
@@ -18,6 +18,7 @@ export function SettingsPage() {
   // Local state for settings that can be updated
   const [isUpdating, setIsUpdating] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   // Get current values from user preferences
   const notifications = user?.preferences?.notifications ?? true;
@@ -59,7 +60,11 @@ export function SettingsPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>{t('settings_title')}</h1>
+        <div className={styles.headerLeft}>
+          <Link to="/dashboard" className={styles.backButton}>←</Link>
+          <h1 className={styles.title}>{t('settings_title')}</h1>
+        </div>
+        <div className={styles.headerRight} />
       </header>
 
       <main className={styles.main}>
@@ -82,12 +87,11 @@ export function SettingsPage() {
                 label={t('settings_email')} 
                 value={user?.email || t('common_not_set')} 
               />
-              {/* Change Password - not yet implemented */}
+              {/* Change Password */}
               <SettingsRow 
                 label={t('settings_change_password')} 
                 hasArrow 
-                disabled
-                hint={t('settings_coming_soon')}
+                onClick={() => setShowChangePassword(true)}
               />
               {/* Two-Factor - not yet implemented */}
               <SettingsRow 
@@ -214,6 +218,12 @@ export function SettingsPage() {
           {t('settings_sign_out')}
         </Button>
       </main>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+      />
     </div>
   );
 }

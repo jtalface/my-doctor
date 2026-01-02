@@ -14,13 +14,14 @@ export const translations = {
     common_error: 'Error',
     common_save: 'Save',
     common_cancel: 'Cancel',
+    common_close: 'Close',
     common_next: 'Next',
     common_previous: 'Previous',
     common_skip: 'Skip for now',
     common_complete: 'Complete',
     
     // Login Page
-    login_title: 'Welcome to MyDoctor',
+    login_title: 'Welcome to Zambe',
     login_subtitle: 'Sign in to your account',
     login_email_label: 'Email address',
     login_email_placeholder: 'your@email.com',
@@ -38,7 +39,7 @@ export const translations = {
     
     // Register Page
     register_title: 'Create Account',
-    register_subtitle: 'Join MyDoctor for personalized health guidance',
+    register_subtitle: 'Join Zambe for personalized health guidance',
     register_name_label: 'Full Name',
     register_name_placeholder: 'John Doe',
     register_email_label: 'Email address',
@@ -259,7 +260,7 @@ export const translations = {
     not_found_return_button: 'Return to Dashboard',
     
     // Splash Page
-    splash_title: 'MyDoctor',
+    splash_title: 'Zambe',
     splash_subtitle: 'Your AI Health Companion',
     
     // Visit Summary Page
@@ -313,6 +314,24 @@ export const translations = {
     settings_send_feedback: 'Send Feedback',
     settings_coming_soon: 'Coming soon',
     settings_sign_out: 'Sign Out',
+
+    // Change Password Modal
+    change_password_title: 'Change Password',
+    change_password_current_label: 'Current Password',
+    change_password_current_placeholder: 'Enter current password',
+    change_password_new_label: 'New Password',
+    change_password_new_placeholder: 'Enter new password',
+    change_password_confirm_label: 'Confirm New Password',
+    change_password_confirm_placeholder: 'Confirm new password',
+    change_password_show_passwords: 'Show passwords',
+    change_password_submit: 'Change Password',
+    change_password_success: 'Password changed successfully!',
+    change_password_error_current_required: 'Current password is required',
+    change_password_error_new_required: 'New password is required',
+    change_password_error_too_short: 'Password must be at least 8 characters',
+    change_password_error_mismatch: 'Passwords do not match',
+    change_password_error_same: 'New password must be different from current password',
+    change_password_error_failed: 'Failed to change password. Please try again.',
     
     // Checkup Consent Page
     consent_error_user_init: 'User not initialized. Please refresh the page.',
@@ -324,7 +343,7 @@ export const translations = {
     consent_privacy_text: 'Your responses are stored securely and used only to provide personalized health education. We never share your data with third parties without consent.',
     consent_read_policy: 'Read Full Privacy Policy',
     consent_disclaimer_title: 'Important Disclaimer',
-    consent_disclaimer_text: 'MyDoctor provides health education only. This is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for medical concerns.',
+    consent_disclaimer_text: 'Zambe provides health education only. This is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for medical concerns.',
     consent_emergency: 'In case of emergency, call 911 immediately.',
     consent_checkbox1: 'I understand this is for educational purposes only and not medical advice.',
     consent_checkbox2: 'I consent to the storage of my health information as described in the Privacy Policy.',
@@ -365,13 +384,14 @@ export const translations = {
     common_error: 'Erro',
     common_save: 'Salvar',
     common_cancel: 'Cancelar',
+    common_close: 'Fechar',
     common_next: 'Próximo',
     common_previous: 'Anterior',
     common_skip: 'Pular por enquanto',
     common_complete: 'Concluir',
     
     // Login Page
-    login_title: 'Bem-vindo ao MyDoctor',
+    login_title: 'Bem-vindo ao Zambe',
     login_subtitle: 'Entre na sua conta',
     login_email_label: 'Endereço de e-mail',
     login_email_placeholder: 'seu@email.com',
@@ -389,7 +409,7 @@ export const translations = {
     
     // Register Page
     register_title: 'Criar Conta',
-    register_subtitle: 'Junte-se ao MyDoctor para orientação de saúde personalizada',
+    register_subtitle: 'Junte-se ao Zambe para orientação de saúde personalizada',
     register_name_label: 'Nome Completo',
     register_name_placeholder: 'João Silva',
     register_email_label: 'Endereço de e-mail',
@@ -610,7 +630,7 @@ export const translations = {
     not_found_return_button: 'Voltar ao Painel',
     
     // Splash Page
-    splash_title: 'MyDoctor',
+    splash_title: 'Zambe',
     splash_subtitle: 'Seu Companheiro de Saúde com IA',
     
     // Visit Summary Page
@@ -664,6 +684,24 @@ export const translations = {
     settings_send_feedback: 'Enviar Feedback',
     settings_coming_soon: 'Em breve',
     settings_sign_out: 'Sair',
+
+    // Change Password Modal
+    change_password_title: 'Alterar Senha',
+    change_password_current_label: 'Senha Atual',
+    change_password_current_placeholder: 'Digite a senha atual',
+    change_password_new_label: 'Nova Senha',
+    change_password_new_placeholder: 'Digite a nova senha',
+    change_password_confirm_label: 'Confirmar Nova Senha',
+    change_password_confirm_placeholder: 'Confirme a nova senha',
+    change_password_show_passwords: 'Mostrar senhas',
+    change_password_submit: 'Alterar Senha',
+    change_password_success: 'Senha alterada com sucesso!',
+    change_password_error_current_required: 'Senha atual é obrigatória',
+    change_password_error_new_required: 'Nova senha é obrigatória',
+    change_password_error_too_short: 'A senha deve ter pelo menos 8 caracteres',
+    change_password_error_mismatch: 'As senhas não coincidem',
+    change_password_error_same: 'A nova senha deve ser diferente da atual',
+    change_password_error_failed: 'Falha ao alterar senha. Tente novamente.',
     
     // Checkup Consent Page
     consent_error_user_init: 'Usuário não inicializado. Por favor, atualize a página.',
@@ -675,7 +713,7 @@ export const translations = {
     consent_privacy_text: 'Suas respostas são armazenadas com segurança e usadas apenas para fornecer educação em saúde personalizada. Nunca compartilhamos seus dados com terceiros sem consentimento.',
     consent_read_policy: 'Ler Política de Privacidade Completa',
     consent_disclaimer_title: 'Isenção de Responsabilidade Importante',
-    consent_disclaimer_text: 'MyDoctor fornece apenas educação em saúde. Isso NÃO substitui aconselhamento, diagnóstico ou tratamento médico profissional. Sempre consulte um profissional de saúde qualificado para questões médicas.',
+    consent_disclaimer_text: 'Zambe fornece apenas educação em saúde. Isso NÃO substitui aconselhamento, diagnóstico ou tratamento médico profissional. Sempre consulte um profissional de saúde qualificado para questões médicas.',
     consent_emergency: 'Em caso de emergência, ligue 192 imediatamente.',
     consent_checkbox1: 'Entendo que isso é apenas para fins educacionais e não é aconselhamento médico.',
     consent_checkbox2: 'Consinto com o armazenamento das minhas informações de saúde conforme descrito na Política de Privacidade.',
@@ -716,13 +754,14 @@ export const translations = {
     common_error: 'Erreur',
     common_save: 'Enregistrer',
     common_cancel: 'Annuler',
+    common_close: 'Fermer',
     common_next: 'Suivant',
     common_previous: 'Précédent',
     common_skip: 'Passer pour le moment',
     common_complete: 'Terminer',
     
     // Login Page
-    login_title: 'Bienvenue sur MyDoctor',
+    login_title: 'Bienvenue sur Zambe',
     login_subtitle: 'Connectez-vous à votre compte',
     login_email_label: 'Adresse e-mail',
     login_email_placeholder: 'votre@email.com',
@@ -740,7 +779,7 @@ export const translations = {
     
     // Register Page
     register_title: 'Créer un Compte',
-    register_subtitle: 'Rejoignez MyDoctor pour des conseils de santé personnalisés',
+    register_subtitle: 'Rejoignez Zambe pour des conseils de santé personnalisés',
     register_name_label: 'Nom Complet',
     register_name_placeholder: 'Jean Dupont',
     register_email_label: 'Adresse e-mail',
@@ -961,7 +1000,7 @@ export const translations = {
     not_found_return_button: 'Retour au Tableau de Bord',
     
     // Splash Page
-    splash_title: 'MyDoctor',
+    splash_title: 'Zambe',
     splash_subtitle: 'Votre Compagnon de Santé IA',
     
     // Visit Summary Page
@@ -1015,6 +1054,24 @@ export const translations = {
     settings_send_feedback: 'Envoyer des Commentaires',
     settings_coming_soon: 'Bientôt disponible',
     settings_sign_out: 'Se Déconnecter',
+
+    // Change Password Modal
+    change_password_title: 'Changer le Mot de Passe',
+    change_password_current_label: 'Mot de Passe Actuel',
+    change_password_current_placeholder: 'Entrez le mot de passe actuel',
+    change_password_new_label: 'Nouveau Mot de Passe',
+    change_password_new_placeholder: 'Entrez le nouveau mot de passe',
+    change_password_confirm_label: 'Confirmer le Nouveau Mot de Passe',
+    change_password_confirm_placeholder: 'Confirmez le nouveau mot de passe',
+    change_password_show_passwords: 'Afficher les mots de passe',
+    change_password_submit: 'Changer le Mot de Passe',
+    change_password_success: 'Mot de passe changé avec succès!',
+    change_password_error_current_required: 'Le mot de passe actuel est requis',
+    change_password_error_new_required: 'Le nouveau mot de passe est requis',
+    change_password_error_too_short: 'Le mot de passe doit contenir au moins 8 caractères',
+    change_password_error_mismatch: 'Les mots de passe ne correspondent pas',
+    change_password_error_same: 'Le nouveau mot de passe doit être différent de l\'actuel',
+    change_password_error_failed: 'Échec du changement de mot de passe. Veuillez réessayer.',
     
     // Checkup Consent Page
     consent_error_user_init: 'Utilisateur non initialisé. Veuillez actualiser la page.',
@@ -1026,7 +1083,7 @@ export const translations = {
     consent_privacy_text: 'Vos réponses sont stockées en toute sécurité et utilisées uniquement pour fournir une éducation sanitaire personnalisée. Nous ne partageons jamais vos données avec des tiers sans consentement.',
     consent_read_policy: 'Lire la Politique de Confidentialité Complète',
     consent_disclaimer_title: 'Avertissement Important',
-    consent_disclaimer_text: 'MyDoctor fournit uniquement une éducation en matière de santé. Ceci n\'est PAS un substitut à un avis, un diagnostic ou un traitement médical professionnel. Consultez toujours un professionnel de la santé qualifié pour les préoccupations médicales.',
+    consent_disclaimer_text: 'Zambe fournit uniquement une éducation en matière de santé. Ceci n\'est PAS un substitut à un avis, un diagnostic ou un traitement médical professionnel. Consultez toujours un professionnel de la santé qualifié pour les préoccupations médicales.',
     consent_emergency: 'En cas d\'urgence, appelez le 112 immédiatement.',
     consent_checkbox1: 'Je comprends que ceci est à des fins éducatives uniquement et non un avis médical.',
     consent_checkbox2: 'Je consens au stockage de mes informations de santé comme décrit dans la Politique de Confidentialité.',
@@ -1067,13 +1124,14 @@ export const translations = {
     common_error: 'Hitilafu',
     common_save: 'Hifadhi',
     common_cancel: 'Ghairi',
+    common_close: 'Funga',
     common_next: 'Ifuatayo',
     common_previous: 'Iliyotangulia',
     common_skip: 'Ruka kwa sasa',
     common_complete: 'Maliza',
     
     // Login Page
-    login_title: 'Karibu MyDoctor',
+    login_title: 'Karibu Zambe',
     login_subtitle: 'Ingia kwenye akaunti yako',
     login_email_label: 'Anwani ya Barua Pepe',
     login_email_placeholder: 'barua@pepe.com',
@@ -1091,7 +1149,7 @@ export const translations = {
     
     // Register Page
     register_title: 'Unda Akaunti',
-    register_subtitle: 'Jiunge na MyDoctor kwa ushauri wa afya binafsi',
+    register_subtitle: 'Jiunge na Zambe kwa ushauri wa afya binafsi',
     register_name_label: 'Jina Kamili',
     register_name_placeholder: 'John Doe',
     register_email_label: 'Anwani ya Barua Pepe',
@@ -1312,7 +1370,7 @@ export const translations = {
     not_found_return_button: 'Rudi kwa Dashibodi',
     
     // Splash Page
-    splash_title: 'MyDoctor',
+    splash_title: 'Zambe',
     splash_subtitle: 'Mwenzako wa Afya wa AI',
     
     // Visit Summary Page
@@ -1366,6 +1424,24 @@ export const translations = {
     settings_send_feedback: 'Tuma Maoni',
     settings_coming_soon: 'Inakuja hivi karibuni',
     settings_sign_out: 'Toka',
+
+    // Change Password Modal
+    change_password_title: 'Badilisha Nenosiri',
+    change_password_current_label: 'Nenosiri la Sasa',
+    change_password_current_placeholder: 'Ingiza nenosiri la sasa',
+    change_password_new_label: 'Nenosiri Jipya',
+    change_password_new_placeholder: 'Ingiza nenosiri jipya',
+    change_password_confirm_label: 'Thibitisha Nenosiri Jipya',
+    change_password_confirm_placeholder: 'Thibitisha nenosiri jipya',
+    change_password_show_passwords: 'Onyesha nenosiri',
+    change_password_submit: 'Badilisha Nenosiri',
+    change_password_success: 'Nenosiri limebadilishwa!',
+    change_password_error_current_required: 'Nenosiri la sasa linahitajika',
+    change_password_error_new_required: 'Nenosiri jipya linahitajika',
+    change_password_error_too_short: 'Nenosiri lazima liwe na angalau herufi 8',
+    change_password_error_mismatch: 'Nenosiri hazilingani',
+    change_password_error_same: 'Nenosiri jipya lazima liwe tofauti na la sasa',
+    change_password_error_failed: 'Imeshindwa kubadilisha nenosiri. Tafadhali jaribu tena.',
     
     // Checkup Consent Page
     consent_error_user_init: 'Mtumiaji hajaanzishwa. Tafadhali onyesha upya ukurasa.',
@@ -1377,7 +1453,7 @@ export const translations = {
     consent_privacy_text: 'Majibu yako yanahifadhiwa kwa usalama na yanatumika tu kutoa elimu ya afya binafsi. Hatushiriki kamwe data yako na wahusika wengine bila idhini.',
     consent_read_policy: 'Soma Sera Kamili ya Faragha',
     consent_disclaimer_title: 'Onyo Muhimu',
-    consent_disclaimer_text: 'MyDoctor inatoa elimu ya afya tu. Hii SI mbadala wa ushauri wa kitaaluma wa kiafya, uchunguzi, au matibabu. Daima wasiliana na mtaalamu wa afya aliye na sifa kwa masuala ya kiafya.',
+    consent_disclaimer_text: 'Zambe inatoa elimu ya afya tu. Hii SI mbadala wa ushauri wa kitaaluma wa kiafya, uchunguzi, au matibabu. Daima wasiliana na mtaalamu wa afya aliye na sifa kwa masuala ya kiafya.',
     consent_emergency: 'Kwa dharura, piga 999 mara moja.',
     consent_checkbox1: 'Ninaelewa kuwa hii ni kwa madhumuni ya elimu tu na si ushauri wa kiafya.',
     consent_checkbox2: 'Ninakubali kuhifadhi taarifa zangu za afya kama ilivyoelezwa katika Sera ya Faragha.',

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@components/common';
+import { Button, Logo } from '@components/common';
 import { LanguageSelector } from '@components/settings';
 import { Footer } from '@components/layout';
 import { useAuth } from '../auth';
@@ -54,10 +54,10 @@ export function LoginPage() {
   return (
     <>
       <div className={styles.container}>
-        <Link to="/" className={styles.backButton}>← {t('common_back')}</Link>
+        <Link to="/" className={styles.backButton}>{t('common_back')}</Link>
         
         <div className={styles.content}>
-          <div className={styles.logo}>🏥</div>
+          <Logo size="lg" variant="icon" className={styles.logo} />
           <h1 className={styles.title}>{t('login_title')}</h1>
           <p className={styles.subtitle}>{t('login_subtitle')}</p>
           

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
@@ -98,7 +98,11 @@ export function ProfilePage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>{t('profile_title')}</h1>
+        <div className={styles.headerLeft}>
+          <Link to="/dashboard" className={styles.backButton}>←</Link>
+          <h1 className={styles.title}>{t('profile_title')}</h1>
+        </div>
+        <div className={styles.headerRight} />
       </header>
 
       <main className={styles.main}>

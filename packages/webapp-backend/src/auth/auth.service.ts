@@ -283,6 +283,70 @@ class AuthService {
   getPasswordRequirements(): string[] {
     return passwordService.getRequirements();
   }
+
+  /**
+   * Change password for authenticated user
+   */
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new AuthError(
+        AuthErrorCode.USER_NOT_FOUND,
+        'User not found',
+        404
+      );
+    }
+
+    // Verify current password
+    if (!user.passwordHash) {
+      throw new AuthError(
+        AuthErrorCode.INVALID_CREDENTIALS,
+        'No password set for this account',
+        400
+      );
+    }
+
+    const isValidPassword = await passwordService.compare(currentPassword, user.passwordHash);
+    if (!isValidPassword) {
+      throw new AuthError(
+        AuthErrorCode.INVALID_CREDENTIALS,
+        'Current password is incorrect',
+        401
+      );
+    }
+
+    // Validate new password
+    const validation = passwordService.validate(newPassword);
+    if (!validation.isValid) {
+      throw new AuthError(
+        AuthErrorCode.WEAK_PASSWORD,
+        validation.errors.join('. '),
+        400
+      );
+    }
+
+    // Ensure new password is different from current
+    const isSamePassword = await passwordService.compare(newPassword, user.passwordHash);
+    if (isSamePassword) {
+      throw new AuthError(
+        AuthErrorCode.WEAK_PASSWORD,
+        'New password must be different from current password',
+        400
+      );
+    }
+
+    // Hash and save new password
+    user.passwordHash = await passwordService.hash(newPassword);
+    await user.save();
+
+    // Optionally: Revoke all refresh tokens (force re-login on all devices)
+    // await tokenService.revokeAllUserTokens(userId);
+  }
 }
 
 export const authService = new AuthService();

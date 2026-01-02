@@ -322,5 +322,50 @@ router.post('/check-email', async (req: Request, res: Response) => {
   }
 });
 
+// Schema for change password
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(1, 'New password is required'),
+});
+
+/**
+ * POST /api/auth/change-password
+ * Change password for authenticated user
+ */
+router.post('/change-password', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    // Validate request body
+    const validation = changePasswordSchema.safeParse(req.body);
+    if (!validation.success) {
+      const firstIssue = validation.error.issues?.[0];
+      return res.status(400).json({
+        error: 'VALIDATION_ERROR',
+        message: firstIssue?.message || 'Validation failed',
+      });
+    }
+
+    const { currentPassword, newPassword } = validation.data;
+
+    // Change password
+    await authService.changePassword(req.user!.userId, currentPassword, newPassword);
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('[Auth] Change password error:', error);
+    
+    if (error instanceof AuthError) {
+      return res.status(error.statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+    }
+    
+    res.status(500).json({
+      error: 'PASSWORD_CHANGE_FAILED',
+      message: 'Failed to change password. Please try again.',
+    });
+  }
+});
+
 export default router;
 

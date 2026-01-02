@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Logo } from '@components/common';
 import { Footer } from '@components/layout';
 import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
@@ -32,8 +33,7 @@ export function SplashPage() {
     <>
       <div className={styles.container}>
         <div className={styles.content}>
-          <div className={styles.logo}>🏥</div>
-          <h1 className={styles.title}>{t('splash_title')}</h1>
+          <Logo size="xl" variant="mark" className={styles.logo} />
           <p className={styles.subtitle}>{t('splash_subtitle')}</p>
           <div className={styles.loader}>
             <div className={styles.dot} />

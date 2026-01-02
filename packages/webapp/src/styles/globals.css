@@ -1,5 +1,5 @@
 /* ============================================
-   MYDOCTOR WEB APP - GLOBAL STYLES
+   ZAMBE WEB APP - GLOBAL STYLES
    ============================================ */
 
 /* CSS Reset */
@@ -13,17 +13,17 @@
 
 /* Design Tokens */
 :root {
-  /* Colors - Primary */
-  --color-primary-50: #EEF2FF;
-  --color-primary-100: #E0E7FF;
-  --color-primary-200: #C7D2FE;
-  --color-primary-300: #A5B4FC;
-  --color-primary-400: #818CF8;
-  --color-primary-500: #6366F1;
-  --color-primary-600: #4F46E5;
-  --color-primary-700: #4338CA;
-  --color-primary-800: #3730A3;
-  --color-primary-900: #312E81;
+  /* Colors - Primary (Zambe Green) */
+  --color-primary-50: #ECFDF5;
+  --color-primary-100: #D1FAE5;
+  --color-primary-200: #A7F3D0;
+  --color-primary-300: #6EE7B7;
+  --color-primary-400: #34D399;
+  --color-primary-500: #2D5339;
+  --color-primary-600: #264832;
+  --color-primary-700: #1F3D2A;
+  --color-primary-800: #183222;
+  --color-primary-900: #11271A;
   
   /* Colors - Neutrals */
   --color-gray-50: #F9FAFB;
