@@ -20,6 +20,10 @@ export function DashboardPage() {
   const { activeProfile, isViewingDependent } = useActiveProfile();
   const t = useTranslate();
   
+  // Create stable values for useEffect dependencies
+  const profileId = activeProfile?.id;
+  const profileType = isViewingDependent ? 'dependent' : 'self';
+  
   const getGreeting = (): string => {
     const hour = new Date().getHours();
     if (hour < 12) return t('dashboard_greeting_morning');
@@ -32,8 +36,14 @@ export function DashboardPage() {
   const [backendAvailable, setBackendAvailable] = useState(true);
 
   useEffect(() => {
+    // Reset state when profile changes
+    setIsLoading(true);
+    setSessions([]);
+    setHealthStatus(null);
+    setBackendAvailable(true);
+    
     const loadData = async () => {
-      if (!activeProfile?.id) {
+      if (!profileId) {
         setIsLoading(false);
         return;
       }
@@ -46,10 +56,10 @@ export function DashboardPage() {
 
         // Get sessions for the active profile (could be self or dependent)
         let userSessions: SessionHistoryItem[];
-        if (isViewingDependent) {
-          userSessions = await api.getDependentSessions(activeProfile.id);
+        if (profileType === 'dependent') {
+          userSessions = await api.getDependentSessions(profileId);
         } else {
-          userSessions = await api.getUserSessions(activeProfile.id);
+          userSessions = await api.getUserSessions(profileId);
         }
         setSessions(userSessions);
       } catch (err) {
@@ -61,7 +71,7 @@ export function DashboardPage() {
     };
 
     loadData();
-  }, [activeProfile?.id, isViewingDependent]);
+  }, [profileId, profileType]);
 
   const completedSessions = sessions.filter(s => s.status === 'completed');
   const hasRedFlags = completedSessions.some(s => s.summary?.redFlags?.length);

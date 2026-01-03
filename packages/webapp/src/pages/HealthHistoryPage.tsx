@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useActiveProfile } from '../contexts';
@@ -12,37 +12,72 @@ export function HealthHistoryPage() {
   const [sessions, setSessions] = useState<SessionHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Create a stable key from profile ID and type
+  const profileId = activeProfile?.id;
+  const profileType = isViewingDependent ? 'dependent' : 'self';
 
-  const loadSessions = useCallback(async () => {
-    if (!activeProfile?.id) {
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      // Fetch sessions for the active profile (self or dependent)
-      let userSessions: SessionHistoryItem[];
-      if (isViewingDependent) {
-        userSessions = await api.getDependentSessions(activeProfile.id);
-      } else {
-        userSessions = await api.getUserSessions(activeProfile.id);
-      }
-      setSessions(userSessions);
-    } catch (err) {
-      console.error('Failed to load sessions:', err);
-      setError('Failed to load sessions');
-    } finally {
-      setIsLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeProfile?.id, isViewingDependent]);
-
+  // Load sessions when profile changes
   useEffect(() => {
+    // Reset state when profile changes
+    setIsLoading(true);
+    setSessions([]);
+    setError(null);
+    
+    const loadSessions = async () => {
+      if (!profileId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // Fetch sessions for the active profile (self or dependent)
+        let userSessions: SessionHistoryItem[];
+        if (profileType === 'dependent') {
+          userSessions = await api.getDependentSessions(profileId);
+        } else {
+          userSessions = await api.getUserSessions(profileId);
+        }
+        setSessions(userSessions);
+      } catch (err) {
+        console.error('Failed to load sessions:', err);
+        setError('Failed to load sessions');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     loadSessions();
-  }, [loadSessions]);
+  }, [profileId, profileType]);
+
+  // Function to reload sessions (for retry button)
+  const reloadSessions = () => {
+    setIsLoading(true);
+    setSessions([]);
+    setError(null);
+    
+    const load = async () => {
+      if (!profileId) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        let userSessions: SessionHistoryItem[];
+        if (profileType === 'dependent') {
+          userSessions = await api.getDependentSessions(profileId);
+        } else {
+          userSessions = await api.getUserSessions(profileId);
+        }
+        setSessions(userSessions);
+      } catch (err) {
+        console.error('Failed to load sessions:', err);
+        setError('Failed to load sessions');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  };
 
   // Format date to "Dec 16, 2024"
   const formatDate = (dateStr: string) => {
@@ -128,7 +163,7 @@ export function HealthHistoryPage() {
                 <span className={styles.errorIcon}>⚠️</span>
                 <h3>{t('history_error_title')}</h3>
                 <p>{error}</p>
-                <Button onClick={loadSessions}>{t('history_try_again')}</Button>
+                <Button onClick={reloadSessions}>{t('history_try_again')}</Button>
               </div>
             </CardContent>
           </Card>

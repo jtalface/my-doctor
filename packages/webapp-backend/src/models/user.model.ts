@@ -30,11 +30,9 @@ const UserSchema = new Schema<IUser>(
   {
     email: { 
       type: String, 
-      unique: true, 
-      sparse: true,  // Allow null/undefined for dependents
       lowercase: true,
       trim: true,
-      index: true,
+      // Note: unique sparse index defined below to properly handle null values for dependents
     },
     name: { type: String, required: true, trim: true },
     phone: { type: String, trim: true },
@@ -59,8 +57,9 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-// Index for faster lookups
-UserSchema.index({ email: 1 });
+// Indexes
+// Sparse unique index on email - allows multiple null values (for dependents)
+UserSchema.index({ email: 1 }, { unique: true, sparse: true });
 UserSchema.index({ isGuest: 1 });
 UserSchema.index({ isDependent: 1 });
 
