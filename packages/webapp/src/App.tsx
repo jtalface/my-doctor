@@ -1,12 +1,14 @@
 import { Routes, Route } from 'react-router-dom';
 import { Layout } from '@components/layout/Layout';
 import { AuthProvider, ProtectedRoute } from './auth';
+import { ActiveProfileProvider } from './contexts';
 
 // Pages
 import { SplashPage } from '@pages/SplashPage';
 import { LoginPage } from '@pages/LoginPage';
 import { RegisterPage } from '@pages/RegisterPage';
 import { ProfileSetupPage } from '@pages/ProfileSetupPage';
+import { DependentProfileSetupPage } from '@pages/DependentProfileSetupPage';
 import { DashboardPage } from '@pages/DashboardPage';
 import { CheckupStartPage } from '@pages/CheckupStartPage';
 import { CheckupConsentPage } from '@pages/CheckupConsentPage';
@@ -21,7 +23,8 @@ import { NotFoundPage } from '@pages/NotFoundPage';
 function App() {
   return (
     <AuthProvider>
-      <Routes>
+      <ActiveProfileProvider>
+        <Routes>
         {/* Public routes */}
         <Route path="/" element={<SplashPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -86,11 +89,17 @@ function App() {
               <SettingsPage />
             </ProtectedRoute>
           } />
+          <Route path="/dependent/:id/profile/setup" element={
+            <ProtectedRoute>
+              <DependentProfileSetupPage />
+            </ProtectedRoute>
+          } />
         </Route>
         
         {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </ActiveProfileProvider>
     </AuthProvider>
   );
 }

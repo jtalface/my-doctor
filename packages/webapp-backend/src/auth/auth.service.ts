@@ -73,8 +73,8 @@ class AuthService {
     });
     await profile.save();
 
-    // Generate tokens
-    const accessToken = tokenService.generateAccessToken(user._id.toString(), user.email);
+    // Generate tokens - email is guaranteed to exist for registered users
+    const accessToken = tokenService.generateAccessToken(user._id.toString(), user.email!);
     const { token: refreshToken, expiresAt: refreshExpiresAt } = await tokenService.generateRefreshToken(
       user._id.toString(),
       userAgent,
@@ -84,7 +84,7 @@ class AuthService {
     return {
       user: {
         id: user._id.toString(),
-        email: user.email,
+        email: user.email!,
         name: user.name,
         isGuest: user.isGuest,
         preferences: user.preferences,
@@ -150,8 +150,8 @@ class AuthService {
     // Reset failed attempts on successful login
     await (user as any).resetLoginAttempts();
 
-    // Generate tokens
-    const accessToken = tokenService.generateAccessToken(user._id.toString(), user.email);
+    // Generate tokens - email is guaranteed to exist for logged-in users
+    const accessToken = tokenService.generateAccessToken(user._id.toString(), user.email!);
     const { token: refreshToken, expiresAt: refreshExpiresAt } = await tokenService.generateRefreshToken(
       user._id.toString(),
       userAgent,
@@ -161,7 +161,7 @@ class AuthService {
     return {
       user: {
         id: user._id.toString(),
-        email: user.email,
+        email: user.email!,
         name: user.name,
         isGuest: user.isGuest,
         preferences: user.preferences,
@@ -222,8 +222,8 @@ class AuthService {
       );
     }
 
-    // Generate new access token
-    const accessToken = tokenService.generateAccessToken(user._id.toString(), user.email);
+    // Generate new access token - email is guaranteed for non-dependent users
+    const accessToken = tokenService.generateAccessToken(user._id.toString(), user.email!);
 
     // Rotate refresh token (mark old as used, generate new)
     const { token: newRefreshToken, expiresAt: refreshExpiresAt } = await tokenService.rotateRefreshToken(
@@ -262,7 +262,7 @@ class AuthService {
 
     return {
       id: user._id.toString(),
-      email: user.email,
+      email: user.email || '', // Default to empty string for dependents (who don't log in)
       name: user.name,
       isGuest: user.isGuest,
       preferences: user.preferences,

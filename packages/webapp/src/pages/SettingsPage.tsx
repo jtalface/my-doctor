@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { LLMSelector, LanguageSelector, ChangePasswordModal } from '@components/settings';
+import { DependentsManager } from '@components/dependents';
 import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
 import { getLanguageInfo, type LanguageCode } from '../config/languages';
@@ -75,6 +76,11 @@ export function SettingsPage() {
               <LLMSelector />
             </CardContent>
           </Card>
+        </section>
+
+        {/* Family Members Section */}
+        <section className={styles.section}>
+          <DependentsManager />
         </section>
 
         {/* Account Section */}

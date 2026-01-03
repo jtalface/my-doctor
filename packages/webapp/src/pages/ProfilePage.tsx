@@ -1,13 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useAuth } from '../auth';
+import { useActiveProfile } from '../contexts';
 import { useTranslate } from '../i18n';
 import { getLanguageInfo } from '../config/languages';
 import styles from './ProfilePage.module.css';
 
 export function ProfilePage() {
   const navigate = useNavigate();
-  const { user, profile, logout } = useAuth();
+  const { logout } = useAuth();
+  const { activeProfile, activePatientProfile, isViewingDependent } = useActiveProfile();
   const t = useTranslate();
 
   // Format date from ISO string
@@ -66,24 +68,31 @@ export function ProfilePage() {
     return labels[value] || value.charAt(0).toUpperCase() + value.slice(1);
   };
 
-  const languageInfo = getLanguageInfo(user?.preferences?.language || 'en');
+  // Use active profile's language preference
+  const languageInfo = getLanguageInfo(activeProfile?.preferences?.language || 'en');
 
+  // Build profile data from active profile (can be self or dependent)
   const profileData = {
-    name: user?.name || t('common_guest_user'),
-    email: user?.email || t('common_no_email'),
+    name: activeProfile?.name || t('common_guest_user'),
+    // For dependents, we might not have email, so show relationship instead
+    email: isViewingDependent 
+      ? t(`dependents_relationship_${activeProfile?.relationship}` as any) || ''
+      : (activeProfile && 'email' in activeProfile ? (activeProfile as any).email : '') || t('common_no_email'),
     language: `${languageInfo.flag} ${languageInfo.nativeName}`,
-    dob: formatDate(profile?.demographics?.dateOfBirth),
-    sex: formatSex(profile?.demographics?.sexAtBirth),
-    height: formatHeight(profile?.demographics?.heightCm),
-    weight: formatWeight(profile?.demographics?.weightKg),
-    allergies: formatArray(profile?.medicalHistory?.allergies),
-    conditions: formatArray(profile?.medicalHistory?.chronicConditions),
-    medications: formatArray(profile?.medicalHistory?.medications, t('common_none')),
-    smoking: profile?.lifestyle?.smoking 
-      ? `${formatLifestyle(profile.lifestyle.smoking)} ${t('profile_smoker')}`
+    dob: formatDate(activePatientProfile?.demographics?.dateOfBirth || activeProfile?.dateOfBirth),
+    sex: formatSex(activePatientProfile?.demographics?.sexAtBirth),
+    height: formatHeight(activePatientProfile?.demographics?.heightCm),
+    weight: formatWeight(activePatientProfile?.demographics?.weightKg),
+    allergies: formatArray(activePatientProfile?.medicalHistory?.allergies),
+    conditions: formatArray(activePatientProfile?.medicalHistory?.chronicConditions),
+    medications: formatArray(activePatientProfile?.medicalHistory?.medications, t('common_none')),
+    smoking: activePatientProfile?.lifestyle?.smoking 
+      ? `${formatLifestyle(activePatientProfile.lifestyle.smoking)} ${t('profile_smoker')}`
       : t('common_not_set'),
-    alcohol: formatLifestyle(profile?.lifestyle?.alcohol),
-    exercise: formatLifestyle(profile?.lifestyle?.exercise),
+    alcohol: formatLifestyle(activePatientProfile?.lifestyle?.alcohol),
+    exercise: formatLifestyle(activePatientProfile?.lifestyle?.exercise),
+    isDependent: isViewingDependent,
+    age: activeProfile?.age,
   };
 
   const handleLogout = () => {
@@ -92,6 +101,7 @@ export function ProfilePage() {
   };
 
   const handleEditProfile = () => {
+    // TODO: For dependents, navigate to a dependent-specific edit page
     navigate('/profile/setup');
   };
 
@@ -100,15 +110,25 @@ export function ProfilePage() {
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <Link to="/dashboard" className={styles.backButton}>←</Link>
-          <h1 className={styles.title}>{t('profile_title')}</h1>
+          <h1 className={styles.title}>
+            {isViewingDependent 
+              ? t('profile_dependent_title', { name: activeProfile?.name || '' })
+              : t('profile_title')
+            }
+          </h1>
         </div>
         <div className={styles.headerRight} />
       </header>
 
       <main className={styles.main}>
         <div className={styles.profileHeader}>
-          <div className={styles.avatar}>👤</div>
+          <div className={styles.avatar}>
+            {isViewingDependent ? '👶' : '👤'}
+          </div>
           <h2 className={styles.name}>{profileData.name}</h2>
+          {isViewingDependent && profileData.age !== undefined && (
+            <p className={styles.age}>{t('dependents_age_years', { age: profileData.age })}</p>
+          )}
           <p className={styles.email}>{profileData.email}</p>
         </div>
 
@@ -151,9 +171,12 @@ export function ProfilePage() {
           <Button fullWidth size="lg" onClick={handleEditProfile}>
             {t('profile_update_profile_information')}
           </Button>
-          <Button fullWidth size="lg" variant="outline" onClick={handleLogout}>
-            {t('profile_sign_out')}
-          </Button>
+          {/* Only show logout for the main account, not for dependents */}
+          {!isViewingDependent && (
+            <Button fullWidth size="lg" variant="outline" onClick={handleLogout}>
+              {t('profile_sign_out')}
+            </Button>
+          )}
         </div>
       </main>
     </div>

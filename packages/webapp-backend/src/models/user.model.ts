@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUser extends Document {
-  email: string;
+  email?: string;  // Optional for dependents (they don't login)
   name: string;
   phone?: string;
   passwordHash?: string;
@@ -17,6 +17,11 @@ export interface IUser extends Document {
   lockoutUntil?: Date;
   lastLoginAt?: Date;
   passwordChangedAt?: Date;
+  
+  // Dependent-related fields
+  isDependent: boolean;  // true = managed account (no login)
+  dateOfBirth?: Date;    // Required for dependents (must be under 18)
+  
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,8 +30,8 @@ const UserSchema = new Schema<IUser>(
   {
     email: { 
       type: String, 
-      required: true, 
       unique: true, 
+      sparse: true,  // Allow null/undefined for dependents
       lowercase: true,
       trim: true,
       index: true,
@@ -46,6 +51,10 @@ const UserSchema = new Schema<IUser>(
     lockoutUntil: { type: Date },
     lastLoginAt: { type: Date },
     passwordChangedAt: { type: Date },
+    
+    // Dependent-related fields
+    isDependent: { type: Boolean, default: false },
+    dateOfBirth: { type: Date },
   },
   { timestamps: true }
 );
@@ -53,6 +62,7 @@ const UserSchema = new Schema<IUser>(
 // Index for faster lookups
 UserSchema.index({ email: 1 });
 UserSchema.index({ isGuest: 1 });
+UserSchema.index({ isDependent: 1 });
 
 // Virtual to check if account is locked
 UserSchema.virtual('isLocked').get(function() {

@@ -1,24 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
-import { useAuth } from '../auth';
+import { useActiveProfile } from '../contexts';
 import { useTranslate } from '../i18n';
 import { api, SessionHistoryItem } from '../services/api';
 import styles from './HealthHistoryPage.module.css';
 
 export function HealthHistoryPage() {
-  const { user: authUser } = useAuth();
+  const { activeProfile, isViewingDependent } = useActiveProfile();
   const t = useTranslate();
   const [sessions, setSessions] = useState<SessionHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadSessions();
-  }, [authUser?.id]);
-
-  const loadSessions = async () => {
-    if (!authUser?.id) {
+  const loadSessions = useCallback(async () => {
+    if (!activeProfile?.id) {
       setIsLoading(false);
       return;
     }
@@ -26,15 +22,27 @@ export function HealthHistoryPage() {
     try {
       setIsLoading(true);
       setError(null);
-      const userSessions = await api.getUserSessions(authUser.id);
+      
+      // Fetch sessions for the active profile (self or dependent)
+      let userSessions: SessionHistoryItem[];
+      if (isViewingDependent) {
+        userSessions = await api.getDependentSessions(activeProfile.id);
+      } else {
+        userSessions = await api.getUserSessions(activeProfile.id);
+      }
       setSessions(userSessions);
     } catch (err) {
       console.error('Failed to load sessions:', err);
-      setError(t('history_error'));
+      setError('Failed to load sessions');
     } finally {
       setIsLoading(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeProfile?.id, isViewingDependent]);
+
+  useEffect(() => {
+    loadSessions();
+  }, [loadSessions]);
 
   // Format date to "Dec 16, 2024"
   const formatDate = (dateStr: string) => {

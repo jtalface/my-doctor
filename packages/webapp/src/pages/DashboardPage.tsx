@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { LLMSelector } from '@components/settings';
 import { api, SessionHistoryItem, HealthStatus } from '../services/api';
-import { useAuth } from '../auth';
+import { useActiveProfile } from '../contexts';
 import { useTranslate } from '../i18n';
 import styles from './DashboardPage.module.css';
 
@@ -17,7 +17,7 @@ function formatDate(dateString: string): string {
 }
 
 export function DashboardPage() {
-  const { user } = useAuth();
+  const { activeProfile, isViewingDependent } = useActiveProfile();
   const t = useTranslate();
   
   const getGreeting = (): string => {
@@ -33,17 +33,25 @@ export function DashboardPage() {
 
   useEffect(() => {
     const loadData = async () => {
+      if (!activeProfile?.id) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         // Check backend health (public endpoint)
         const health = await api.getHealth();
         setHealthStatus(health);
         setBackendAvailable(true);
 
-        // Get user's sessions (using authenticated user ID)
-        if (user?.id) {
-          const userSessions = await api.getUserSessions(user.id);
-          setSessions(userSessions);
+        // Get sessions for the active profile (could be self or dependent)
+        let userSessions: SessionHistoryItem[];
+        if (isViewingDependent) {
+          userSessions = await api.getDependentSessions(activeProfile.id);
+        } else {
+          userSessions = await api.getUserSessions(activeProfile.id);
         }
+        setSessions(userSessions);
       } catch (err) {
         console.error('Failed to load dashboard data:', err);
         setBackendAvailable(false);
@@ -53,7 +61,7 @@ export function DashboardPage() {
     };
 
     loadData();
-  }, [user?.id]);
+  }, [activeProfile?.id, isViewingDependent]);
 
   const completedSessions = sessions.filter(s => s.status === 'completed');
   const hasRedFlags = completedSessions.some(s => s.summary?.redFlags?.length);
@@ -62,7 +70,7 @@ export function DashboardPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <h1 className={styles.greeting}>{getGreeting()}{user?.name ? `, ${user.name.split(' ')[0]}` : ''} 👋</h1>
+          <h1 className={styles.greeting}>{getGreeting()}{activeProfile?.name ? `, ${activeProfile.name.split(' ')[0]}` : ''} 👋</h1>
           {healthStatus && (
             <p className={styles.statusBadge}>
               <span className={backendAvailable ? styles.statusOnline : styles.statusOffline}>●</span>

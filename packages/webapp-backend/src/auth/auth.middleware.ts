@@ -11,6 +11,9 @@ import { tokenService } from './token.service.js';
 import { authConfig } from './auth.config.js';
 import { AuthenticatedRequest, AuthError, AuthErrorCode } from './auth.types.js';
 
+// Check if we're in development mode
+const isDev = process.env.NODE_ENV !== 'production';
+
 /**
  * Middleware to verify JWT access token
  * Adds user info to request if valid
@@ -84,10 +87,11 @@ export function optionalAuth(
 
 /**
  * Rate limiter for login attempts
+ * Disabled in development for easier testing
  */
 export const loginRateLimiter = rateLimit({
   windowMs: authConfig.rateLimit.login.windowMs,
-  max: authConfig.rateLimit.login.maxAttempts,
+  max: isDev ? 100 : authConfig.rateLimit.login.maxAttempts,
   message: {
     error: AuthErrorCode.RATE_LIMITED,
     message: 'Too many login attempts. Please try again later.',
@@ -99,6 +103,7 @@ export const loginRateLimiter = rateLimit({
     const email = req.body?.email || '';
     return `${req.ip}-${email.toLowerCase()}`;
   },
+  skip: () => isDev, // Skip rate limiting in development
 });
 
 /**
@@ -131,16 +136,18 @@ export const passwordResetRateLimiter = rateLimit({
 
 /**
  * General API rate limiter (for all authenticated routes)
+ * More lenient in development to avoid issues during testing
  */
 export const apiRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 100, // 100 requests per minute
+  max: isDev ? 1000 : 200, // 1000 req/min in dev, 200 in production
   message: {
     error: 'RATE_LIMITED',
     message: 'Too many requests. Please slow down.',
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => isDev, // Skip rate limiting entirely in development
 });
 
 /**

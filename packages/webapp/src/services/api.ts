@@ -110,6 +110,49 @@ export interface SessionHistoryItem {
   summary?: SessionSummary;
 }
 
+// Dependent types
+export type RelationshipType = 'parent' | 'guardian' | 'spouse' | 'sibling' | 'grandparent' | 'other';
+
+export interface Dependent {
+  id: string;
+  name: string;
+  dateOfBirth: string;
+  age: number;
+  preferences: {
+    language: string;
+    notifications: boolean;
+    dataSharing: boolean;
+  };
+  relationship: RelationshipType;
+  isPrimary: boolean;
+  addedAt: string;
+  hasProfile: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ManagerInfo {
+  id: string;
+  name: string;
+  email: string;
+  relationship: RelationshipType;
+  isPrimary: boolean;
+  addedAt: string;
+}
+
+export interface CreateDependentInput {
+  name: string;
+  dateOfBirth: string;
+  relationship: RelationshipType;
+  language?: string;
+}
+
+export interface UpdateDependentInput {
+  name?: string;
+  dateOfBirth?: string;
+  language?: string;
+}
+
 // API Client class
 class ApiClient {
   private baseUrl: string;
@@ -266,6 +309,144 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(event),
     });
+  }
+
+  // ==========================================
+  // DEPENDENT ENDPOINTS (PROTECTED)
+  // ==========================================
+
+  /**
+   * Create a new dependent
+   */
+  async createDependent(input: CreateDependentInput): Promise<Dependent> {
+    return this.authRequest('/api/dependents', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+  }
+
+  /**
+   * Get all dependents for the current user
+   */
+  async getDependents(): Promise<Dependent[]> {
+    return this.authRequest('/api/dependents');
+  }
+
+  /**
+   * Get a specific dependent by ID
+   */
+  async getDependent(dependentId: string): Promise<Dependent> {
+    return this.authRequest(`/api/dependents/${dependentId}`);
+  }
+
+  /**
+   * Update a dependent's basic info
+   */
+  async updateDependent(dependentId: string, updates: UpdateDependentInput): Promise<Dependent> {
+    return this.authRequest(`/api/dependents/${dependentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  /**
+   * Delete a dependent and all their data
+   */
+  async deleteDependent(dependentId: string): Promise<{ success: boolean; message: string }> {
+    return this.authRequest(`/api/dependents/${dependentId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Get all managers of a dependent
+   */
+  async getDependentManagers(dependentId: string): Promise<ManagerInfo[]> {
+    return this.authRequest(`/api/dependents/${dependentId}/managers`);
+  }
+
+  /**
+   * Add a manager to a dependent
+   */
+  async addDependentManager(
+    dependentId: string,
+    emailOrId: string,
+    relationship: RelationshipType
+  ): Promise<{ success: boolean; message: string }> {
+    // Determine if it's an email or ID
+    const isEmail = emailOrId.includes('@');
+    const body = isEmail 
+      ? { email: emailOrId, relationship }
+      : { managerId: emailOrId, relationship };
+    
+    return this.authRequest(`/api/dependents/${dependentId}/managers`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  /**
+   * Remove a manager from a dependent
+   */
+  async removeDependentManager(
+    dependentId: string,
+    managerId: string
+  ): Promise<{ success: boolean; message: string; dependentDeleted?: boolean }> {
+    return this.authRequest(`/api/dependents/${dependentId}/managers/${managerId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Update relationship type with a dependent
+   */
+  async updateDependentRelationship(
+    dependentId: string,
+    relationship: RelationshipType
+  ): Promise<Dependent> {
+    return this.authRequest(`/api/dependents/${dependentId}/relationship`, {
+      method: 'PATCH',
+      body: JSON.stringify({ relationship }),
+    });
+  }
+
+  /**
+   * Get dependent's health profile
+   */
+  async getDependentProfile(dependentId: string): Promise<PatientProfile> {
+    return this.authRequest(`/api/dependents/${dependentId}/profile`);
+  }
+
+  /**
+   * Update dependent's health profile
+   */
+  async updateDependentProfile(
+    dependentId: string,
+    updates: Partial<PatientProfile>
+  ): Promise<PatientProfile> {
+    return this.authRequest(`/api/dependents/${dependentId}/profile`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  /**
+   * Get dependent's session history
+   */
+  async getDependentSessions(
+    dependentId: string,
+    options?: { limit?: number; skip?: number }
+  ): Promise<SessionHistoryItem[]> {
+    const params = new URLSearchParams();
+    if (options?.limit) params.set('limit', options.limit.toString());
+    if (options?.skip) params.set('skip', options.skip.toString());
+    
+    const queryString = params.toString();
+    const endpoint = queryString 
+      ? `/api/dependents/${dependentId}/sessions?${queryString}`
+      : `/api/dependents/${dependentId}/sessions`;
+    
+    return this.authRequest(endpoint);
   }
 }
 

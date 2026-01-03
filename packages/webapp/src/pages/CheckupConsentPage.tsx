@@ -2,21 +2,21 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useTranslate } from '../i18n';
-import { useAuth } from '../auth';
+import { useActiveProfile } from '../contexts';
 import { api } from '../services/api';
 import styles from './CheckupConsentPage.module.css';
 
 export function CheckupConsentPage() {
   const navigate = useNavigate();
   const t = useTranslate();
-  const { user: authUser } = useAuth();
+  const { activeProfile } = useActiveProfile();
   const [consent1, setConsent1] = useState(false);
   const [consent2, setConsent2] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleContinue = async () => {
-    if (!authUser?.id) {
+    if (!activeProfile?.id) {
       setError(t('consent_error_user_init'));
       return;
     }
@@ -25,8 +25,8 @@ export function CheckupConsentPage() {
     setError(null);
     
     try {
-      // Start a new session via the API
-      const result = await api.startSession(authUser.id);
+      // Start a new session for the active profile (self or dependent)
+      const result = await api.startSession(activeProfile.id);
       
       // Navigate to the session with the real session ID
       navigate(`/checkup/session/${result.sessionId}`);

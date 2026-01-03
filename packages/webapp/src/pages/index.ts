@@ -2,6 +2,7 @@ export { SplashPage } from './SplashPage';
 export { LoginPage } from './LoginPage';
 export { RegisterPage } from './RegisterPage';
 export { ProfileSetupPage } from './ProfileSetupPage';
+export { DependentProfileSetupPage } from './DependentProfileSetupPage';
 export { DashboardPage } from './DashboardPage';
 export { CheckupStartPage } from './CheckupStartPage';
 export { CheckupConsentPage } from './CheckupConsentPage';

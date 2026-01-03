@@ -4,7 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import { config } from './config/index.js';
-import { sessionRoutes, userRoutes, healthRoutes } from './api/index.js';
+import { sessionRoutes, userRoutes, healthRoutes, dependentRoutes } from './api/index.js';
 import { authRoutes, authenticate, apiRateLimiter, authErrorHandler } from './auth/index.js';
 import { llmManager } from './services/llm/manager.js';
 import { stateLoader } from './core/state-loader.js';
@@ -66,6 +66,7 @@ app.get('/', (_req, res) => {
       auth: '/api/auth',
       session: '/api/session (authenticated)',
       user: '/api/user (authenticated)',
+      dependents: '/api/dependents (authenticated)',
     },
   });
 });
@@ -77,6 +78,7 @@ app.get('/', (_req, res) => {
 // Apply rate limiting and authentication to protected routes
 app.use('/api/session', apiRateLimiter, authenticate, sessionRoutes);
 app.use('/api/user', apiRateLimiter, authenticate, userRoutes);
+app.use('/api/dependents', apiRateLimiter, authenticate, dependentRoutes);
 
 // ============================================
 // ERROR HANDLERS
