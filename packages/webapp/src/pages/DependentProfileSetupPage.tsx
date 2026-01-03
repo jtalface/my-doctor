@@ -181,7 +181,7 @@ export function DependentProfileSetupPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <Link to="/settings" className={styles.backLink}>← {t('common_back')}</Link>
+          <Link to="/settings" className={styles.backLink}>{t('common_back')}</Link>
           <h1 className={styles.title}>
             {t('dependent_profile_setup_title', { name: dependent.name })}
           </h1>
