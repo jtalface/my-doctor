@@ -168,24 +168,22 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
               
               {/* Relationship */}
               <div className={styles.field}>
-                <label className={styles.label}>
+                <label htmlFor="dep-relationship" className={styles.label}>
                   {t('add_dependent_relationship_label')}
                 </label>
-                <div className={styles.radioGroup}>
+                <select
+                  id="dep-relationship"
+                  value={relationship}
+                  onChange={e => setRelationship(e.target.value as RelationshipType)}
+                  className={styles.select}
+                >
+                  <option value="">{t('add_dependent_relationship_placeholder')}</option>
                   {relationshipOptions.map(option => (
-                    <label key={option.value} className={styles.radioLabel}>
-                      <input
-                        type="radio"
-                        name="relationship"
-                        value={option.value}
-                        checked={relationship === option.value}
-                        onChange={() => setRelationship(option.value)}
-                        className={styles.radio}
-                      />
-                      <span>{t(option.labelKey as any)}</span>
-                    </label>
+                    <option key={option.value} value={option.value}>
+                      {t(option.labelKey as any)}
+                    </option>
                   ))}
-                </div>
+                </select>
               </div>
               
               {/* Language */}
