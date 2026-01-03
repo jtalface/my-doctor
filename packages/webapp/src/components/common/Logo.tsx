@@ -7,7 +7,7 @@ interface LogoProps {
 }
 
 const sizeMap = {
-  sm: 36,
+  sm: 42,
   md: 64,
   lg: 96,
   xl: 128,
@@ -18,7 +18,7 @@ export function Logo({ size = 'md', variant = 'mark', className = '' }: LogoProp
   
   // Icon-only images (no text)
   const getIconSrc = () => {
-    if (pixelSize <= 48) return '/icons/zambe-icon-96x96.png';
+    if (pixelSize <= 64) return '/icons/zambe-icon-96x96.png';
     if (pixelSize <= 96) return '/icons/zambe-icon-256x256.png';
     return '/icons/zambe-icon-512x512.png';
   };
