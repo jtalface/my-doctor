@@ -5,7 +5,7 @@ import { LLMSelector, LanguageSelector, ChangePasswordModal } from '@components/
 import { DependentsManager } from '@components/dependents';
 import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
-import { getLanguageInfo, type LanguageCode } from '../config/languages';
+import { type LanguageCode } from '../config/languages';
 import styles from './SettingsPage.module.css';
 
 // App version - could be pulled from package.json in a real app
@@ -18,13 +18,11 @@ export function SettingsPage() {
   
   // Local state for settings that can be updated
   const [isUpdating, setIsUpdating] = useState(false);
-  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   // Get current values from user preferences
   const notifications = user?.preferences?.notifications ?? true;
   const currentLanguage = (user?.preferences?.language as LanguageCode) || 'en';
-  const languageInfo = getLanguageInfo(currentLanguage);
 
   const handleNotificationsToggle = async () => {
     if (!user || isUpdating) return;
@@ -45,7 +43,6 @@ export function SettingsPage() {
     setIsUpdating(true);
     try {
       await updateUserPreferences({ language: newLanguage });
-      setShowLanguageSelector(false);
     } catch (error) {
       console.error('Failed to update language:', error);
     } finally {
@@ -117,31 +114,15 @@ export function SettingsPage() {
           <Card variant="default" padding="none">
             <CardContent>
               {/* Language - from user preferences */}
-              {showLanguageSelector ? (
-                <div className={styles.languageSelectorWrapper}>
-                  <div className={styles.languageSelectorHeader}>
-                    <span className={styles.rowLabel}>{t('settings_language')}</span>
-                    <button 
-                      className={styles.cancelButton}
-                      onClick={() => setShowLanguageSelector(false)}
-                    >
-                      {t('common_cancel')}
-                    </button>
-                  </div>
+              <div className={styles.settingsRow}>
+                <span className={styles.rowLabel}>{t('settings_language')}</span>
+                <div className={styles.rowRight}>
                   <LanguageSelector 
                     value={currentLanguage} 
                     onChange={handleLanguageChange}
-                    variant="expanded"
                   />
                 </div>
-              ) : (
-                <SettingsRow 
-                  label={t('settings_language')} 
-                  value={`${languageInfo.flag} ${languageInfo.nativeName}`}
-                  hasArrow
-                  onClick={() => setShowLanguageSelector(true)}
-                />
-              )}
+              </div>
               
               {/* Units - not yet implemented */}
               <SettingsRow 
