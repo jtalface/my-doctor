@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
+import { VaccinationAlert, VaccinationModal } from '../components/vaccinations';
 import { useAuth } from '../auth';
 import { useActiveProfile } from '../contexts';
 import { useTranslate } from '../i18n';
@@ -11,6 +13,7 @@ export function ProfilePage() {
   const { logout } = useAuth();
   const { activeProfile, activePatientProfile, isViewingDependent } = useActiveProfile();
   const t = useTranslate();
+  const [showVaccinationModal, setShowVaccinationModal] = useState(false);
 
   // Format date from ISO string
   const formatDate = (dateStr?: string) => {
@@ -131,6 +134,24 @@ export function ProfilePage() {
           )}
           <p className={styles.email}>{profileData.email}</p>
         </div>
+
+        {/* Vaccination Alert - Only show for dependents */}
+        {isViewingDependent && activeProfile && (
+          <VaccinationAlert
+            dependentId={activeProfile.id}
+            dependentName={activeProfile.name}
+            onOpenVaccinationModal={() => setShowVaccinationModal(true)}
+          />
+        )}
+
+        {/* Vaccination Modal */}
+        {showVaccinationModal && activeProfile && isViewingDependent && (
+          <VaccinationModal
+            dependentId={activeProfile.id}
+            dependentName={activeProfile.name}
+            onClose={() => setShowVaccinationModal(false)}
+          />
+        )}
 
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>{t('profile_personal_information')}</h3>

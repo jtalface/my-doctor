@@ -4,7 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import { config } from './config/index.js';
-import { sessionRoutes, userRoutes, healthRoutes, dependentRoutes } from './api/index.js';
+import { sessionRoutes, userRoutes, healthRoutes, dependentRoutes, vaccinationRoutes } from './api/index.js';
 import { authRoutes, authenticate, apiRateLimiter, authErrorHandler } from './auth/index.js';
 import { llmManager } from './services/llm/manager.js';
 import { stateLoader } from './core/state-loader.js';
@@ -67,6 +67,7 @@ app.get('/', (_req, res) => {
       session: '/api/session (authenticated)',
       user: '/api/user (authenticated)',
       dependents: '/api/dependents (authenticated)',
+      vaccination: '/api/vaccination (authenticated)',
     },
   });
 });
@@ -79,6 +80,7 @@ app.get('/', (_req, res) => {
 app.use('/api/session', apiRateLimiter, authenticate, sessionRoutes);
 app.use('/api/user', apiRateLimiter, authenticate, userRoutes);
 app.use('/api/dependents', apiRateLimiter, authenticate, dependentRoutes);
+app.use('/api/vaccination', apiRateLimiter, authenticate, vaccinationRoutes);
 
 // ============================================
 // ERROR HANDLERS

@@ -153,6 +153,65 @@ export interface UpdateDependentInput {
   language?: string;
 }
 
+// ==========================================
+// VACCINATION TYPES
+// ==========================================
+
+export type VaccinationStatus = 'yes' | 'no' | 'unknown';
+
+export interface VaccineDose {
+  id: string;
+  vaccineId: string;
+  vaccineName: string;
+  vaccineAbbrev: string;
+  doseNumber: number;
+  totalDoses: number;
+  ageMonths: number;
+  ageLabel: string;
+  description?: string;
+  isVitaminOrSupplement: boolean;
+}
+
+export interface VaccinationRecord {
+  doseId: string;
+  status: VaccinationStatus;
+  dateAdministered?: string;
+  notes?: string;
+}
+
+export interface VaccinationFormSchema {
+  country: string;
+  countryCode: string;
+  version: string;
+  lastUpdated: string;
+  doses: VaccineDose[];
+}
+
+export interface VaccinationStatus_Response {
+  applicable: boolean;
+  dependentId?: string;
+  dependentName?: string;
+  ageMonths?: number;
+  ageYears?: number;
+  country?: string;
+  records: VaccinationRecord[];
+  relevantDoses: VaccineDose[];
+  overdueDoses: VaccineDose[];
+  progress: number;
+  hasRecords: boolean;
+  needsAttention: boolean;
+  schema?: VaccinationFormSchema;
+  message?: string;
+}
+
+export interface VaccinationUpdateResponse {
+  success: boolean;
+  records: VaccinationRecord[];
+  overdueDoses: VaccineDose[];
+  progress: number;
+  needsAttention: boolean;
+}
+
 // API Client class
 class ApiClient {
   private baseUrl: string;
@@ -447,6 +506,53 @@ class ApiClient {
       : `/api/dependents/${dependentId}/sessions`;
     
     return this.authRequest(endpoint);
+  }
+
+  // ==========================================
+  // VACCINATION ENDPOINTS (PROTECTED)
+  // ==========================================
+
+  /**
+   * Get vaccination schema for a country
+   */
+  async getVaccinationSchema(country: string = 'moz'): Promise<{ schema: VaccinationFormSchema }> {
+    return this.authRequest(`/api/vaccination/schema/${country}`);
+  }
+
+  /**
+   * Get vaccination status and records for a dependent
+   */
+  async getDependentVaccinationStatus(dependentId: string): Promise<VaccinationStatus_Response> {
+    return this.authRequest(`/api/vaccination/dependent/${dependentId}`);
+  }
+
+  /**
+   * Update vaccination records for a dependent (batch update)
+   */
+  async updateDependentVaccinationRecords(
+    dependentId: string,
+    records: VaccinationRecord[]
+  ): Promise<VaccinationUpdateResponse> {
+    return this.authRequest(`/api/vaccination/dependent/${dependentId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ records }),
+    });
+  }
+
+  /**
+   * Update a single vaccination dose record
+   */
+  async updateDependentVaccinationDose(
+    dependentId: string,
+    doseId: string,
+    status: VaccinationStatus,
+    dateAdministered?: string,
+    notes?: string
+  ): Promise<{ success: boolean; record: VaccinationRecord }> {
+    return this.authRequest(`/api/vaccination/dependent/${dependentId}/dose/${doseId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, dateAdministered, notes }),
+    });
   }
 }
 

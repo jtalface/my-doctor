@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { LLMSelector } from '@components/settings';
+import { VaccinationAlert, VaccinationModal } from '../components/vaccinations';
 import { api, SessionHistoryItem, HealthStatus } from '../services/api';
 import { useActiveProfile } from '../contexts';
 import { useTranslate } from '../i18n';
@@ -34,6 +35,7 @@ export function DashboardPage() {
   const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [backendAvailable, setBackendAvailable] = useState(true);
+  const [showVaccinationModal, setShowVaccinationModal] = useState(false);
 
   useEffect(() => {
     // Reset state when profile changes
@@ -133,6 +135,24 @@ export function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Vaccination Alert - Only show for dependents */}
+      {isViewingDependent && activeProfile && (
+        <VaccinationAlert
+          dependentId={activeProfile.id}
+          dependentName={activeProfile.name}
+          onOpenVaccinationModal={() => setShowVaccinationModal(true)}
+        />
+      )}
+
+      {/* Vaccination Modal */}
+      {showVaccinationModal && activeProfile && isViewingDependent && (
+        <VaccinationModal
+          dependentId={activeProfile.id}
+          dependentName={activeProfile.name}
+          onClose={() => setShowVaccinationModal(false)}
+        />
       )}
 
       {/* Quick Actions */}

@@ -1,0 +1,130 @@
+.alertCard {
+  border-color: var(--color-warning-500, #f59e0b);
+  background-color: var(--color-warning-50, #fffbeb);
+  margin-bottom: var(--space-4);
+}
+
+.content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.iconContainer {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-warning-100, #fef3c7);
+  border-radius: var(--radius-full);
+}
+
+.icon {
+  font-size: 1.25rem;
+}
+
+.textContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-warning-800, #92400e);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.message {
+  font-size: var(--font-size-sm);
+  color: var(--color-warning-700, #b45309);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.progressContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.progressBar {
+  flex: 1;
+  height: 6px;
+  background-color: var(--color-warning-200, #fde68a);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: var(--color-success-500, #22c55e);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  font-size: var(--font-size-xs);
+  color: var(--color-warning-700, #b45309);
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.dismissButton {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--color-warning-600, #d97706);
+  font-size: 1.25rem;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  transition: background-color var(--transition-fast);
+}
+
+.dismissButton:hover {
+  background-color: var(--color-warning-200, #fde68a);
+}
+
+.overdueSummary {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-warning-200, #fde68a);
+  font-size: var(--font-size-xs);
+  color: var(--color-warning-700, #b45309);
+}
+
+.overdueLabel {
+  font-weight: var(--font-weight-medium);
+  margin-right: var(--space-1);
+}
+
+.overdueVaccine {
+  /* inline */
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .content {
+    flex-direction: column;
+  }
+  
+  .actions {
+    width: 100%;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+  }
+}
+
