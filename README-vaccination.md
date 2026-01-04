@@ -121,7 +121,7 @@ GET /api/vaccination/dependent/:dependentId
 ```
 
 Returns:
-- `applicable`: Whether vaccination tracking applies (child under 6)
+- `applicable`: Whether vaccination tracking applies (child under 12)
 - `ageMonths`, `ageYears`: Child's current age
 - `records`: Current vaccination records
 - `relevantDoses`: Vaccines expected for the child's age
@@ -263,7 +263,7 @@ The `PatientProfile` collection uses existing indexes. The `vaccinationRecords` 
 
 To test the feature:
 
-1. Create a dependent under 6 years old
+1. Create a dependent under 12 years old
 2. Navigate to Dashboard or Profile while viewing the dependent
 3. The vaccination alert should appear
 4. Click to open the modal

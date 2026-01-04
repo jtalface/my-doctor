@@ -160,12 +160,13 @@ router.get('/dependent/:dependentId', async (req: Request<DependentParams>, res:
     const ageMonths = calculateAgeInMonths(new Date(dateOfBirth));
     const ageYears = Math.floor(ageMonths / 12);
 
-    // Only show vaccination info for children 5 years (60 months) or younger
-    // The Mozambique calendar goes up to 59 months
-    if (ageMonths > 72) { // Allow some buffer (6 years)
+    // Only show vaccination info for children 12 years (144 months) or younger
+    // The Mozambique calendar goes up to 59 months, but we allow tracking up to 12 years
+    // for catch-up vaccinations and record keeping
+    if (ageMonths > 144) {
       return res.json({
         applicable: false,
-        message: 'Vaccination tracking is only applicable for children under 6 years',
+        message: 'Vaccination tracking is only applicable for children under 12 years',
         ageMonths,
         ageYears,
       });
