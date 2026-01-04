@@ -61,11 +61,11 @@ export const MOZ_VACCINATION_SCHEMA: VaccinationFormSchema = {
       isVitaminOrSupplement: false,
     },
     {
-      id: 'vap-0',
+      id: 'vap-1',
       vaccineId: 'polio',
       vaccineName: 'Vacina contra a Poliomielite',
       vaccineAbbrev: 'VAP',
-      doseNumber: 0, // Birth dose (dose 0)
+      doseNumber: 1, // Birth dose
       totalDoses: 4,
       ageMonths: 0,
       ageLabel: 'À nascença ou antes das 6 semanas',
@@ -77,11 +77,11 @@ export const MOZ_VACCINATION_SCHEMA: VaccinationFormSchema = {
     // AOS 2 MESES (At 2 months)
     // ═══════════════════════════════════════════════════════════════
     {
-      id: 'vap-1',
+      id: 'vap-2',
       vaccineId: 'polio',
       vaccineName: 'Vacina contra a Poliomielite',
       vaccineAbbrev: 'VAP',
-      doseNumber: 1,
+      doseNumber: 2,
       totalDoses: 4,
       ageMonths: 2,
       ageLabel: 'Aos 2 meses de vida',
@@ -128,15 +128,15 @@ export const MOZ_VACCINATION_SCHEMA: VaccinationFormSchema = {
     // AOS 3 MESES (At 3 months)
     // ═══════════════════════════════════════════════════════════════
     {
-      id: 'vap-2',
+      id: 'vap-3',
       vaccineId: 'polio',
       vaccineName: 'Vacina contra a Poliomielite',
       vaccineAbbrev: 'VAP',
-      doseNumber: 2,
+      doseNumber: 3,
       totalDoses: 4,
       ageMonths: 3,
       ageLabel: 'Aos 3 meses de vida',
-      description: '4 semanas após a 1ª dose',
+      description: '4 semanas após a 2ª dose',
       isVitaminOrSupplement: false,
     },
     {
@@ -180,11 +180,11 @@ export const MOZ_VACCINATION_SCHEMA: VaccinationFormSchema = {
     // AOS 4 MESES (At 4 months)
     // ═══════════════════════════════════════════════════════════════
     {
-      id: 'vap-3',
+      id: 'vap-4',
       vaccineId: 'polio',
       vaccineName: 'Vacina contra a Poliomielite',
       vaccineAbbrev: 'VAP + IPV',
-      doseNumber: 3,
+      doseNumber: 4,
       totalDoses: 4,
       ageMonths: 4,
       ageLabel: 'Aos 4 meses de vida',
