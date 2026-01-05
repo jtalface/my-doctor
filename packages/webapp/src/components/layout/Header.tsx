@@ -33,6 +33,12 @@ export function Header() {
             >
               History
             </Link>
+            <Link 
+              to="/messages" 
+              className={`${styles.navLink} ${location.pathname.startsWith('/messages') ? styles.active : ''}`}
+            >
+              Messages
+            </Link>
           </nav>
           
           <div className={styles.actions}>

@@ -4,6 +4,7 @@ import styles from './BottomNav.module.css';
 const navItems = [
   { path: '/dashboard', icon: '🏠', label: 'Home' },
   { path: '/history', icon: '📋', label: 'History' },
+  { path: '/messages', icon: '💬', label: 'Messages' },
   { path: '/profile', icon: '👤', label: 'Profile' },
   { path: '/settings', icon: '⚙️', label: 'Settings' },
 ];

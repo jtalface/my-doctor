@@ -18,6 +18,7 @@ import { RedFlagAlertPage } from '@pages/RedFlagAlertPage';
 import { HealthHistoryPage } from '@pages/HealthHistoryPage';
 import { ProfilePage } from '@pages/ProfilePage';
 import { SettingsPage } from '@pages/SettingsPage';
+import { MessagesPage } from '@pages/MessagesPage';
 import { NotFoundPage } from '@pages/NotFoundPage';
 
 function App() {
@@ -67,6 +68,11 @@ function App() {
           <Route path="/checkup/summary/:id" element={
             <ProtectedRoute>
               <VisitSummaryPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/messages" element={
+            <ProtectedRoute>
+              <MessagesPage />
             </ProtectedRoute>
           } />
           <Route path="/history" element={

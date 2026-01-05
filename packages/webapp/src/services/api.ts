@@ -212,6 +212,72 @@ export interface VaccinationUpdateResponse {
   needsAttention: boolean;
 }
 
+// Messaging types
+export interface Provider {
+  _id: string;
+  name: string;
+  email: string;
+  specialty: string;
+  title?: string;
+  avatarUrl?: string;
+  bio?: string;
+  phone?: string;
+  languages: string[];
+  isActive: boolean;
+  isAvailable: boolean;
+  isOnline: boolean;
+  lastActiveAt?: string;
+  workingHours?: {
+    start: string;
+    end: string;
+    timezone: string;
+    daysOfWeek: number[];
+  };
+}
+
+export interface Conversation {
+  _id: string;
+  patientId: string;
+  providerId: string;
+  provider?: Provider;
+  lastMessageAt: string;
+  lastMessagePreview: string;
+  lastMessageSenderType: 'patient' | 'provider';
+  unreadByPatient: number;
+  unreadByProvider: number;
+  status: 'active' | 'archived' | 'closed';
+  subject?: string;
+  dependentId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MessageAttachment {
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+}
+
+export interface Message {
+  _id: string;
+  conversationId: string;
+  senderType: 'patient' | 'provider';
+  senderId: string;
+  content: string;
+  attachments: MessageAttachment[];
+  readAt?: string;
+  editedAt?: string;
+  deletedAt?: string;
+  isSystemMessage: boolean;
+  systemMessageType?: string;
+  createdAt: string;
+  updatedAt: string;
+  hasAttachments?: boolean;
+  isDeleted?: boolean;
+}
+
 // API Client class
 class ApiClient {
   private baseUrl: string;
@@ -250,7 +316,7 @@ class ApiClient {
    */
   private async authRequest<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit & { isFormData?: boolean } = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const token = await getAccessToken();
@@ -259,12 +325,20 @@ class ApiClient {
       throw new Error('Not authenticated');
     }
 
+    // Don't set Content-Type for FormData - browser sets it with boundary
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${token}`,
+    };
+    
+    if (!options.isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
+
     const response = await fetch(url, {
       ...options,
       credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        ...headers,
         ...options.headers,
       },
     });
@@ -553,6 +627,150 @@ class ApiClient {
       method: 'PATCH',
       body: JSON.stringify({ status, dateAdministered, notes }),
     });
+  }
+
+  // ==========================================
+  // MESSAGING ENDPOINTS (PROTECTED)
+  // ==========================================
+
+  /**
+   * Get list of available healthcare providers
+   */
+  async getProviders(): Promise<Provider[]> {
+    return this.authRequest('/api/messages/providers');
+  }
+
+  /**
+   * Get a specific provider
+   */
+  async getProvider(providerId: string): Promise<Provider> {
+    return this.authRequest(`/api/messages/providers/${providerId}`);
+  }
+
+  /**
+   * Get all conversations for the current user
+   */
+  async getConversations(dependentId?: string): Promise<Conversation[]> {
+    const params = dependentId ? `?dependentId=${dependentId}` : '';
+    return this.authRequest(`/api/messages/conversations${params}`);
+  }
+
+  /**
+   * Create a new conversation with a provider
+   */
+  async createConversation(
+    providerId: string,
+    options?: { subject?: string; dependentId?: string }
+  ): Promise<Conversation> {
+    return this.authRequest('/api/messages/conversations', {
+      method: 'POST',
+      body: JSON.stringify({ providerId, ...options }),
+    });
+  }
+
+  /**
+   * Get a specific conversation
+   */
+  async getConversation(conversationId: string): Promise<Conversation> {
+    return this.authRequest(`/api/messages/conversations/${conversationId}`);
+  }
+
+  /**
+   * Update a conversation (archive, close, etc.)
+   */
+  async updateConversation(
+    conversationId: string,
+    updates: { status?: 'active' | 'archived' | 'closed'; subject?: string }
+  ): Promise<Conversation> {
+    return this.authRequest(`/api/messages/conversations/${conversationId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  /**
+   * Mark all messages in a conversation as read
+   */
+  async markConversationAsRead(conversationId: string): Promise<{ success: boolean }> {
+    return this.authRequest(`/api/messages/conversations/${conversationId}/read`, {
+      method: 'POST',
+    });
+  }
+
+  /**
+   * Get messages in a conversation (paginated)
+   */
+  async getMessages(
+    conversationId: string,
+    options?: { limit?: number; before?: string; after?: string }
+  ): Promise<Message[]> {
+    const params = new URLSearchParams();
+    if (options?.limit) params.set('limit', options.limit.toString());
+    if (options?.before) params.set('before', options.before);
+    if (options?.after) params.set('after', options.after);
+    
+    const queryString = params.toString();
+    const endpoint = queryString 
+      ? `/api/messages/conversations/${conversationId}/messages?${queryString}`
+      : `/api/messages/conversations/${conversationId}/messages`;
+    
+    return this.authRequest(endpoint);
+  }
+
+  /**
+   * Send a message (text only)
+   */
+  async sendMessage(conversationId: string, content: string): Promise<Message> {
+    const formData = new FormData();
+    formData.append('content', content);
+    
+    return this.authRequest(`/api/messages/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      body: formData,
+      isFormData: true,
+    });
+  }
+
+  /**
+   * Send a message with attachments
+   */
+  async sendMessageWithAttachments(
+    conversationId: string,
+    content: string,
+    files: File[]
+  ): Promise<Message> {
+    const formData = new FormData();
+    formData.append('content', content);
+    files.forEach(file => formData.append('attachments', file));
+    
+    return this.authRequest(`/api/messages/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      body: formData,
+      isFormData: true,
+    });
+  }
+
+  /**
+   * Delete a message
+   */
+  async deleteMessage(messageId: string): Promise<{ success: boolean }> {
+    return this.authRequest(`/api/messages/messages/${messageId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Get messaging stats (unread count, etc.)
+   */
+  async getMessagingStats(): Promise<{ totalConversations: number; unreadMessages: number }> {
+    return this.authRequest('/api/messages/stats');
+  }
+
+  /**
+   * Get file download URL
+   */
+  getFileDownloadUrl(filename: string): string {
+    return `${this.baseUrl}/api/messages/files/${filename}`;
   }
 }
 
