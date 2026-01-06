@@ -1,12 +1,11 @@
 /**
- * Provider Model
+ * Provider Model (Shared)
  * 
- * Represents healthcare providers (doctors, nurses, etc.) who can
- * communicate with patients through the messaging system.
+ * This is the same Provider model as in webapp-backend.
+ * Both backends share the same MongoDB collection.
  * 
- * This model is shared between webapp-backend (patient-facing) and
- * doctor-backend (doctor-facing). The password field is used by
- * doctor-backend for authentication.
+ * The doctor-backend uses this for authentication.
+ * The webapp-backend uses this for displaying provider info to patients.
  */
 
 import mongoose, { Document, Schema } from 'mongoose';
@@ -15,32 +14,32 @@ export interface IProvider extends Document {
   // Basic info
   name: string;
   email: string;
-  passwordHash?: string;       // For doctor authentication (optional for legacy/seeded data)
+  passwordHash?: string;
   
   // Professional info
-  specialty: string;           // e.g., "General Medicine", "Pediatrics"
-  title?: string;              // e.g., "Dr.", "Nurse"
+  specialty: string;
+  title?: string;
   licenseNumber?: string;
   
   // Profile
   avatarUrl?: string;
   phone?: string;
-  bio?: string;                // Short description
-  languages: string[];         // Languages spoken
+  bio?: string;
+  languages: string[];
   
   // Status
-  isActive: boolean;           // Can receive new conversations
-  isAvailable: boolean;        // Currently available for chat
-  isVerified: boolean;         // Has verified their credentials
-  lastActiveAt?: Date;         // For online status calculation
-  lastLoginAt?: Date;          // Last login timestamp
+  isActive: boolean;
+  isAvailable: boolean;
+  isVerified: boolean;
+  lastActiveAt?: Date;
+  lastLoginAt?: Date;
   
   // Working hours
   workingHours?: {
-    start: string;             // e.g., "09:00"
-    end: string;               // e.g., "17:00"
-    timezone: string;          // e.g., "Africa/Maputo"
-    daysOfWeek: number[];      // 0=Sunday, 1=Monday, etc.
+    start: string;
+    end: string;
+    timezone: string;
+    daysOfWeek: number[];
   };
   
   // Preferences
@@ -56,7 +55,6 @@ export interface IProvider extends Document {
 
 const ProviderSchema = new Schema<IProvider>(
   {
-    // Basic info
     name: { type: String, required: true, trim: true },
     email: { 
       type: String, 
@@ -65,9 +63,8 @@ const ProviderSchema = new Schema<IProvider>(
       lowercase: true, 
       trim: true 
     },
-    passwordHash: { type: String }, // Optional - for doctor authentication
+    passwordHash: { type: String },
     
-    // Professional info
     specialty: { 
       type: String, 
       required: true,
@@ -76,20 +73,17 @@ const ProviderSchema = new Schema<IProvider>(
     title: { type: String, trim: true },
     licenseNumber: { type: String, trim: true },
     
-    // Profile
     avatarUrl: { type: String },
     phone: { type: String, trim: true },
     bio: { type: String, maxlength: 500 },
     languages: [{ type: String }],
     
-    // Status
     isActive: { type: Boolean, default: true, index: true },
     isAvailable: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
     lastActiveAt: { type: Date },
     lastLoginAt: { type: Date },
     
-    // Working hours
     workingHours: {
       start: { type: String },
       end: { type: String },
@@ -97,7 +91,6 @@ const ProviderSchema = new Schema<IProvider>(
       daysOfWeek: [{ type: Number }],
     },
     
-    // Preferences
     preferences: {
       notifications: { type: Boolean, default: true },
       emailAlerts: { type: Boolean, default: true },
@@ -107,24 +100,13 @@ const ProviderSchema = new Schema<IProvider>(
   { timestamps: true }
 );
 
-// Indexes for efficient queries
-ProviderSchema.index({ specialty: 1, isActive: 1 });
-ProviderSchema.index({ lastActiveAt: -1 });
-
-// Virtual to check if provider is "online" (active in last 5 minutes)
+// Virtual for online status
 ProviderSchema.virtual('isOnline').get(function() {
   if (!this.lastActiveAt) return false;
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
   return this.lastActiveAt > fiveMinutesAgo;
 });
 
-// Method to update last active timestamp
-ProviderSchema.methods.updateLastActive = function() {
-  this.lastActiveAt = new Date();
-  return this.save();
-};
-
-// Ensure virtuals are included in JSON
 ProviderSchema.set('toJSON', { virtuals: true });
 ProviderSchema.set('toObject', { virtuals: true });
 
