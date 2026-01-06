@@ -13,35 +13,42 @@ Complete guide for deploying the MyDoctor application to AWS EC2 with MongoDB At
 5. [Part 3: Clone and Build Project](#part-3-clone-and-build-project)
 6. [Part 4: MongoDB Atlas Setup](#part-4-mongodb-atlas-setup)
 7. [Part 5: Configure Nginx](#part-5-configure-nginx)
-8. [Part 6: Start Backend with PM2](#part-6-start-backend-with-pm2)
-9. [Part 7: Verify Deployment](#part-7-verify-deployment)
-10. [Updating Code](#updating-code-future-deployments)
-11. [Quick Reference Commands](#quick-reference-commands)
-12. [Troubleshooting](#troubleshooting)
-13. [Security Checklist](#security-checklist)
-14. [Costs](#costs-approximate)
+8. [Part 6: Start Backends with PM2](#part-6-start-backends-with-pm2)
+9. [Part 7: Set up HTTPS with Let's Encrypt](#part-7-set-up-https-with-lets-encrypt)
+10. [Part 8: Verify Deployment](#part-8-verify-deployment)
+11. [Updating Code](#updating-code-future-deployments)
+12. [Quick Reference Commands](#quick-reference-commands)
+13. [Troubleshooting](#troubleshooting)
+14. [Security Checklist](#security-checklist)
+15. [Costs](#costs-approximate)
 
 ---
 
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    USERS (Browser)                          │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    AWS EC2 Instance                         │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │                    NGINX (:80)                        │  │
-│  │  ┌─────────────────┐    ┌───────────────────────────┐ │  │
-│  │  │  /              │    │  /api                     │ │  │
-│  │  │  React Frontend │    │  → localhost:3002         │ │  │
-│  │  │  (Static Files) │    │  (Express + Node.js)      │ │  │
-│  │  └─────────────────┘    └───────────────────────────┘ │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         USERS (Browser/Phone)                            │
+│                    Patients              Doctors                         │
+└─────────────────────────────────────────────────────────────────────────┘
+                         │                    │
+                         ▼                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         AWS EC2 Instance                                 │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │                      NGINX (:80/:443)                             │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐  │  │
+│  │  │  /                    │  /doctor                            │  │  │
+│  │  │  Patient Webapp       │  Doctor UI                          │  │  │
+│  │  │  (Static Files)       │  (Static Files)                     │  │  │
+│  │  └─────────────────────────────────────────────────────────────┘  │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐  │  │
+│  │  │  /api                 │  /doctor-api                        │  │  │
+│  │  │  → localhost:3003     │  → localhost:3004                   │  │  │
+│  │  │  (webapp-backend)     │  (doctor-backend)                   │  │  │
+│  │  └─────────────────────────────────────────────────────────────┘  │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────┘
                     │                           │
                     ▼                           ▼
      ┌─────────────────────────┐  ┌─────────────────────────┐
@@ -50,18 +57,32 @@ Complete guide for deploying the MyDoctor application to AWS EC2 with MongoDB At
      └─────────────────────────┘  └─────────────────────────┘
 ```
 
+### Services Overview
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| webapp | - | Patient frontend (React static files) |
+| doctor-ui | - | Doctor frontend (React static files) |
+| webapp-backend | 3003 | Patient API (Express + Node.js) |
+| doctor-backend | 3004 | Doctor API (Express + Node.js) |
+| MongoDB Atlas | - | Cloud database (shared by both backends) |
+| Nginx | 80/443 | Reverse proxy + static file serving + SSL |
+
 ---
 
 ## Prerequisites
 
-- AWS Account
-- MongoDB Atlas Account
+- ✅ AWS Account
+- ✅ EC2 Instance running (Amazon Linux 2023 recommended)
+- ✅ MongoDB Atlas cluster set up
 - OpenAI API Key
-- Domain name (optional, for HTTPS)
+- Domain name (required for HTTPS and WebRTC calls)
 
 ---
 
 ## Part 1: AWS EC2 Setup
+
+> Skip this if you already have an EC2 instance running.
 
 ### 1.1 Launch EC2 Instance
 
@@ -69,7 +90,7 @@ Complete guide for deploying the MyDoctor application to AWS EC2 with MongoDB At
 2. Configure:
    - **Name:** `mydoctor-server`
    - **AMI:** Amazon Linux 2023
-   - **Instance Type:** t3.small (or t3.micro for testing)
+   - **Instance Type:** t3.small (recommended) or t3.micro (testing)
    - **Key Pair:** Create or select existing (.pem file)
    - **Storage:** 20 GB gp3
 
@@ -79,11 +100,22 @@ Complete guide for deploying the MyDoctor application to AWS EC2 with MongoDB At
 |------|------|--------|-------------|
 | SSH | 22 | Your IP | SSH access |
 | HTTP | 80 | 0.0.0.0/0 | Web traffic |
-| Custom TCP | 3002 | 0.0.0.0/0 | API direct access (optional) |
+| HTTPS | 443 | 0.0.0.0/0 | Secure web traffic |
+| Custom TCP | 3003 | 0.0.0.0/0 | Webapp API (optional, for debugging) |
+| Custom TCP | 3004 | 0.0.0.0/0 | Doctor API (optional, for debugging) |
 
 4. Click **Launch Instance**
 
-### 1.2 Connect to EC2
+### 1.2 Allocate Elastic IP (Recommended)
+
+1. Go to **EC2** → **Elastic IPs** → **Allocate Elastic IP address**
+2. Click **Allocate**
+3. Select the new IP → **Actions** → **Associate Elastic IP address**
+4. Select your EC2 instance and associate
+
+> This ensures your IP doesn't change when the instance restarts.
+
+### 1.3 Connect to EC2
 
 ```bash
 # Make key file secure
@@ -116,12 +148,15 @@ sudo npm install -g pm2
 # Install Nginx (web server)
 sudo yum install nginx -y
 
-# Install Git (if not present)
+# Install Git
 sudo yum install git -y
+
+# Install certbot for SSL (optional, for HTTPS)
+sudo yum install certbot python3-certbot-nginx -y
 
 # Verify installations
 node --version    # Should show v20.x.x
-pnpm --version    # Should show 8.x.x or higher
+pnpm --version    # Should show 9.x.x or higher
 pm2 --version     # Should show 5.x.x
 nginx -v          # Should show nginx/1.x.x
 ```
@@ -134,59 +169,100 @@ nginx -v          # Should show nginx/1.x.x
 
 ```bash
 cd ~
-git clone https://github.com/YOUR_USERNAME/my-doctor.git
+git clone https://github.com/jtalface/my-doctor.git
 cd my-doctor
 pnpm install
 ```
 
-### 3.2 Create Production Environment File
+### 3.2 Create Production Environment Files
+
+#### Webapp Backend Environment
 
 ```bash
-nano ~/my-doctor/packages/backend/.env.production
+nano ~/my-doctor/packages/webapp-backend/.env.production
 ```
 
-Paste the following (replace with your actual values):
+Paste (replace with your actual values):
 
 ```env
 # Server
-PORT=3002
+PORT=3003
 
-# MongoDB Atlas (replace with your connection string)
+# MongoDB Atlas
 MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@cluster.mongodb.net/mydoctor?retryWrites=true&w=majority
+
+# JWT Secrets (generate secure random strings)
+JWT_SECRET=your-super-secure-jwt-secret-at-least-32-chars
+JWT_REFRESH_SECRET=your-super-secure-refresh-secret-at-least-32-chars
 
 # LLM Provider
 DEFAULT_LLM_PROVIDER=openai
 
-# LM Studio (not used in production, but required)
+# LM Studio (placeholder, not used in production)
 LM_STUDIO_URL=http://localhost:1235/v1
 LM_STUDIO_MODEL=meditron-7b
 LM_STUDIO_TIMEOUT=30000
 
-# OpenAI (replace with your API key)
+# OpenAI
 OPENAI_API_KEY=sk-your-openai-api-key
-OPENAI_MODEL=gpt-5-nano
+OPENAI_MODEL=gpt-4o-mini
 OPENAI_TIMEOUT=30000
+
+# Debug (set to false in production)
+DEBUG_MODE=false
+
+# CORS (your domain)
+CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+```
+
+Save: `Ctrl+O`, `Enter`, `Ctrl+X`
+
+#### Doctor Backend Environment
+
+```bash
+nano ~/my-doctor/packages/doctor-backend/.env.production
+```
+
+Paste:
+
+```env
+# Server
+PORT=3004
+
+# MongoDB Atlas (same as webapp-backend)
+MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@cluster.mongodb.net/mydoctor?retryWrites=true&w=majority
+
+# JWT Secrets (can be same as webapp-backend or different)
+JWT_SECRET=your-super-secure-jwt-secret-at-least-32-chars
+JWT_REFRESH_SECRET=your-super-secure-refresh-secret-at-least-32-chars
 
 # Debug
 DEBUG_MODE=false
 
-# CORS (add your frontend URLs)
-CORS_ORIGINS=http://localhost:1234,http://YOUR_EC2_PUBLIC_IP
+# CORS
+CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
 ```
 
-Save: `Ctrl+O`, then `Enter`, then `Ctrl+X`
-
-### 3.3 Build Backend
+### 3.3 Build All Packages
 
 ```bash
-cd ~/my-doctor/packages/backend
+cd ~/my-doctor
+
+# Build shared packages first
+pnpm --filter @mydoctor/country-data build 2>/dev/null || true
+
+# Build backends
+cd packages/webapp-backend
 pnpm build
-```
 
-### 3.4 Build Frontend
+cd ../doctor-backend
+pnpm build
 
-```bash
-cd ~/my-doctor/packages/app
+# Build frontends
+cd ../webapp
+pnpm build
+
+cd ../doctor-ui
 pnpm build
 ```
 
@@ -194,43 +270,32 @@ pnpm build
 
 ## Part 4: MongoDB Atlas Setup
 
-### 4.1 Create Atlas Account and Cluster
+> Skip if already configured.
 
-1. Go to [cloud.mongodb.com](https://cloud.mongodb.com)
-2. Sign up or log in
-3. Click **"Build a Database"**
-4. Select **M0 FREE** tier
-5. Choose **AWS** as provider
-6. Select a region close to your EC2
-7. Name your cluster (e.g., `mydoctor-cluster`)
-8. Click **Create**
+### 4.1 Create Database User
 
-### 4.2 Create Database User
-
-1. Go to **Database Access** in sidebar
+1. Go to **Database Access** in Atlas sidebar
 2. Click **Add New Database User**
 3. Choose **Password** authentication
-4. Enter username and password
+4. Enter username and strong password
 5. Set privileges to **Read and write to any database**
 6. Click **Add User**
 
-### 4.3 Whitelist EC2 IP Address
+### 4.2 Whitelist EC2 IP Address
 
 1. Go to **Network Access** in sidebar
 2. Click **Add IP Address**
-3. Enter your EC2's public IP address
+3. Enter your EC2's Elastic IP address
 4. Add comment: "EC2 Production Server"
 5. Click **Confirm**
 
-> ⚠️ For testing, you can use `0.0.0.0/0` (allow all), but this is less secure.
-
-### 4.4 Get Connection String
+### 4.3 Get Connection String
 
 1. Go to **Database** → Click **Connect**
 2. Choose **Connect your application**
 3. Copy the connection string
 4. Replace `<password>` with your actual password
-5. Add database name before the `?`: `.../mydoctor?retryWrites=true`
+5. Replace `<dbname>` with `mydoctor`
 
 ---
 
@@ -242,37 +307,109 @@ pnpm build
 sudo nano /etc/nginx/conf.d/mydoctor.conf
 ```
 
-Paste:
+Paste (replace `yourdomain.com` with your actual domain or EC2 IP):
 
 ```nginx
+# Patient Webapp
 server {
     listen 80;
-    server_name YOUR_EC2_PUBLIC_IP;
+    server_name yourdomain.com www.yourdomain.com;
 
-    # Frontend (static files)
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Patient Frontend (React SPA)
     location / {
-        root /home/ec2-user/my-doctor/packages/app/dist;
+        root /home/ec2-user/my-doctor/packages/webapp/dist;
         index index.html;
         try_files $uri $uri/ /index.html;
+        
+        # Cache static assets
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
     }
 
-    # API proxy to backend
+    # Patient API
     location /api {
-        proxy_pass http://localhost:3002;
+        proxy_pass http://localhost:3003;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # WebSocket support (for future use)
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # Doctor Frontend (React SPA)
+    location /doctor {
+        alias /home/ec2-user/my-doctor/packages/doctor-ui/dist;
+        index index.html;
+        try_files $uri $uri/ /doctor/index.html;
+        
+        # Cache static assets
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+    }
+
+    # Doctor API
+    location /doctor-api/ {
+        rewrite ^/doctor-api/(.*)$ /api/$1 break;
+        proxy_pass http://localhost:3004;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # WebSocket support
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # Health check endpoint
+    location /health {
+        return 200 'OK';
+        add_header Content-Type text/plain;
     }
 }
 ```
 
-Replace `YOUR_EC2_PUBLIC_IP` with your actual EC2 public IP.
+### 5.2 Update Frontend Build for Production URLs
 
-### 5.2 Fix File Permissions
+Before building, update the frontend API URLs:
 
-Nginx needs permission to read the frontend files:
+```bash
+# Webapp - create production env
+echo 'VITE_API_URL=https://yourdomain.com' > ~/my-doctor/packages/webapp/.env.production
+
+# Doctor UI - create production env  
+echo 'VITE_API_URL=https://yourdomain.com/doctor-api' > ~/my-doctor/packages/doctor-ui/.env.production
+
+# Rebuild frontends with production URLs
+cd ~/my-doctor/packages/webapp && pnpm build
+cd ~/my-doctor/packages/doctor-ui && pnpm build
+```
+
+### 5.3 Fix File Permissions
 
 ```bash
 sudo chmod 755 /home/ec2-user
@@ -280,7 +417,7 @@ sudo chmod -R 755 /home/ec2-user/my-doctor
 sudo usermod -a -G ec2-user nginx
 ```
 
-### 5.3 Test and Start Nginx
+### 5.4 Test and Start Nginx
 
 ```bash
 # Test configuration
@@ -298,16 +435,68 @@ sudo systemctl status nginx
 
 ---
 
-## Part 6: Start Backend with PM2
+## Part 6: Start Backends with PM2
 
-### 6.1 Start the Backend Server
+### 6.1 Create PM2 Ecosystem File
 
 ```bash
-cd ~/my-doctor/packages/backend
-NODE_ENV=production pm2 start dist/server.js --name mydoctor-api
+nano ~/my-doctor/ecosystem.config.js
 ```
 
-### 6.2 Configure PM2 Auto-Restart
+Paste:
+
+```javascript
+module.exports = {
+  apps: [
+    {
+      name: 'webapp-backend',
+      cwd: '/home/ec2-user/my-doctor/packages/webapp-backend',
+      script: 'dist/server.js',
+      env: {
+        NODE_ENV: 'production',
+      },
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '500M',
+      error_file: '/home/ec2-user/logs/webapp-backend-error.log',
+      out_file: '/home/ec2-user/logs/webapp-backend-out.log',
+    },
+    {
+      name: 'doctor-backend',
+      cwd: '/home/ec2-user/my-doctor/packages/doctor-backend',
+      script: 'dist/server.js',
+      env: {
+        NODE_ENV: 'production',
+      },
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '500M',
+      error_file: '/home/ec2-user/logs/doctor-backend-error.log',
+      out_file: '/home/ec2-user/logs/doctor-backend-out.log',
+    },
+  ],
+};
+```
+
+### 6.2 Create Logs Directory
+
+```bash
+mkdir -p ~/logs
+```
+
+### 6.3 Start All Backends
+
+```bash
+cd ~/my-doctor
+pm2 start ecosystem.config.js
+
+# Verify both are running
+pm2 status
+```
+
+### 6.4 Configure PM2 Auto-Restart
 
 ```bash
 # Save current PM2 process list
@@ -316,46 +505,84 @@ pm2 save
 # Generate startup script
 pm2 startup
 
-# Copy and run the command it outputs (looks like):
+# Run the command it outputs (looks like):
 # sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ec2-user --hp /home/ec2-user
-```
-
-### 6.3 Verify PM2 Status
-
-```bash
-pm2 status
-pm2 logs mydoctor-api
 ```
 
 ---
 
-## Part 7: Verify Deployment
+## Part 7: Set up HTTPS with Let's Encrypt
 
-### 7.1 Check All Services
+> **Required for WebRTC calls to work on mobile devices!**
+
+### 7.1 Point Domain to EC2
+
+1. In your domain registrar (Route 53, Namecheap, etc.):
+2. Create an **A record** pointing to your EC2 Elastic IP
+3. Wait for DNS propagation (5-30 minutes)
+
+### 7.2 Get SSL Certificate
 
 ```bash
-# Check PM2 (backend)
+# Request certificate
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+# Follow the prompts:
+# - Enter email address
+# - Agree to terms
+# - Choose whether to redirect HTTP to HTTPS (recommended: yes)
+```
+
+### 7.3 Auto-Renewal
+
+Certbot sets up auto-renewal automatically. Test it:
+
+```bash
+sudo certbot renew --dry-run
+```
+
+---
+
+## Part 8: Verify Deployment
+
+### 8.1 Check All Services
+
+```bash
+# Check PM2 (backends)
 pm2 status
 
 # Check Nginx
 sudo systemctl status nginx
 
-# Test backend locally
-curl http://localhost:3002/api/health
+# Test webapp-backend locally
+curl http://localhost:3003/api/health
+
+# Test doctor-backend locally
+curl http://localhost:3004/api/health
 
 # Test via Nginx
 curl http://localhost/api/health
+curl http://localhost/doctor-api/health
 ```
 
-### 7.2 Access Your Application
+### 8.2 Access Your Application
 
 Open in browser:
 
 | Endpoint | URL |
 |----------|-----|
-| Frontend | `http://YOUR_EC2_PUBLIC_IP` |
-| API Health | `http://YOUR_EC2_PUBLIC_IP/api/health` |
-| LLM Providers | `http://YOUR_EC2_PUBLIC_IP/api/llm/providers` |
+| Patient Webapp | `https://yourdomain.com` |
+| Doctor UI | `https://yourdomain.com/doctor` |
+| Patient API Health | `https://yourdomain.com/api/health` |
+| Doctor API Health | `https://yourdomain.com/doctor-api/health` |
+
+### 8.3 Test Features
+
+1. **Patient Registration/Login** - Create account at `/`
+2. **Doctor Registration/Login** - Create account at `/doctor`
+3. **Messaging** - Send messages between patient and doctor
+4. **Audio Calls** - Test WebRTC calls (requires HTTPS!)
+5. **Health Checkups** - Run through the AI health checkup flow
 
 ---
 
@@ -371,19 +598,71 @@ ssh -i your-key.pem ec2-user@YOUR_EC2_PUBLIC_IP
 cd ~/my-doctor
 git pull
 
-# Rebuild frontend (if changed)
-cd packages/app
-pnpm build
+# Install any new dependencies
+pnpm install
 
-# Rebuild backend (if changed)
-cd ../backend
-pnpm build
+# Rebuild backends
+cd packages/webapp-backend && pnpm build
+cd ../doctor-backend && pnpm build
 
-# Restart backend
-pm2 restart mydoctor-api
+# Rebuild frontends
+cd ../webapp && pnpm build
+cd ../doctor-ui && pnpm build
+
+# Restart backends
+pm2 restart all
 
 # Check logs
-pm2 logs mydoctor-api --lines 50
+pm2 logs --lines 50
+```
+
+### Quick Update Script
+
+Create a script for easy updates:
+
+```bash
+nano ~/update-mydoctor.sh
+```
+
+Paste:
+
+```bash
+#!/bin/bash
+set -e
+
+echo "🔄 Updating MyDoctor..."
+
+cd ~/my-doctor
+git pull
+
+echo "📦 Installing dependencies..."
+pnpm install
+
+echo "🔨 Building backends..."
+cd packages/webapp-backend && pnpm build
+cd ../doctor-backend && pnpm build
+
+echo "🎨 Building frontends..."
+cd ../webapp && pnpm build
+cd ../doctor-ui && pnpm build
+
+echo "🔄 Restarting services..."
+pm2 restart all
+
+echo "✅ Update complete!"
+pm2 status
+```
+
+Make executable:
+
+```bash
+chmod +x ~/update-mydoctor.sh
+```
+
+Run updates with:
+
+```bash
+~/update-mydoctor.sh
 ```
 
 ---
@@ -401,10 +680,12 @@ ssh -i your-key.pem ec2-user@YOUR_EC2_PUBLIC_IP
 | Action | Command |
 |--------|---------|
 | View status | `pm2 status` |
-| View logs | `pm2 logs mydoctor-api` |
-| Restart | `pm2 restart mydoctor-api` |
-| Stop | `pm2 stop mydoctor-api` |
-| Delete | `pm2 delete mydoctor-api` |
+| View all logs | `pm2 logs` |
+| View webapp-backend logs | `pm2 logs webapp-backend` |
+| View doctor-backend logs | `pm2 logs doctor-backend` |
+| Restart all | `pm2 restart all` |
+| Restart one | `pm2 restart webapp-backend` |
+| Stop all | `pm2 stop all` |
 | Monitor | `pm2 monit` |
 
 ### Nginx (Web Server)
@@ -415,9 +696,10 @@ ssh -i your-key.pem ec2-user@YOUR_EC2_PUBLIC_IP
 | Start | `sudo systemctl start nginx` |
 | Stop | `sudo systemctl stop nginx` |
 | Restart | `sudo systemctl restart nginx` |
+| Reload config | `sudo systemctl reload nginx` |
 | Test config | `sudo nginx -t` |
-| View error logs | `sudo tail -f /var/log/nginx/error.log` |
-| View access logs | `sudo tail -f /var/log/nginx/access.log` |
+| Error logs | `sudo tail -f /var/log/nginx/error.log` |
+| Access logs | `sudo tail -f /var/log/nginx/access.log` |
 
 ### System
 
@@ -425,7 +707,7 @@ ssh -i your-key.pem ec2-user@YOUR_EC2_PUBLIC_IP
 |--------|---------|
 | Check disk space | `df -h` |
 | Check memory | `free -m` |
-| Check running processes | `htop` or `top` |
+| Check processes | `htop` or `top` |
 | Reboot server | `sudo reboot` |
 
 ---
@@ -436,12 +718,14 @@ ssh -i your-key.pem ec2-user@YOUR_EC2_PUBLIC_IP
 
 ```bash
 # Check logs
-pm2 logs mydoctor-api --lines 100
+pm2 logs webapp-backend --lines 100
+pm2 logs doctor-backend --lines 100
 
 # Common issues:
 # - Missing .env.production file
 # - MongoDB connection string incorrect
 # - Port already in use
+# - Build not completed
 ```
 
 ### Nginx 502 Bad Gateway
@@ -449,21 +733,22 @@ pm2 logs mydoctor-api --lines 100
 ```bash
 # Backend not running
 pm2 status
-pm2 restart mydoctor-api
+pm2 restart all
 
-# Check if backend is listening
-sudo ss -tlnp | grep 3002
+# Check if backends are listening
+sudo ss -tlnp | grep 3003
+sudo ss -tlnp | grep 3004
 ```
 
-### Nginx 500 Internal Error
+### Nginx 403 Forbidden
 
 ```bash
-# Check error logs
-sudo tail -50 /var/log/nginx/error.log
-
-# Usually permission issue - run:
+# Permission issue
 sudo chmod 755 /home/ec2-user
 sudo chmod -R 755 /home/ec2-user/my-doctor
+
+# Check SELinux (Amazon Linux)
+sudo setsebool -P httpd_read_user_content 1
 ```
 
 ### MongoDB Connection Failed
@@ -471,26 +756,37 @@ sudo chmod -R 755 /home/ec2-user/my-doctor
 1. Check Atlas Network Access - is EC2 IP whitelisted?
 2. Verify connection string in `.env.production`
 3. Check username/password are correct
+4. Ensure database name is in the connection string
 
-### Cannot Access from Browser
+### WebRTC Calls Not Working
 
-1. Check EC2 Security Group has port 80 open
-2. Turn off VPN (can interfere with connections)
-3. Try: `curl http://YOUR_EC2_IP/api/health`
+1. **HTTPS required** - Ensure SSL is set up
+2. Check browser console for errors
+3. Verify STUN servers are accessible
+4. Consider adding TURN server for restrictive networks
+
+### CORS Errors
+
+1. Check `CORS_ORIGINS` in `.env.production` files
+2. Ensure domain matches exactly (with/without www)
+3. Restart backends after changing env files
 
 ---
 
 ## Security Checklist
 
 - [ ] Use strong MongoDB password
-- [ ] Store OpenAI API key securely (never commit to git)
+- [ ] Generate secure JWT secrets (32+ characters)
+- [ ] Store OpenAI API key securely
 - [ ] Restrict SSH access to your IP only
 - [ ] Set up SSL/HTTPS with Let's Encrypt
-- [ ] Use Elastic IP (so IP doesn't change on reboot)
-- [ ] Enable MongoDB Atlas IP whitelist (not 0.0.0.0/0)
-- [ ] Regularly update system packages (`sudo yum update -y`)
+- [ ] Use Elastic IP
+- [ ] Enable MongoDB Atlas IP whitelist
+- [ ] Set `DEBUG_MODE=false` in production
+- [ ] Regularly update system: `sudo yum update -y`
 - [ ] Set up automated backups for MongoDB
 - [ ] Monitor logs for suspicious activity
+- [ ] Consider AWS WAF for additional protection
 
 ---
 
@@ -505,47 +801,30 @@ sudo chmod -R 755 /home/ec2-user/my-doctor
 | OpenAI API | - | ~$0.002/1K tokens |
 | Elastic IP | Free when attached | $3.60/month if unused |
 | Data Transfer | 100GB/month | $0.09/GB |
+| Domain (.com) | - | ~$12/year |
+| SSL Certificate | Free (Let's Encrypt) | - |
 
-**Estimated Monthly Cost (Production):** $10-30/month
-
----
-
-## Next Steps (Optional Enhancements)
-
-1. **Set up HTTPS with Let's Encrypt**
-   ```bash
-   sudo yum install certbot python3-certbot-nginx -y
-   sudo certbot --nginx -d yourdomain.com
-   ```
-
-2. **Use a Custom Domain**
-   - Buy domain from Route 53, Namecheap, etc.
-   - Point A record to EC2 IP
-   - Update Nginx `server_name`
-
-3. **Set up Elastic IP**
-   - EC2 → Elastic IPs → Allocate
-   - Associate with your instance
-   - Update DNS and configs
-
-4. **Enable CloudWatch Monitoring**
-   - Monitor CPU, memory, disk
-   - Set up alarms for issues
-
-5. **Set up CI/CD with GitHub Actions**
-   - Auto-deploy on push to main
-   - Run tests before deploying
+**Estimated Monthly Cost (Production):** $15-40/month
 
 ---
 
 ## Support
 
 For issues with this deployment, check:
-- PM2 logs: `pm2 logs mydoctor-api`
-- Nginx logs: `sudo tail -f /var/log/nginx/error.log`
-- System logs: `sudo journalctl -xe`
+
+```bash
+# Backend logs
+pm2 logs webapp-backend
+pm2 logs doctor-backend
+
+# Nginx logs
+sudo tail -f /var/log/nginx/error.log
+sudo tail -f /var/log/nginx/access.log
+
+# System logs
+sudo journalctl -xe
+```
 
 ---
 
-*Last updated: December 2024*
-
+*Last updated: January 2026*
