@@ -282,20 +282,25 @@ export interface PatientProfile {
   name: string;
   email?: string;
   profile?: {
-    dateOfBirth?: string;
-    gender?: string;
-    bloodType?: string;
-    allergies?: string[];
-    chronicConditions?: string[];
-    currentMedications?: Array<{
-      name: string;
-      dosage: string;
-      frequency: string;
-    }>;
-    emergencyContact?: {
-      name: string;
-      phone: string;
-      relationship: string;
+    demographics?: {
+      dateOfBirth?: string;
+      age?: number;
+      sexAtBirth?: 'male' | 'female' | 'other';
+      heightCm?: number;
+      weightKg?: number;
+    };
+    medicalHistory?: {
+      chronicConditions?: string[];
+      allergies?: string[];
+      medications?: string[];
+      surgeries?: string[];
+      familyHistory?: string[];
+    };
+    lifestyle?: {
+      smoking?: 'never' | 'former' | 'current';
+      alcohol?: 'never' | 'occasional' | 'regular' | 'heavy';
+      exercise?: 'sedentary' | 'light' | 'moderate' | 'active';
+      diet?: string;
     };
   };
 }

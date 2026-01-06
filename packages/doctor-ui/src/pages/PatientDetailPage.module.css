@@ -121,6 +121,17 @@
   color: var(--color-text);
 }
 
+.subheading {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-light);
+  margin: var(--space-md) 0 var(--space-sm);
+}
+
+.subheading:first-of-type {
+  margin-top: 0;
+}
+
 .infoList {
   display: flex;
   flex-direction: column;

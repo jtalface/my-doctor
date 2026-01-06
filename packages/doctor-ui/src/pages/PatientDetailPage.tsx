@@ -76,7 +76,37 @@ export default function PatientDetailPage() {
   }
 
   const profile = patient.profile;
-  const age = calculateAge(profile?.dateOfBirth);
+  const demographics = profile?.demographics;
+  const medicalHistory = profile?.medicalHistory;
+  const lifestyle = profile?.lifestyle;
+  const age = calculateAge(demographics?.dateOfBirth);
+
+  const formatSex = (sex?: string) => {
+    if (!sex) return null;
+    const labels: Record<string, string> = {
+      male: 'Male',
+      female: 'Female',
+      other: 'Other',
+    };
+    return labels[sex] || sex;
+  };
+
+  const formatLifestyle = (value?: string) => {
+    if (!value) return 'Not specified';
+    const labels: Record<string, string> = {
+      never: 'Never',
+      former: 'Former',
+      current: 'Current',
+      occasional: 'Occasional',
+      regular: 'Regular',
+      heavy: 'Heavy',
+      sedentary: 'Sedentary',
+      light: 'Light',
+      moderate: 'Moderate',
+      active: 'Active',
+    };
+    return labels[value] || value;
+  };
 
   return (
     <div className={styles.page}>
@@ -97,10 +127,9 @@ export default function PatientDetailPage() {
           <p className={styles.email}>{patient.email || 'No email'}</p>
           <div className={styles.quickInfo}>
             {age && <span>Age: {age}</span>}
-            {profile?.gender && (
-              <span>{profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)}</span>
+            {demographics?.sexAtBirth && (
+              <span>{formatSex(demographics.sexAtBirth)}</span>
             )}
-            {profile?.bloodType && <span>Blood: {profile.bloodType}</span>}
           </div>
         </div>
       </div>
@@ -112,21 +141,25 @@ export default function PatientDetailPage() {
           
           {profile ? (
             <div className={styles.profileGrid}>
-              {/* Basic Info */}
+              {/* Demographics */}
               <div className={styles.card}>
-                <h3>📋 Basic Information</h3>
+                <h3>📋 Demographics</h3>
                 <div className={styles.infoList}>
                   <div className={styles.infoRow}>
                     <span>Date of Birth</span>
-                    <strong>{formatDate(profile.dateOfBirth)}</strong>
+                    <strong>{formatDate(demographics?.dateOfBirth)}</strong>
                   </div>
                   <div className={styles.infoRow}>
-                    <span>Gender</span>
-                    <strong>{profile.gender || 'Not specified'}</strong>
+                    <span>Sex at Birth</span>
+                    <strong>{formatSex(demographics?.sexAtBirth) || 'Not specified'}</strong>
                   </div>
                   <div className={styles.infoRow}>
-                    <span>Blood Type</span>
-                    <strong>{profile.bloodType || 'Unknown'}</strong>
+                    <span>Height</span>
+                    <strong>{demographics?.heightCm ? `${demographics.heightCm} cm` : 'Not specified'}</strong>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span>Weight</span>
+                    <strong>{demographics?.weightKg ? `${demographics.weightKg} kg` : 'Not specified'}</strong>
                   </div>
                 </div>
               </div>
@@ -134,9 +167,9 @@ export default function PatientDetailPage() {
               {/* Allergies */}
               <div className={styles.card}>
                 <h3>⚠️ Allergies</h3>
-                {profile.allergies && profile.allergies.length > 0 ? (
+                {medicalHistory?.allergies && medicalHistory.allergies.length > 0 ? (
                   <div className={styles.tagList}>
-                    {profile.allergies.map((allergy, i) => (
+                    {medicalHistory.allergies.map((allergy, i) => (
                       <span key={i} className={styles.tagDanger}>{allergy}</span>
                     ))}
                   </div>
@@ -148,9 +181,9 @@ export default function PatientDetailPage() {
               {/* Chronic Conditions */}
               <div className={styles.card}>
                 <h3>🏥 Chronic Conditions</h3>
-                {profile.chronicConditions && profile.chronicConditions.length > 0 ? (
+                {medicalHistory?.chronicConditions && medicalHistory.chronicConditions.length > 0 ? (
                   <div className={styles.tagList}>
-                    {profile.chronicConditions.map((condition, i) => (
+                    {medicalHistory.chronicConditions.map((condition, i) => (
                       <span key={i} className={styles.tag}>{condition}</span>
                     ))}
                   </div>
@@ -162,13 +195,10 @@ export default function PatientDetailPage() {
               {/* Medications */}
               <div className={styles.card}>
                 <h3>💊 Current Medications</h3>
-                {profile.currentMedications && profile.currentMedications.length > 0 ? (
-                  <div className={styles.medicationList}>
-                    {profile.currentMedications.map((med, i) => (
-                      <div key={i} className={styles.medication}>
-                        <strong>{med.name}</strong>
-                        <span>{med.dosage} • {med.frequency}</span>
-                      </div>
+                {medicalHistory?.medications && medicalHistory.medications.length > 0 ? (
+                  <div className={styles.tagList}>
+                    {medicalHistory.medications.map((med, i) => (
+                      <span key={i} className={styles.tag}>{med}</span>
                     ))}
                   </div>
                 ) : (
@@ -176,24 +206,49 @@ export default function PatientDetailPage() {
                 )}
               </div>
 
-              {/* Emergency Contact */}
-              {profile.emergencyContact && (
-                <div className={styles.card}>
-                  <h3>🚨 Emergency Contact</h3>
-                  <div className={styles.infoList}>
-                    <div className={styles.infoRow}>
-                      <span>Name</span>
-                      <strong>{profile.emergencyContact.name}</strong>
-                    </div>
-                    <div className={styles.infoRow}>
-                      <span>Phone</span>
-                      <strong>{profile.emergencyContact.phone}</strong>
-                    </div>
-                    <div className={styles.infoRow}>
-                      <span>Relationship</span>
-                      <strong>{profile.emergencyContact.relationship}</strong>
-                    </div>
+              {/* Lifestyle */}
+              <div className={styles.card}>
+                <h3>🏃 Lifestyle</h3>
+                <div className={styles.infoList}>
+                  <div className={styles.infoRow}>
+                    <span>Smoking</span>
+                    <strong>{formatLifestyle(lifestyle?.smoking)}</strong>
                   </div>
+                  <div className={styles.infoRow}>
+                    <span>Alcohol</span>
+                    <strong>{formatLifestyle(lifestyle?.alcohol)}</strong>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span>Exercise</span>
+                    <strong>{formatLifestyle(lifestyle?.exercise)}</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Medical History */}
+              {(medicalHistory?.surgeries?.length || medicalHistory?.familyHistory?.length) && (
+                <div className={styles.card}>
+                  <h3>📜 Medical History</h3>
+                  {medicalHistory?.surgeries && medicalHistory.surgeries.length > 0 && (
+                    <>
+                      <h4 className={styles.subheading}>Surgeries</h4>
+                      <div className={styles.tagList}>
+                        {medicalHistory.surgeries.map((surgery, i) => (
+                          <span key={i} className={styles.tag}>{surgery}</span>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {medicalHistory?.familyHistory && medicalHistory.familyHistory.length > 0 && (
+                    <>
+                      <h4 className={styles.subheading}>Family History</h4>
+                      <div className={styles.tagList}>
+                        {medicalHistory.familyHistory.map((item, i) => (
+                          <span key={i} className={styles.tag}>{item}</span>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
