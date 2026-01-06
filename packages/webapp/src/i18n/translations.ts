@@ -388,6 +388,7 @@ export const translations = {
     profile_switcher_viewing_as: 'Viewing as:',
     profile_switcher_switch_to_self: 'Switch to My Profile',
     profile_switcher_add_family_member: 'Add Family Member',
+    profile_switcher_view_edit_profile: 'View & Edit Profile',
     
     // Active Profile Banner
     active_profile_banner: 'Managing {{name}}\'s health profile',
@@ -883,6 +884,7 @@ export const translations = {
     profile_switcher_viewing_as: 'Visualizando como:',
     profile_switcher_switch_to_self: 'Voltar ao Meu Perfil',
     profile_switcher_add_family_member: 'Adicionar Membro da Família',
+    profile_switcher_view_edit_profile: 'Ver e Editar Perfil',
     
     // Active Profile Banner
     active_profile_banner: 'Gerenciando o perfil de saúde de {{name}}',
@@ -1378,6 +1380,7 @@ export const translations = {
     profile_switcher_viewing_as: 'Affichage comme:',
     profile_switcher_switch_to_self: 'Revenir à Mon Profil',
     profile_switcher_add_family_member: 'Ajouter un Membre de la Famille',
+    profile_switcher_view_edit_profile: 'Voir et Modifier le Profil',
     
     // Active Profile Banner
     active_profile_banner: 'Gestion du profil de santé de {{name}}',
@@ -1873,6 +1876,7 @@ export const translations = {
     profile_switcher_viewing_as: 'Unaangalia kama:',
     profile_switcher_switch_to_self: 'Rudi kwenye Wasifu Wangu',
     profile_switcher_add_family_member: 'Ongeza Mwanafamilia',
+    profile_switcher_view_edit_profile: 'Tazama na Hariri Wasifu',
     
     // Active Profile Banner
     active_profile_banner: 'Unasimamia wasifu wa afya wa {{name}}',

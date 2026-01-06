@@ -198,6 +198,38 @@
   flex-shrink: 0;
 }
 
+.editButton {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+  transition: background var(--transition-fast);
+}
+
+.editButton:hover {
+  background: var(--bg-secondary);
+}
+
+.editIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+  font-size: var(--font-size-base);
+  flex-shrink: 0;
+}
+
 /* Mobile adjustments */
 @media (max-width: 480px) {
   .name {

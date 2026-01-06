@@ -6,6 +6,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useActiveProfile } from '../../contexts';
 import { useAuth } from '../../auth';
 import { useTranslate } from '../../i18n';
@@ -16,6 +17,7 @@ interface ProfileSwitcherProps {
 }
 
 export function ProfileSwitcher({ onAddDependent }: ProfileSwitcherProps) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { 
     activeProfile, 
@@ -167,6 +169,19 @@ export function ProfileSwitcher({ onAddDependent }: ProfileSwitcherProps) {
               </button>
             </>
           )}
+
+          {/* Edit profile / View profile button */}
+          <div className={styles.divider} />
+          <button 
+            className={styles.editButton}
+            onClick={() => {
+              setIsOpen(false);
+              navigate('/profile');
+            }}
+          >
+            <span className={styles.editIcon}>✏️</span>
+            {t('profile_switcher_view_edit_profile')}
+          </button>
         </div>
       )}
     </div>
