@@ -116,6 +116,7 @@ export interface PatientProfile {
   dateOfBirth?: Date;
   sexAtBirth?: 'male' | 'female' | 'other';
   race?: 'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say';
+  ethnicGroup?: string;  // Ethnic group identifier (e.g., 'tsonga', 'makua')
   height?: number; // cm
   weight?: number; // kg
   allergies?: string[];

@@ -20,6 +20,7 @@ export function ProfileSetupPage() {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [sexAtBirth, setSexAtBirth] = useState<'male' | 'female' | 'other' | ''>('');
   const [race, setRace] = useState<'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say' | ''>('');
+  const [ethnicGroup, setEthnicGroup] = useState('');
   const [heightCm, setHeightCm] = useState('');
   const [weightKg, setWeightKg] = useState('');
 
@@ -48,6 +49,9 @@ export function ProfileSetupPage() {
       }
       if (profile.demographics?.race) {
         setRace(profile.demographics.race);
+      }
+      if (profile.demographics?.ethnicGroup) {
+        setEthnicGroup(profile.demographics.ethnicGroup);
       }
       if (profile.demographics?.heightCm) {
         setHeightCm(profile.demographics.heightCm.toString());
@@ -96,6 +100,7 @@ export function ProfileSetupPage() {
             dateOfBirth: dateOfBirth || undefined,
             sexAtBirth: sexAtBirth || undefined,
             race: race || undefined,
+            ethnicGroup: ethnicGroup || undefined,
             heightCm: heightCm ? parseFloat(heightCm) : undefined,
             weightKg: weightKg ? parseFloat(weightKg) : undefined,
           },
@@ -226,6 +231,28 @@ export function ProfileSetupPage() {
                     <option value="mixed">{t('profile_setup_race_mixed')}</option>
                     <option value="other">{t('profile_setup_race_other')}</option>
                     <option value="prefer_not_to_say">{t('profile_setup_race_prefer_not_to_say')}</option>
+                  </select>
+                </div>
+                <div className={styles.inputGroup}>
+                  <label htmlFor="ethnicGroup">{t('profile_setup_ethnic_group_label')}</label>
+                  <select 
+                    id="ethnicGroup"
+                    value={ethnicGroup} 
+                    onChange={e => setEthnicGroup(e.target.value)}
+                  >
+                    <option value="">{t('profile_setup_ethnic_group_placeholder')}</option>
+                    <option value="tsonga">{t('profile_setup_ethnic_group_tsonga')}</option>
+                    <option value="tonga">{t('profile_setup_ethnic_group_tonga')}</option>
+                    <option value="sena">{t('profile_setup_ethnic_group_sena')}</option>
+                    <option value="nyungwe">{t('profile_setup_ethnic_group_nyungwe')}</option>
+                    <option value="makua">{t('profile_setup_ethnic_group_makua')}</option>
+                    <option value="yao">{t('profile_setup_ethnic_group_yao')}</option>
+                    <option value="makonde">{t('profile_setup_ethnic_group_makonde')}</option>
+                    <option value="ndau">{t('profile_setup_ethnic_group_ndau')}</option>
+                    <option value="shona">{t('profile_setup_ethnic_group_shona')}</option>
+                    <option value="chuabo">{t('profile_setup_ethnic_group_chuabo')}</option>
+                    <option value="chopi">{t('profile_setup_ethnic_group_chopi')}</option>
+                    <option value="outro">{t('profile_setup_ethnic_group_outro')}</option>
                   </select>
                 </div>
                 <div className={styles.row}>

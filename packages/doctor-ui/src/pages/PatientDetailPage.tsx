@@ -105,6 +105,25 @@ export default function PatientDetailPage() {
     return labels[race] || race;
   };
 
+  const formatEthnicGroup = (ethnicGroup?: string) => {
+    if (!ethnicGroup) return null;
+    const labels: Record<string, string> = {
+      tsonga: 'Tsonga (Changana, Ronga, Tswa)',
+      tonga: 'Tonga (Bitonga)',
+      sena: 'Sena',
+      nyungwe: 'Nyungwe',
+      makua: 'Makua (Lomwe, Makua-Metto)',
+      yao: 'Yao',
+      makonde: 'Makonde',
+      ndau: 'Ndau',
+      shona: 'Shona (Manyika, Korekore)',
+      chuabo: 'Chuabo',
+      chopi: 'Chopi',
+      outro: 'Other',
+    };
+    return labels[ethnicGroup] || ethnicGroup;
+  };
+
   const formatLifestyle = (value?: string) => {
     if (!value) return 'Not specified';
     const labels: Record<string, string> = {
@@ -170,6 +189,10 @@ export default function PatientDetailPage() {
                   <div className={styles.infoRow}>
                     <span>Race</span>
                     <strong>{formatRace(demographics?.race) || 'Not specified'}</strong>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span>Ethnic Group</span>
+                    <strong>{formatEthnicGroup(demographics?.ethnicGroup) || 'Not specified'}</strong>
                   </div>
                   <div className={styles.infoRow}>
                     <span>Height</span>

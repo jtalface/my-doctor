@@ -19,6 +19,7 @@ export interface IPatientProfile extends Document {
     age?: number;
     sexAtBirth?: 'male' | 'female' | 'other';
     race?: Race;
+    ethnicGroup?: string;  // Ethnic group identifier (e.g., 'tsonga', 'makua')
     heightCm?: number;
     weightKg?: number;
   };
@@ -60,6 +61,7 @@ const PatientProfileSchema = new Schema<IPatientProfile>(
       age: { type: Number },
       sexAtBirth: { type: String, enum: ['male', 'female', 'other'] },
       race: { type: String, enum: ['black', 'white', 'asian', 'latin_american', 'mixed', 'other', 'prefer_not_to_say'] },
+      ethnicGroup: { type: String },  // Ethnic group identifier (e.g., 'tsonga', 'makua')
       heightCm: { type: Number },
       weightKg: { type: Number },
     },

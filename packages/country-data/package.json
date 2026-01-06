@@ -1,0 +1,23 @@
+{
+  "name": "@mydoctor/country-data",
+  "version": "1.0.0",
+  "description": "Country-specific data for MyDoctor platform - ethnic groups, medical protocols, vaccinations, and regional health information",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "keywords": [
+    "mydoctor",
+    "country-data",
+    "medical-protocols",
+    "vaccinations",
+    "ethnic-groups"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
+

@@ -47,6 +47,26 @@ export function ProfilePage() {
     return labels[race] || race;
   };
 
+  // Format ethnic group
+  const formatEthnicGroup = (ethnicGroup?: string) => {
+    if (!ethnicGroup) return t('common_not_set');
+    const labels: Record<string, string> = {
+      tsonga: t('profile_setup_ethnic_group_tsonga'),
+      tonga: t('profile_setup_ethnic_group_tonga'),
+      sena: t('profile_setup_ethnic_group_sena'),
+      nyungwe: t('profile_setup_ethnic_group_nyungwe'),
+      makua: t('profile_setup_ethnic_group_makua'),
+      yao: t('profile_setup_ethnic_group_yao'),
+      makonde: t('profile_setup_ethnic_group_makonde'),
+      ndau: t('profile_setup_ethnic_group_ndau'),
+      shona: t('profile_setup_ethnic_group_shona'),
+      chuabo: t('profile_setup_ethnic_group_chuabo'),
+      chopi: t('profile_setup_ethnic_group_chopi'),
+      outro: t('profile_setup_ethnic_group_outro'),
+    };
+    return labels[ethnicGroup] || ethnicGroup;
+  };
+
   // Format height
   const formatHeight = (cm?: number) => {
     if (!cm) return t('common_not_set');
@@ -100,6 +120,7 @@ export function ProfilePage() {
     dob: formatDate(activePatientProfile?.demographics?.dateOfBirth || activeProfile?.dateOfBirth),
     sex: formatSex(activePatientProfile?.demographics?.sexAtBirth),
     race: formatRace(activePatientProfile?.demographics?.race),
+    ethnicGroup: formatEthnicGroup(activePatientProfile?.demographics?.ethnicGroup),
     height: formatHeight(activePatientProfile?.demographics?.heightCm),
     weight: formatWeight(activePatientProfile?.demographics?.weightKg),
     allergies: formatArray(activePatientProfile?.medicalHistory?.allergies),
@@ -177,6 +198,7 @@ export function ProfilePage() {
               <ProfileRow label={t('profile_date_of_birth')} value={profileData.dob} />
               <ProfileRow label={t('profile_sex_at_birth')} value={profileData.sex} />
               <ProfileRow label={t('profile_race')} value={profileData.race} />
+              <ProfileRow label={t('profile_ethnic_group')} value={profileData.ethnicGroup} />
               <ProfileRow label={t('profile_height')} value={profileData.height} />
               <ProfileRow label={t('profile_weight')} value={profileData.weight} />
             </CardContent>
