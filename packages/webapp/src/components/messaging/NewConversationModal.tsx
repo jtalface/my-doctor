@@ -4,7 +4,7 @@
  * Modal for selecting a provider to start a new conversation.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api, Provider, Conversation } from '../../services/api';
 import { useTranslate } from '../../i18n';
 import { Button } from '../common';
@@ -32,9 +32,26 @@ export function NewConversationModal({
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Track if we've already loaded providers to prevent duplicate requests
+  const hasLoadedRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   // Load providers
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      hasLoadedRef.current = false;
+      return;
+    }
+
+    // Prevent duplicate requests
+    if (hasLoadedRef.current || providers.length > 0) return;
+    hasLoadedRef.current = true;
+
+    // Abort any pending request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
 
     const loadProviders = async () => {
       setIsLoading(true);
@@ -44,6 +61,7 @@ export function NewConversationModal({
         const fetchedProviders = await api.getProviders();
         setProviders(fetchedProviders);
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return;
         setError(err instanceof Error ? err.message : 'Failed to load providers');
       } finally {
         setIsLoading(false);
@@ -51,7 +69,11 @@ export function NewConversationModal({
     };
 
     loadProviders();
-  }, [isOpen]);
+
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, [isOpen, providers.length]);
 
   // Reset state when modal closes
   useEffect(() => {

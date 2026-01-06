@@ -24,24 +24,42 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pollIntervalRef = useRef<number | null>(null);
+  const isLoadingRef = useRef(false);
+  const hasInitializedRef = useRef(false);
+  const conversationIdRef = useRef(conversation._id);
 
   // Scroll to bottom
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  // Load messages
+  // Reset refs when conversation changes
+  useEffect(() => {
+    if (conversationIdRef.current !== conversation._id) {
+      conversationIdRef.current = conversation._id;
+      hasInitializedRef.current = false;
+      isLoadingRef.current = false;
+    }
+  }, [conversation._id]);
+
+  // Load messages - using refs to prevent duplicate calls
   const loadMessages = useCallback(async (isInitial = false) => {
+    // Prevent concurrent or duplicate requests
+    if (isLoadingRef.current) return;
+    if (isInitial && hasInitializedRef.current) return;
+    
+    isLoadingRef.current = true;
+    if (isInitial) hasInitializedRef.current = true;
+
     try {
-      // Provider is already populated in the conversation object
-      // Extract provider ID - it could be a string or an object with _id
+      // Extract provider ID - could be string or object
       const providerId = typeof conversation.providerId === 'string' 
         ? conversation.providerId 
         : (conversation.providerId as any)?._id || conversation.provider?._id;
-      
+
       const [fetchedMessages, fetchedProvider] = await Promise.all([
         api.getMessages(conversation._id),
-        // Use the already-populated provider if available, otherwise fetch it
+        // Use already-populated provider if available
         conversation.provider 
           ? Promise.resolve(conversation.provider)
           : providerId 
@@ -54,20 +72,22 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
       
       if (isInitial) {
         setIsLoading(false);
-        // Mark as read
-        api.markConversationAsRead(conversation._id).catch(console.error);
+        // Mark as read (fire and forget)
+        api.markConversationAsRead(conversation._id).catch(() => {});
       }
       
       scrollToBottom();
     } catch (err) {
       if (isInitial) {
-        setError(err instanceof Error ? err.message : t('messages_error_load'));
+        setError(err instanceof Error ? err.message : 'Failed to load messages');
         setIsLoading(false);
       }
+    } finally {
+      isLoadingRef.current = false;
     }
-  }, [conversation._id, conversation.providerId, conversation.provider, scrollToBottom, t]);
+  }, [conversation._id, conversation.providerId, conversation.provider, scrollToBottom]);
 
-  // Initial load and polling
+  // Initial load and polling - only depend on conversation._id
   useEffect(() => {
     loadMessages(true);
     
@@ -81,7 +101,7 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
         clearInterval(pollIntervalRef.current);
       }
     };
-  }, [loadMessages]);
+  }, [conversation._id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Send message
   const handleSend = async (content: string, files: File[]) => {
