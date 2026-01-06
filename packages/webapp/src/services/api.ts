@@ -772,6 +772,31 @@ class ApiClient {
   getFileDownloadUrl(filename: string): string {
     return `${this.baseUrl}/api/messages/files/${filename}`;
   }
+
+  /**
+   * Download a file as blob (for authenticated image display)
+   */
+  async downloadFileAsBlob(filename: string): Promise<Blob> {
+    const url = `${this.baseUrl}/api/messages/files/${filename}`;
+    const token = await getAccessToken();
+    
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to download file: ${response.status}`);
+    }
+
+    return response.blob();
+  }
 }
 
 // Export singleton instance

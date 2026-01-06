@@ -121,10 +121,25 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
     }
   };
 
-  // Download file
-  const handleDownloadFile = (attachment: MessageAttachment) => {
-    const url = api.getFileDownloadUrl(attachment.filename);
-    window.open(url, '_blank');
+  // Download file with authentication
+  const handleDownloadFile = async (attachment: MessageAttachment) => {
+    try {
+      const blob = await api.downloadFileAsBlob(attachment.filename);
+      const url = URL.createObjectURL(blob);
+      
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = attachment.originalName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the blob URL
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download file:', err);
+    }
   };
 
   if (isLoading) {

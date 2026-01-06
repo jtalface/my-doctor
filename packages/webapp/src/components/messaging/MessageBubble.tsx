@@ -4,9 +4,75 @@
  * Displays a single message with content and attachments.
  */
 
-import { Message, MessageAttachment } from '../../services/api';
+import { useState, useEffect } from 'react';
+import { Message, MessageAttachment, api } from '../../services/api';
 import { useTranslate } from '../../i18n';
 import styles from './MessageBubble.module.css';
+
+// Component to load authenticated images
+function AuthenticatedImage({ 
+  attachment, 
+  onDownload 
+}: { 
+  attachment: MessageAttachment;
+  onDownload?: () => void;
+}) {
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    let blobUrl: string | null = null;
+    
+    const loadImage = async () => {
+      try {
+        const blob = await api.downloadFileAsBlob(attachment.filename);
+        if (mounted) {
+          blobUrl = URL.createObjectURL(blob);
+          setImageSrc(blobUrl);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(true);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadImage();
+
+    return () => {
+      mounted = false;
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [attachment.filename]);
+
+  if (isLoading) {
+    return <div className={styles.imageLoading}>Loading...</div>;
+  }
+
+  if (error || !imageSrc) {
+    return (
+      <div className={styles.imageError} onClick={onDownload}>
+        <span>🖼️</span>
+        <span>{attachment.originalName}</span>
+      </div>
+    );
+  }
+
+  return (
+    <img 
+      src={imageSrc} 
+      alt={attachment.originalName}
+      className={styles.attachmentImage}
+      onClick={onDownload}
+    />
+  );
+}
 
 interface MessageBubbleProps {
   message: Message;
@@ -72,10 +138,9 @@ export function MessageBubble({
                 onClick={() => onDownloadFile?.(attachment)}
               >
                 {isImage(attachment.mimeType) ? (
-                  <img 
-                    src={attachment.url} 
-                    alt={attachment.originalName}
-                    className={styles.attachmentImage}
+                  <AuthenticatedImage 
+                    attachment={attachment}
+                    onDownload={() => onDownloadFile?.(attachment)}
                   />
                 ) : (
                   <div className={styles.fileInfo}>

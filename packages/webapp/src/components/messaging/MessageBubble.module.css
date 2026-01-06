@@ -80,6 +80,41 @@
   border-radius: var(--radius-md);
 }
 
+.imageLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  min-height: 80px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.own .imageLoading {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.imageError {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.own .imageError {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.imageError span:first-child {
+  font-size: 1.25rem;
+}
+
 .fileInfo {
   display: flex;
   align-items: center;
