@@ -5,6 +5,7 @@
  */
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../auth';
 import styles from './LoginPage.module.css';
 
@@ -89,6 +90,10 @@ export default function LoginPage() {
         </form>
 
         <div className={styles.footer}>
+          <p className={styles.registerPrompt}>
+            Don't have an account?{' '}
+            <Link to="/register" className={styles.link}>Create one</Link>
+          </p>
           <p className={styles.hint}>
             Test credentials:<br />
             <strong>doctor@mydoctor.com</strong> / <strong>Doctor123!</strong>

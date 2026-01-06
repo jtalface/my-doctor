@@ -8,6 +8,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './auth';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ConversationsPage from './pages/ConversationsPage';
 import ConversationPage from './pages/ConversationPage';
@@ -52,6 +53,14 @@ export default function App() {
         element={
           <PublicRoute>
             <LoginPage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <RegisterPage />
           </PublicRoute>
         }
       />
