@@ -9,12 +9,16 @@ export interface IVaccinationRecord {
   updatedAt?: Date;                         // When this record was last updated
 }
 
+// Race options for patient demographics
+export type Race = 'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say';
+
 export interface IPatientProfile extends Document {
   userId: mongoose.Types.ObjectId;
   demographics: {
     dateOfBirth?: Date;
     age?: number;
     sexAtBirth?: 'male' | 'female' | 'other';
+    race?: Race;
     heightCm?: number;
     weightKg?: number;
   };
@@ -55,6 +59,7 @@ const PatientProfileSchema = new Schema<IPatientProfile>(
       dateOfBirth: { type: Date },
       age: { type: Number },
       sexAtBirth: { type: String, enum: ['male', 'female', 'other'] },
+      race: { type: String, enum: ['black', 'white', 'asian', 'latin_american', 'mixed', 'other', 'prefer_not_to_say'] },
       heightCm: { type: Number },
       weightKg: { type: Number },
     },

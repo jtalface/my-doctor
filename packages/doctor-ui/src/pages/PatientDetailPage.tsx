@@ -91,6 +91,20 @@ export default function PatientDetailPage() {
     return labels[sex] || sex;
   };
 
+  const formatRace = (race?: string) => {
+    if (!race) return null;
+    const labels: Record<string, string> = {
+      black: 'Black',
+      white: 'White',
+      asian: 'Asian',
+      latin_american: 'Latin American',
+      mixed: 'Mixed',
+      other: 'Other',
+      prefer_not_to_say: 'Prefer not to say',
+    };
+    return labels[race] || race;
+  };
+
   const formatLifestyle = (value?: string) => {
     if (!value) return 'Not specified';
     const labels: Record<string, string> = {
@@ -152,6 +166,10 @@ export default function PatientDetailPage() {
                   <div className={styles.infoRow}>
                     <span>Sex at Birth</span>
                     <strong>{formatSex(demographics?.sexAtBirth) || 'Not specified'}</strong>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span>Race</span>
+                    <strong>{formatRace(demographics?.race) || 'Not specified'}</strong>
                   </div>
                   <div className={styles.infoRow}>
                     <span>Height</span>

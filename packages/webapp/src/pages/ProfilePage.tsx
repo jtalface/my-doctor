@@ -10,7 +10,7 @@ import styles from './ProfilePage.module.css';
 
 export function ProfilePage() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const { activeProfile, activePatientProfile, isViewingDependent } = useActiveProfile();
   const t = useTranslate();
   const [showVaccinationModal, setShowVaccinationModal] = useState(false);
@@ -30,6 +30,21 @@ export function ProfilePage() {
   const formatSex = (sex?: string) => {
     if (!sex) return t('common_not_set');
     return sex.charAt(0).toUpperCase() + sex.slice(1);
+  };
+
+  // Format race
+  const formatRace = (race?: string) => {
+    if (!race) return t('common_not_set');
+    const labels: Record<string, string> = {
+      black: t('profile_setup_race_black'),
+      white: t('profile_setup_race_white'),
+      asian: t('profile_setup_race_asian'),
+      latin_american: t('profile_setup_race_latin_american'),
+      mixed: t('profile_setup_race_mixed'),
+      other: t('profile_setup_race_other'),
+      prefer_not_to_say: t('profile_setup_race_prefer_not_to_say'),
+    };
+    return labels[race] || race;
   };
 
   // Format height
@@ -77,13 +92,14 @@ export function ProfilePage() {
   // Build profile data from active profile (can be self or dependent)
   const profileData = {
     name: activeProfile?.name || t('common_guest_user'),
-    // For dependents, we might not have email, so show relationship instead
+    // For dependents, show relationship instead of email
     email: isViewingDependent 
       ? t(`dependents_relationship_${activeProfile?.relationship}` as any) || ''
-      : (activeProfile && 'email' in activeProfile ? (activeProfile as any).email : '') || t('common_no_email'),
+      : user?.email || t('common_no_email'),
     language: `${languageInfo.flag} ${languageInfo.nativeName}`,
     dob: formatDate(activePatientProfile?.demographics?.dateOfBirth || activeProfile?.dateOfBirth),
     sex: formatSex(activePatientProfile?.demographics?.sexAtBirth),
+    race: formatRace(activePatientProfile?.demographics?.race),
     height: formatHeight(activePatientProfile?.demographics?.heightCm),
     weight: formatWeight(activePatientProfile?.demographics?.weightKg),
     allergies: formatArray(activePatientProfile?.medicalHistory?.allergies),
@@ -160,6 +176,7 @@ export function ProfilePage() {
               <ProfileRow label={t('profile_preferred_language')} value={profileData.language} />
               <ProfileRow label={t('profile_date_of_birth')} value={profileData.dob} />
               <ProfileRow label={t('profile_sex_at_birth')} value={profileData.sex} />
+              <ProfileRow label={t('profile_race')} value={profileData.race} />
               <ProfileRow label={t('profile_height')} value={profileData.height} />
               <ProfileRow label={t('profile_weight')} value={profileData.weight} />
             </CardContent>

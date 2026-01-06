@@ -25,6 +25,7 @@ export function DependentProfileSetupPage() {
   // Personal Info
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [sexAtBirth, setSexAtBirth] = useState<'male' | 'female' | 'other' | ''>('');
+  const [race, setRace] = useState<'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say' | ''>('');
   const [heightCm, setHeightCm] = useState('');
   const [weightKg, setWeightKg] = useState('');
 
@@ -55,6 +56,9 @@ export function DependentProfileSetupPage() {
           }
           if (profile.demographics.sexAtBirth) {
             setSexAtBirth(profile.demographics.sexAtBirth as 'male' | 'female' | 'other');
+          }
+          if (profile.demographics.race) {
+            setRace(profile.demographics.race as 'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say');
           }
           if (profile.demographics.heightCm) {
             setHeightCm(profile.demographics.heightCm.toString());
@@ -121,6 +125,7 @@ export function DependentProfileSetupPage() {
         demographics: {
           dateOfBirth: dateOfBirth || undefined,
           sexAtBirth: sexAtBirth || undefined,
+          race: race || undefined,
           heightCm: heightCm ? parseFloat(heightCm) : undefined,
           weightKg: weightKg ? parseFloat(weightKg) : undefined,
         },
@@ -241,6 +246,23 @@ export function DependentProfileSetupPage() {
                     <option value="male">{t('profile_setup_sex_male')}</option>
                     <option value="female">{t('profile_setup_sex_female')}</option>
                     <option value="other">{t('profile_setup_sex_other')}</option>
+                  </select>
+                </div>
+                <div className={styles.inputGroup}>
+                  <label htmlFor="race">{t('profile_setup_race_label')}</label>
+                  <select 
+                    id="race"
+                    value={race} 
+                    onChange={e => setRace(e.target.value as 'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say' | '')}
+                  >
+                    <option value="">{t('profile_setup_race_placeholder')}</option>
+                    <option value="black">{t('profile_setup_race_black')}</option>
+                    <option value="white">{t('profile_setup_race_white')}</option>
+                    <option value="asian">{t('profile_setup_race_asian')}</option>
+                    <option value="latin_american">{t('profile_setup_race_latin_american')}</option>
+                    <option value="mixed">{t('profile_setup_race_mixed')}</option>
+                    <option value="other">{t('profile_setup_race_other')}</option>
+                    <option value="prefer_not_to_say">{t('profile_setup_race_prefer_not_to_say')}</option>
                   </select>
                 </div>
                 <div className={styles.row}>

@@ -292,6 +292,7 @@ export interface PatientProfile {
       dateOfBirth?: string;
       age?: number;
       sexAtBirth?: 'male' | 'female' | 'other';
+      race?: 'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say';
       heightCm?: number;
       weightKg?: number;
     };

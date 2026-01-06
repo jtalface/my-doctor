@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useAuth } from '../auth';
@@ -9,15 +9,17 @@ type Step = 'personal' | 'medical' | 'lifestyle';
 
 export function ProfileSetupPage() {
   const navigate = useNavigate();
-  const { user, updateProfile, setIsNewUser } = useAuth();
+  const { user, profile, updateProfile, setIsNewUser } = useAuth();
   const t = useTranslate();
   const [step, setStep] = useState<Step>('personal');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Personal Info
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [sexAtBirth, setSexAtBirth] = useState<'male' | 'female' | 'other' | ''>('');
+  const [race, setRace] = useState<'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say' | ''>('');
   const [heightCm, setHeightCm] = useState('');
   const [weightKg, setWeightKg] = useState('');
 
@@ -30,6 +32,55 @@ export function ProfileSetupPage() {
   const [smoking, setSmoking] = useState<'never' | 'former' | 'current' | ''>('');
   const [alcohol, setAlcohol] = useState<'never' | 'occasional' | 'regular' | 'heavy' | ''>('');
   const [exercise, setExercise] = useState<'sedentary' | 'light' | 'moderate' | 'active' | ''>('');
+
+  // Prepopulate form with existing profile data
+  useEffect(() => {
+    if (profile && !isInitialized) {
+      // Demographics
+      if (profile.demographics?.dateOfBirth) {
+        // Convert ISO date to YYYY-MM-DD format for input
+        const date = new Date(profile.demographics.dateOfBirth);
+        const dateStr = date.toISOString().split('T')[0];
+        if (dateStr) setDateOfBirth(dateStr);
+      }
+      if (profile.demographics?.sexAtBirth) {
+        setSexAtBirth(profile.demographics.sexAtBirth);
+      }
+      if (profile.demographics?.race) {
+        setRace(profile.demographics.race);
+      }
+      if (profile.demographics?.heightCm) {
+        setHeightCm(profile.demographics.heightCm.toString());
+      }
+      if (profile.demographics?.weightKg) {
+        setWeightKg(profile.demographics.weightKg.toString());
+      }
+
+      // Medical History
+      if (profile.medicalHistory?.allergies?.length) {
+        setAllergies(profile.medicalHistory.allergies.join(', '));
+      }
+      if (profile.medicalHistory?.chronicConditions?.length) {
+        setConditions(profile.medicalHistory.chronicConditions.join(', '));
+      }
+      if (profile.medicalHistory?.medications?.length) {
+        setMedications(profile.medicalHistory.medications.join(', '));
+      }
+
+      // Lifestyle
+      if (profile.lifestyle?.smoking) {
+        setSmoking(profile.lifestyle.smoking);
+      }
+      if (profile.lifestyle?.alcohol) {
+        setAlcohol(profile.lifestyle.alcohol);
+      }
+      if (profile.lifestyle?.exercise) {
+        setExercise(profile.lifestyle.exercise);
+      }
+
+      setIsInitialized(true);
+    }
+  }, [profile, isInitialized]);
 
   const handleNext = async () => {
     if (step === 'personal') {
@@ -44,6 +95,7 @@ export function ProfileSetupPage() {
           demographics: {
             dateOfBirth: dateOfBirth || undefined,
             sexAtBirth: sexAtBirth || undefined,
+            race: race || undefined,
             heightCm: heightCm ? parseFloat(heightCm) : undefined,
             weightKg: weightKg ? parseFloat(weightKg) : undefined,
           },
@@ -51,8 +103,8 @@ export function ProfileSetupPage() {
             allergies: allergies.split(',').map(s => s.trim()).filter(Boolean),
             chronicConditions: conditions.split(',').map(s => s.trim()).filter(Boolean),
             medications: medications.split(',').map(s => s.trim()).filter(Boolean),
-            surgeries: [],
-            familyHistory: [],
+            surgeries: profile?.medicalHistory?.surgeries || [],
+            familyHistory: profile?.medicalHistory?.familyHistory || [],
           },
           lifestyle: {
             smoking: smoking || undefined,
@@ -61,7 +113,8 @@ export function ProfileSetupPage() {
           },
         });
         setIsNewUser(false);
-        navigate('/dashboard');
+        // Navigate back to profile if editing, otherwise to dashboard
+        navigate(profile ? '/profile' : '/dashboard');
       } catch (err) {
         console.error('Failed to save profile:', err);
         setError(t('profile_setup_error'));
@@ -76,22 +129,31 @@ export function ProfileSetupPage() {
     else if (step === 'lifestyle') setStep('medical');
   };
 
+  const firstName = user?.firstName || user?.name?.split(' ')[0] || 'there';
+  const isEditing = !!profile;
+
   const handleSkip = () => {
     setIsNewUser(false);
-    navigate('/dashboard');
+    // Navigate back to profile if editing, otherwise to dashboard
+    navigate(isEditing ? '/profile' : '/dashboard');
   };
-
-  const firstName = user?.name?.split(' ')[0] || 'there';
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>{t('profile_setup_welcome')}, {firstName}! 👋</h1>
-          <p className={styles.subtitle}>{t('profile_setup_subtitle')}</p>
+          <h1 className={styles.title}>
+            {isEditing 
+              ? t('profile_setup_update_title')
+              : `${t('profile_setup_welcome')}, ${firstName}! 👋`
+            }
+          </h1>
+          <p className={styles.subtitle}>
+            {isEditing ? t('profile_setup_update_subtitle') : t('profile_setup_subtitle')}
+          </p>
         </div>
         <button className={styles.skipButton} onClick={handleSkip}>
-          {t('common_skip')}
+          {isEditing ? t('common_cancel') : t('common_skip')}
         </button>
       </header>
 
@@ -147,6 +209,23 @@ export function ProfileSetupPage() {
                     <option value="male">{t('profile_setup_sex_male')}</option>
                     <option value="female">{t('profile_setup_sex_female')}</option>
                     <option value="other">{t('profile_setup_sex_other')}</option>
+                  </select>
+                </div>
+                <div className={styles.inputGroup}>
+                  <label htmlFor="race">{t('profile_setup_race_label')}</label>
+                  <select 
+                    id="race"
+                    value={race} 
+                    onChange={e => setRace(e.target.value as 'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say' | '')}
+                  >
+                    <option value="">{t('profile_setup_race_placeholder')}</option>
+                    <option value="black">{t('profile_setup_race_black')}</option>
+                    <option value="white">{t('profile_setup_race_white')}</option>
+                    <option value="asian">{t('profile_setup_race_asian')}</option>
+                    <option value="latin_american">{t('profile_setup_race_latin_american')}</option>
+                    <option value="mixed">{t('profile_setup_race_mixed')}</option>
+                    <option value="other">{t('profile_setup_race_other')}</option>
+                    <option value="prefer_not_to_say">{t('profile_setup_race_prefer_not_to_say')}</option>
                   </select>
                 </div>
                 <div className={styles.row}>
