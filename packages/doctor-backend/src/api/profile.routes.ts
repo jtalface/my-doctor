@@ -30,7 +30,13 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
       return;
     }
 
-    res.json({ profile });
+    // Add name virtual for lean query
+    res.json({ 
+      profile: {
+        ...profile,
+        name: `${profile.firstName} ${profile.lastName}`.trim(),
+      }
+    });
   } catch (error) {
     console.error('[Profile] Get error:', error);
     res.status(500).json({ 
@@ -48,7 +54,8 @@ router.patch('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const providerId = req.doctor!.providerId;
     const {
-      name,
+      firstName,
+      lastName,
       phone,
       bio,
       specialty,
@@ -60,7 +67,8 @@ router.patch('/', requireAuth, async (req: Request, res: Response) => {
     } = req.body;
 
     const update: Record<string, unknown> = {};
-    if (name) update.name = name;
+    if (firstName) update.firstName = firstName;
+    if (lastName) update.lastName = lastName;
     if (phone !== undefined) update.phone = phone;
     if (bio !== undefined) update.bio = bio;
     if (specialty) update.specialty = specialty;
@@ -74,7 +82,7 @@ router.patch('/', requireAuth, async (req: Request, res: Response) => {
       providerId,
       { $set: update },
       { new: true }
-    ).select('-passwordHash');
+    ).select('-passwordHash').lean();
 
     if (!profile) {
       res.status(404).json({ 
@@ -84,7 +92,13 @@ router.patch('/', requireAuth, async (req: Request, res: Response) => {
       return;
     }
 
-    res.json({ profile });
+    // Add name virtual for lean query
+    res.json({ 
+      profile: {
+        ...profile,
+        name: `${profile.firstName} ${profile.lastName}`.trim(),
+      }
+    });
   } catch (error) {
     console.error('[Profile] Update error:', error);
     res.status(500).json({ 

@@ -24,7 +24,8 @@ const router: RouterType = Router();
 const registerSchema = z.object({
   email: z.string().email('Invalid email format'),
   password: z.string().min(1, 'Password is required'),
-  name: z.string().min(1, 'Name is required').max(100),
+  firstName: z.string().min(1, 'First name is required').max(50),
+  lastName: z.string().min(1, 'Last name is required').max(50),
   language: z.string().optional(),
 });
 
@@ -51,11 +52,11 @@ router.post('/register', registerRateLimiter, async (req: Request, res: Response
       });
     }
 
-    const { email, password, name, language } = validation.data;
+    const { email, password, firstName, lastName, language } = validation.data;
 
     // Register user
     const result = await authService.register(
-      { email, password, name, language },
+      { email, password, firstName, lastName, language },
       req.headers['user-agent'],
       req.ip
     );

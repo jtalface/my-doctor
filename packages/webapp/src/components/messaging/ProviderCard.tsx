@@ -26,14 +26,14 @@ export function ProviderCard({ provider, onClick, selected }: ProviderCardProps)
         {provider.avatarUrl ? (
           <img src={provider.avatarUrl} alt="" />
         ) : (
-          <span>{provider.name[0]}</span>
+          <span>{(provider.name || provider.firstName || '?')[0]}</span>
         )}
         <span className={`${styles.status} ${provider.isOnline ? styles.online : styles.offline}`} />
       </div>
       
       <div className={styles.info}>
         <h3 className={styles.name}>
-          {provider.title} {provider.name}
+          {provider.title} {provider.name || `${provider.firstName} ${provider.lastName}`}
         </h3>
         <p className={styles.specialty}>{provider.specialty}</p>
         

@@ -11,7 +11,9 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003';
 export interface AuthUser {
   id: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Virtual: firstName + lastName
   isGuest: boolean;
   preferences: {
     notifications: boolean;
@@ -34,7 +36,8 @@ export interface RefreshResponse {
 export interface RegisterData {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   language?: string;
 }
 

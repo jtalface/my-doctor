@@ -26,7 +26,7 @@ class AuthService {
     userAgent?: string,
     ipAddress?: string
   ): Promise<AuthResponse & { refreshToken: string; refreshExpiresAt: Date }> {
-    const { email, password, name, specialty, title, licenseNumber, phone } = data;
+    const { email, password, firstName, lastName, specialty, title, licenseNumber, phone } = data;
 
     // Check if email already exists
     const existingProvider = await Provider.findOne({ email: email.toLowerCase() });
@@ -54,7 +54,8 @@ class AuthService {
     // Create provider/doctor
     const provider = new Provider({
       email: email.toLowerCase(),
-      name,
+      firstName,
+      lastName,
       passwordHash,
       specialty,
       title: title || 'Dr.',
@@ -243,7 +244,9 @@ class AuthService {
     return {
       id: provider._id.toString(),
       email: provider.email,
-      name: provider.name,
+      firstName: provider.firstName,
+      lastName: provider.lastName,
+      name: provider.name, // Virtual
       specialty: provider.specialty,
       title: provider.title,
       avatarUrl: provider.avatarUrl,

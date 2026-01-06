@@ -35,7 +35,8 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mydoct
 
 // Provider schema (same as model)
 const ProviderSchema = new mongoose.Schema({
-  name: String,
+  firstName: String,
+  lastName: String,
   email: { type: String, unique: true, lowercase: true },
   passwordHash: String,
   specialty: String,
@@ -75,7 +76,8 @@ async function seed() {
       {
         email: 'doctor@mydoctor.com',
         password: 'Doctor123!',
-        name: 'Dr. Maria Silva',
+        firstName: 'Maria',
+        lastName: 'Silva',
         specialty: 'General Medicine',
         title: 'Dr.',
         licenseNumber: 'MOZ-2024-001',
@@ -92,7 +94,8 @@ async function seed() {
       {
         email: 'pediatrician@mydoctor.com',
         password: 'Doctor123!',
-        name: 'Dr. João Santos',
+        firstName: 'João',
+        lastName: 'Santos',
         specialty: 'Pediatrics',
         title: 'Dr.',
         licenseNumber: 'MOZ-2024-002',

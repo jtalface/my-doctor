@@ -39,7 +39,9 @@ export interface SessionResponse {
 
 export interface User {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Virtual: firstName + lastName
   email?: string;
   isGuest: boolean;
   preferences?: {
@@ -215,7 +217,9 @@ export interface VaccinationUpdateResponse {
 // Messaging types
 export interface Provider {
   _id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Virtual: firstName + lastName
   email: string;
   specialty: string;
   title?: string;

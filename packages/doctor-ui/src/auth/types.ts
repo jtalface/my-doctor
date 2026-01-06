@@ -5,7 +5,9 @@
 export interface Doctor {
   id: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Virtual: firstName + lastName
   specialty: string;
   title?: string;
   avatarUrl?: string;
@@ -31,7 +33,8 @@ export interface LoginCredentials {
 export interface RegisterData {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   specialty: string;
   title?: string;
   licenseNumber?: string;

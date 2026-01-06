@@ -39,13 +39,14 @@ router.use(authenticate);
 router.get('/providers', async (_req: Request, res: Response) => {
   try {
     const providers = await Provider.find({ isActive: true })
-      .select('name email specialty title avatarUrl isAvailable lastActiveAt languages')
-      .sort({ name: 1 })
+      .select('firstName lastName email specialty title avatarUrl isAvailable lastActiveAt languages')
+      .sort({ lastName: 1, firstName: 1 })
       .lean();
 
-    // Add isOnline virtual
+    // Add isOnline virtual and name
     const providersWithStatus = providers.map(provider => ({
       ...provider,
+      name: `${provider.firstName} ${provider.lastName}`.trim(),
       isOnline: provider.lastActiveAt 
         ? new Date(provider.lastActiveAt) > new Date(Date.now() - 5 * 60 * 1000)
         : false,
@@ -71,16 +72,17 @@ router.get('/providers/:providerId', async (req: Request, res: Response) => {
     }
 
     const provider = await Provider.findById(providerId)
-      .select('name email specialty title avatarUrl bio phone isAvailable lastActiveAt languages workingHours')
+      .select('firstName lastName email specialty title avatarUrl bio phone isAvailable lastActiveAt languages workingHours')
       .lean();
 
     if (!provider) {
       return res.status(404).json({ error: 'Provider not found' });
     }
 
-    // Add isOnline virtual
+    // Add isOnline virtual and name
     const providerWithStatus = {
       ...provider,
+      name: `${provider.firstName} ${provider.lastName}`.trim(),
       isOnline: provider.lastActiveAt 
         ? new Date(provider.lastActiveAt) > new Date(Date.now() - 5 * 60 * 1000)
         : false,
@@ -114,17 +116,18 @@ router.get('/conversations', async (req: Request, res: Response) => {
     }
 
     const conversations = await Conversation.find(query)
-      .populate('providerId', 'name specialty title avatarUrl lastActiveAt')
+      .populate('providerId', 'firstName lastName specialty title avatarUrl lastActiveAt')
       .sort({ lastMessageAt: -1 })
       .lean();
 
-    // Add provider online status
+    // Add provider online status and name
     const conversationsWithStatus = conversations.map(conv => {
       const provider = conv.providerId as any;
       return {
         ...conv,
         provider: provider ? {
           ...provider,
+          name: `${provider.firstName} ${provider.lastName}`.trim(),
           isOnline: provider.lastActiveAt 
             ? new Date(provider.lastActiveAt) > new Date(Date.now() - 5 * 60 * 1000)
             : false,
@@ -187,7 +190,7 @@ router.post('/conversations', async (req: Request, res: Response) => {
       }
       
       // Populate and transform existing conversation
-      await conversation.populate('providerId', 'name specialty title avatarUrl lastActiveAt');
+      await conversation.populate('providerId', 'firstName lastName specialty title avatarUrl lastActiveAt');
       const existingObj = conversation.toObject();
       const existingProvider = existingObj.providerId as any;
       
@@ -195,6 +198,7 @@ router.post('/conversations', async (req: Request, res: Response) => {
         ...existingObj,
         provider: existingProvider ? {
           ...existingProvider,
+          name: `${existingProvider.firstName} ${existingProvider.lastName}`.trim(),
           isOnline: existingProvider.lastActiveAt 
             ? new Date(existingProvider.lastActiveAt) > new Date(Date.now() - 5 * 60 * 1000)
             : false,
@@ -211,7 +215,7 @@ router.post('/conversations', async (req: Request, res: Response) => {
     });
 
     // Populate provider info and convert to plain object
-    await conversation.populate('providerId', 'name specialty title avatarUrl lastActiveAt');
+    await conversation.populate('providerId', 'firstName lastName specialty title avatarUrl lastActiveAt');
     const conversationObj = conversation.toObject();
     const providerData = conversationObj.providerId as any;
 
@@ -220,6 +224,7 @@ router.post('/conversations', async (req: Request, res: Response) => {
       ...conversationObj,
       provider: providerData ? {
         ...providerData,
+        name: `${providerData.firstName} ${providerData.lastName}`.trim(),
         isOnline: providerData.lastActiveAt 
           ? new Date(providerData.lastActiveAt) > new Date(Date.now() - 5 * 60 * 1000)
           : false,
@@ -250,19 +255,20 @@ router.get('/conversations/:conversationId', async (req: Request, res: Response)
       _id: conversationId,
       patientId: userId,
     })
-      .populate('providerId', 'name specialty title avatarUrl lastActiveAt bio phone')
+      .populate('providerId', 'firstName lastName specialty title avatarUrl lastActiveAt bio phone')
       .lean();
 
     if (!conversation) {
       return res.status(404).json({ error: 'Conversation not found' });
     }
 
-    // Add provider online status
+    // Add provider online status and name
     const provider = conversation.providerId as any;
     const conversationWithStatus = {
       ...conversation,
       provider: provider ? {
         ...provider,
+        name: `${provider.firstName} ${provider.lastName}`.trim(),
         isOnline: provider.lastActiveAt 
           ? new Date(provider.lastActiveAt) > new Date(Date.now() - 5 * 60 * 1000)
           : false,

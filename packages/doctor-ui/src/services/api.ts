@@ -115,7 +115,9 @@ export async function getMe(): Promise<{ doctor: Doctor }> {
 // Profile API
 export interface DoctorProfile {
   _id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Virtual: firstName + lastName
   email: string;
   specialty: string;
   title?: string;
@@ -161,7 +163,9 @@ export async function updateAvailability(isAvailable: boolean): Promise<{ isAvai
 // Conversations API
 export interface Patient {
   _id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Virtual
   email?: string;
 }
 
@@ -279,7 +283,9 @@ export async function downloadFile(url: string): Promise<Blob> {
 // Patients API
 export interface PatientProfile {
   _id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Virtual
   email?: string;
   profile?: {
     demographics?: {

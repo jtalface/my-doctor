@@ -27,7 +27,7 @@ class AuthService {
     userAgent?: string,
     ipAddress?: string
   ): Promise<AuthResponse & { refreshToken: string; refreshExpiresAt: Date }> {
-    const { email, password, name, language } = data;
+    const { email, password, firstName, lastName, language } = data;
 
     // Check if email already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -55,7 +55,8 @@ class AuthService {
     // Create user
     const user = new User({
       email: email.toLowerCase(),
-      name,
+      firstName,
+      lastName,
       passwordHash,
       isGuest: false,
       preferences: {
@@ -85,7 +86,9 @@ class AuthService {
       user: {
         id: user._id.toString(),
         email: user.email!,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        name: user.name, // Virtual
         isGuest: user.isGuest,
         preferences: user.preferences,
       },
@@ -162,7 +165,9 @@ class AuthService {
       user: {
         id: user._id.toString(),
         email: user.email!,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        name: user.name, // Virtual
         isGuest: user.isGuest,
         preferences: user.preferences,
       },
@@ -247,6 +252,8 @@ class AuthService {
   async getCurrentUser(userId: string): Promise<{
     id: string;
     email: string;
+    firstName: string;
+    lastName: string;
     name: string;
     isGuest: boolean;
     preferences: IUser['preferences'];
@@ -263,7 +270,9 @@ class AuthService {
     return {
       id: user._id.toString(),
       email: user.email || '', // Default to empty string for dependents (who don't log in)
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      name: user.name, // Virtual
       isGuest: user.isGuest,
       preferences: user.preferences,
     };

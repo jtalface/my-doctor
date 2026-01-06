@@ -13,7 +13,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IProvider extends Document {
   // Basic info
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   passwordHash?: string;       // For doctor authentication (optional for legacy/seeded data)
   
@@ -57,7 +58,8 @@ export interface IProvider extends Document {
 const ProviderSchema = new Schema<IProvider>(
   {
     // Basic info
-    name: { type: String, required: true, trim: true },
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
     email: { 
       type: String, 
       required: true, 
@@ -110,6 +112,11 @@ const ProviderSchema = new Schema<IProvider>(
 // Indexes for efficient queries
 ProviderSchema.index({ specialty: 1, isActive: 1 });
 ProviderSchema.index({ lastActiveAt: -1 });
+
+// Virtual for full name
+ProviderSchema.virtual('name').get(function() {
+  return `${this.firstName} ${this.lastName}`.trim();
+});
 
 // Virtual to check if provider is "online" (active in last 5 minutes)
 ProviderSchema.virtual('isOnline').get(function() {

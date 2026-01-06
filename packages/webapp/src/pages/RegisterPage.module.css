@@ -68,6 +68,15 @@
   width: 100%;
 }
 
+.nameRow {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.nameRow .inputGroup {
+  flex: 1;
+}
+
 .inputGroup {
   margin-bottom: var(--space-4);
 }

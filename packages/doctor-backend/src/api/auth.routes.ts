@@ -16,18 +16,18 @@ const router = Router();
  */
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { email, password, name, specialty, title, licenseNumber, phone } = req.body;
+    const { email, password, firstName, lastName, specialty, title, licenseNumber, phone } = req.body;
 
-    if (!email || !password || !name || !specialty) {
+    if (!email || !password || !firstName || !lastName || !specialty) {
       res.status(400).json({ 
         error: 'VALIDATION_ERROR',
-        message: 'Email, password, name, and specialty are required' 
+        message: 'Email, password, first name, last name, and specialty are required' 
       });
       return;
     }
 
     const result = await authService.register(
-      { email, password, name, specialty, title, licenseNumber, phone },
+      { email, password, firstName, lastName, specialty, title, licenseNumber, phone },
       req.headers['user-agent'],
       req.ip
     );

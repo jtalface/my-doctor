@@ -29,8 +29,8 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 
     const [conversations, total] = await Promise.all([
       Conversation.find(query)
-        .populate('patientId', 'name email')
-        .populate('dependentId', 'name')
+        .populate('patientId', 'firstName lastName email')
+        .populate('dependentId', 'firstName lastName')
         .sort({ lastMessageAt: -1 })
         .skip(skip)
         .limit(take)
@@ -38,19 +38,29 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
       Conversation.countDocuments(query),
     ]);
 
-    // Transform for response
-    const formattedConversations = conversations.map(conv => ({
-      _id: conv._id,
-      patient: conv.patientId,
-      dependent: conv.dependentId || null,
-      subject: conv.subject,
-      lastMessageAt: conv.lastMessageAt,
-      lastMessagePreview: conv.lastMessagePreview,
-      lastMessageSenderType: conv.lastMessageSenderType,
-      unreadCount: conv.unreadByProvider,
-      status: conv.status,
-      createdAt: conv.createdAt,
-    }));
+    // Transform for response with name virtual
+    const formattedConversations = conversations.map(conv => {
+      const patient = conv.patientId as any;
+      const dependent = conv.dependentId as any;
+      return {
+        _id: conv._id,
+        patient: patient ? {
+          ...patient,
+          name: `${patient.firstName} ${patient.lastName}`.trim(),
+        } : null,
+        dependent: dependent ? {
+          ...dependent,
+          name: `${dependent.firstName} ${dependent.lastName}`.trim(),
+        } : null,
+        subject: conv.subject,
+        lastMessageAt: conv.lastMessageAt,
+        lastMessagePreview: conv.lastMessagePreview,
+        lastMessageSenderType: conv.lastMessageSenderType,
+        unreadCount: conv.unreadByProvider,
+        status: conv.status,
+        createdAt: conv.createdAt,
+      };
+    });
 
     res.json({
       conversations: formattedConversations,
@@ -80,8 +90,8 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const conversation = await Conversation.findOne({ _id: id, providerId })
-      .populate('patientId', 'name email')
-      .populate('dependentId', 'name')
+      .populate('patientId', 'firstName lastName email')
+      .populate('dependentId', 'firstName lastName')
       .lean();
 
     if (!conversation) {
@@ -92,11 +102,20 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
       return;
     }
 
+    const patient = conversation.patientId as any;
+    const dependent = conversation.dependentId as any;
+
     res.json({
       conversation: {
         _id: conversation._id,
-        patient: conversation.patientId,
-        dependent: conversation.dependentId || null,
+        patient: patient ? {
+          ...patient,
+          name: `${patient.firstName} ${patient.lastName}`.trim(),
+        } : null,
+        dependent: dependent ? {
+          ...dependent,
+          name: `${dependent.firstName} ${dependent.lastName}`.trim(),
+        } : null,
         subject: conversation.subject,
         lastMessageAt: conversation.lastMessageAt,
         unreadCount: conversation.unreadByProvider,
@@ -131,7 +150,7 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
       { _id: id, providerId },
       { $set: update },
       { new: true }
-    ).populate('patientId', 'name email');
+    ).populate('patientId', 'firstName lastName email').lean();
 
     if (!conversation) {
       res.status(404).json({ 
@@ -141,7 +160,16 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
       return;
     }
 
-    res.json({ conversation });
+    const patient = conversation.patientId as any;
+    res.json({ 
+      conversation: {
+        ...conversation,
+        patient: patient ? {
+          ...patient,
+          name: `${patient.firstName} ${patient.lastName}`.trim(),
+        } : null,
+      }
+    });
   } catch (error) {
     console.error('[Conversations] Update error:', error);
     res.status(500).json({ 

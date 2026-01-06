@@ -27,10 +27,16 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
     const patientIds = [...new Set(conversations.map(c => c.patientId.toString()))];
 
     const patients = await User.find({ _id: { $in: patientIds } })
-      .select('name email createdAt')
+      .select('firstName lastName email createdAt')
       .lean();
 
-    res.json({ patients });
+    // Add name virtual
+    const patientsWithName = patients.map(p => ({
+      ...p,
+      name: `${p.firstName} ${p.lastName}`.trim(),
+    }));
+
+    res.json({ patients: patientsWithName });
   } catch (error) {
     console.error('[Patients] List error:', error);
     res.status(500).json({ 
@@ -60,7 +66,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
     }
 
     const patient = await User.findById(id)
-      .select('name email preferences createdAt')
+      .select('firstName lastName email preferences createdAt')
       .lean();
 
     if (!patient) {
@@ -71,7 +77,12 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
       return;
     }
 
-    res.json({ patient });
+    res.json({ 
+      patient: {
+        ...patient,
+        name: `${patient.firstName} ${patient.lastName}`.trim(),
+      }
+    });
   } catch (error) {
     console.error('[Patients] Get error:', error);
     res.status(500).json({ 
@@ -102,7 +113,7 @@ router.get('/:id/profile', requireAuth, async (req: Request, res: Response) => {
 
     // Get patient user info
     const patient = await User.findById(id)
-      .select('name email')
+      .select('firstName lastName email')
       .lean();
 
     if (!patient) {
@@ -119,6 +130,7 @@ router.get('/:id/profile', requireAuth, async (req: Request, res: Response) => {
     res.json({ 
       patient: {
         ...patient,
+        name: `${patient.firstName} ${patient.lastName}`.trim(),
         profile: profile || null,
       }
     });

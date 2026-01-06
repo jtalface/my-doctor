@@ -12,7 +12,8 @@ export function RegisterPage() {
   const navigate = useNavigate();
   const { register, isAuthenticated } = useAuth();
   
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -61,8 +62,12 @@ export function RegisterPage() {
   }
 
   const validateForm = (): boolean => {
-    if (!name.trim()) {
-      setError(t('register_error_name_required'));
+    if (!firstName.trim()) {
+      setError(t('register_error_first_name_required'));
+      return false;
+    }
+    if (!lastName.trim()) {
+      setError(t('register_error_last_name_required'));
       return false;
     }
     if (!email.includes('@')) {
@@ -95,7 +100,7 @@ export function RegisterPage() {
     setIsLoading(true);
     
     try {
-      await register(email, password, name, language);
+      await register(email, password, firstName, lastName, language);
       
       // Navigate to profile setup for new users
       navigate('/profile/setup', { replace: true });
@@ -121,20 +126,37 @@ export function RegisterPage() {
           {error && <p className={styles.error}>{error}</p>}
           
           <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.inputGroup}>
-              <label htmlFor="name" className={styles.label}>{t('register_name_label')}</label>
-              <div className={styles.inputWrapper}>
-                <span className={styles.inputIcon}>👤</span>
-                <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={t('register_name_placeholder')}
-                  className={styles.input}
-                  autoComplete="name"
-                  required
-                />
+            <div className={styles.nameRow}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="firstName" className={styles.label}>{t('register_first_name_label')}</label>
+                <div className={styles.inputWrapper}>
+                  <span className={styles.inputIcon}>👤</span>
+                  <input
+                    id="firstName"
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder={t('register_first_name_placeholder')}
+                    className={styles.input}
+                    autoComplete="given-name"
+                    required
+                  />
+                </div>
+              </div>
+              <div className={styles.inputGroup}>
+                <label htmlFor="lastName" className={styles.label}>{t('register_last_name_label')}</label>
+                <div className={styles.inputWrapper}>
+                  <input
+                    id="lastName"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder={t('register_last_name_placeholder')}
+                    className={styles.input}
+                    autoComplete="family-name"
+                    required
+                  />
+                </div>
               </div>
             </div>
 

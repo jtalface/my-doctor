@@ -36,7 +36,8 @@ export default function RegisterPage() {
   
   // Form state
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -56,8 +57,12 @@ export default function RegisterPage() {
   };
 
   const validateStep1 = () => {
-    if (!formData.name.trim()) {
-      setError('Full name is required');
+    if (!formData.firstName.trim()) {
+      setError('First name is required');
+      return false;
+    }
+    if (!formData.lastName.trim()) {
+      setError('Last name is required');
       return false;
     }
     if (!formData.email.trim()) {
@@ -127,7 +132,8 @@ export default function RegisterPage() {
       await register({
         email: formData.email,
         password: formData.password,
-        name: formData.name,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         specialty: formData.specialty,
         title: formData.title || undefined,
         licenseNumber: formData.licenseNumber || undefined,
@@ -173,17 +179,31 @@ export default function RegisterPage() {
         <form className={styles.form} onSubmit={handleSubmit}>
           {step === 1 && (
             <div className={styles.stepContent}>
-              <div className={styles.field}>
-                <label htmlFor="name">Full Name *</label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Dr. Maria Silva"
-                  autoComplete="name"
-                />
+              <div className={styles.fieldRow}>
+                <div className={styles.field}>
+                  <label htmlFor="firstName">First Name *</label>
+                  <input
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder="Maria"
+                    autoComplete="given-name"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="lastName">Last Name *</label>
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder="Silva"
+                    autoComplete="family-name"
+                  />
+                </div>
               </div>
 
               <div className={styles.field}>

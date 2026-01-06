@@ -12,7 +12,8 @@ import { config } from '../config/index.js';
 
 const testProviders = [
   {
-    name: 'Dr. Maria Silva',
+    firstName: 'Maria',
+    lastName: 'Silva',
     email: 'maria.silva@zambe.health',
     specialty: 'Medicina Geral',
     title: 'Dr.',
@@ -29,7 +30,8 @@ const testProviders = [
     },
   },
   {
-    name: 'Dr. João Machava',
+    firstName: 'João',
+    lastName: 'Machava',
     email: 'joao.machava@zambe.health',
     specialty: 'Pediatria',
     title: 'Dr.',
@@ -46,7 +48,8 @@ const testProviders = [
     },
   },
   {
-    name: 'Enf. Ana Tembe',
+    firstName: 'Ana',
+    lastName: 'Tembe',
     email: 'ana.tembe@zambe.health',
     specialty: 'Enfermagem',
     title: 'Enf.',
@@ -63,7 +66,8 @@ const testProviders = [
     },
   },
   {
-    name: 'Dr. Carlos Matsinhe',
+    firstName: 'Carlos',
+    lastName: 'Matsinhe',
     email: 'carlos.matsinhe@zambe.health',
     specialty: 'Medicina Interna',
     title: 'Dr.',
@@ -92,20 +96,21 @@ async function seedProviders() {
     for (const providerData of testProviders) {
       // Check if provider already exists
       const existing = await Provider.findOne({ email: providerData.email });
+      const fullName = `${providerData.firstName} ${providerData.lastName}`;
       
       if (existing) {
-        console.log(`[Seed] Provider ${providerData.name} already exists, updating...`);
+        console.log(`[Seed] Provider ${fullName} already exists, updating...`);
         await Provider.updateOne({ email: providerData.email }, providerData);
       } else {
-        console.log(`[Seed] Creating provider ${providerData.name}...`);
+        console.log(`[Seed] Creating provider ${fullName}...`);
         await Provider.create(providerData);
       }
     }
 
     console.log('[Seed] Done! Created/updated providers:');
-    const providers = await Provider.find({}).select('name email specialty isActive');
+    const providers = await Provider.find({}).select('firstName lastName email specialty isActive');
     providers.forEach(p => {
-      console.log(`  - ${p.name} (${p.specialty}) - ${p.isActive ? 'Active' : 'Inactive'}`);
+      console.log(`  - ${p.firstName} ${p.lastName} (${p.specialty}) - ${p.isActive ? 'Active' : 'Inactive'}`);
     });
 
     await mongoose.disconnect();

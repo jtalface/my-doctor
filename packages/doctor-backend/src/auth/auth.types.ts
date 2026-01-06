@@ -5,7 +5,8 @@
 export interface RegisterRequest {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   specialty: string;
   title?: string;
   licenseNumber?: string;
@@ -20,7 +21,9 @@ export interface LoginRequest {
 export interface DoctorResponse {
   id: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Virtual: firstName + lastName
   specialty: string;
   title?: string;
   avatarUrl?: string;

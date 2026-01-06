@@ -44,7 +44,8 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   language?: string;
 }
 
@@ -55,7 +56,9 @@ export interface AuthResponse {
   user: {
     id: string;
     email: string;
-    name: string;
+    firstName: string;
+    lastName: string;
+    name: string; // Virtual: firstName + lastName
     isGuest: boolean;
     preferences: IUser['preferences'];
   };

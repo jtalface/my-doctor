@@ -12,7 +12,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IProvider extends Document {
   // Basic info
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   passwordHash?: string;
   
@@ -55,7 +56,8 @@ export interface IProvider extends Document {
 
 const ProviderSchema = new Schema<IProvider>(
   {
-    name: { type: String, required: true, trim: true },
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
     email: { 
       type: String, 
       required: true, 
@@ -99,6 +101,11 @@ const ProviderSchema = new Schema<IProvider>(
   },
   { timestamps: true }
 );
+
+// Virtual for full name
+ProviderSchema.virtual('name').get(function() {
+  return `${this.firstName} ${this.lastName}`.trim();
+});
 
 // Virtual for online status
 ProviderSchema.virtual('isOnline').get(function() {

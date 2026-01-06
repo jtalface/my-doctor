@@ -48,26 +48,36 @@ app.use(express.urlencoded({ extended: true }));
 // Cookies
 app.use(cookieParser());
 
-// Rate limiting
+// Rate limiting - general API
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
+  max: 500, // Limit each IP to 500 requests per window
   message: { error: 'RATE_LIMITED', message: 'Too many requests' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 app.use('/api/', limiter);
 
-// Auth rate limiting (stricter)
+// Auth rate limiting (stricter for login/register)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10, // 10 auth attempts per 15 minutes
+  max: 20, // 20 auth attempts per 15 minutes
   message: { error: 'RATE_LIMITED', message: 'Too many authentication attempts' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
+
+// More lenient limiter for refresh endpoint (called automatically)
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100, // 100 refresh attempts per 15 minutes
+  message: { error: 'RATE_LIMITED', message: 'Too many refresh attempts' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/auth/refresh', refreshLimiter);
 
 // ===========================================
 // Routes

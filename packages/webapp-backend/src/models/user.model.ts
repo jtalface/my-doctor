@@ -2,7 +2,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUser extends Document {
   email?: string;  // Optional for dependents (they don't login)
-  name: string;
+  firstName: string;
+  lastName: string;
   phone?: string;
   passwordHash?: string;
   isGuest: boolean;
@@ -34,7 +35,8 @@ const UserSchema = new Schema<IUser>(
       trim: true,
       // Note: unique sparse index defined below to properly handle null values for dependents
     },
-    name: { type: String, required: true, trim: true },
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
     phone: { type: String, trim: true },
     passwordHash: { type: String },
     isGuest: { type: Boolean, default: false },
@@ -62,6 +64,15 @@ const UserSchema = new Schema<IUser>(
 UserSchema.index({ email: 1 }, { unique: true, sparse: true });
 UserSchema.index({ isGuest: 1 });
 UserSchema.index({ isDependent: 1 });
+
+// Virtual for full name
+UserSchema.virtual('name').get(function() {
+  return `${this.firstName} ${this.lastName}`.trim();
+});
+
+// Ensure virtuals are included in JSON
+UserSchema.set('toJSON', { virtuals: true });
+UserSchema.set('toObject', { virtuals: true });
 
 // Virtual to check if account is locked
 UserSchema.virtual('isLocked').get(function() {

@@ -9,7 +9,9 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUser extends Document {
   email?: string;
-  name?: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Virtual
   isGuest: boolean;
   preferences: {
     notifications: boolean;
@@ -24,7 +26,8 @@ export interface IUser extends Document {
 const UserSchema = new Schema<IUser>(
   {
     email: { type: String, lowercase: true, trim: true },
-    name: { type: String, trim: true },
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
     isGuest: { type: Boolean, default: false },
     preferences: {
       notifications: { type: Boolean, default: true },
@@ -35,6 +38,15 @@ const UserSchema = new Schema<IUser>(
   },
   { timestamps: true }
 );
+
+// Virtual for full name
+UserSchema.virtual('name').get(function() {
+  return `${this.firstName} ${this.lastName}`.trim();
+});
+
+// Include virtuals in JSON output
+UserSchema.set('toJSON', { virtuals: true });
+UserSchema.set('toObject', { virtuals: true });
 
 export const User = mongoose.model<IUser>('User', UserSchema);
 

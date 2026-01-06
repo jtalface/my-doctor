@@ -13,7 +13,9 @@ import { authFetch } from './authService';
 export interface User {
   id: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Virtual: firstName + lastName
   isGuest: boolean;
   preferences: {
     notifications: boolean;
@@ -55,7 +57,7 @@ interface AuthContextType {
   
   // Auth methods
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-  register: (email: string, password: string, name: string, language?: string) => Promise<void>;
+  register: (email: string, password: string, firstName: string, lastName: string, language?: string) => Promise<void>;
   logout: () => Promise<void>;
   
   // Profile methods
@@ -121,8 +123,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Register
-  const register = async (email: string, password: string, name: string, language?: string) => {
-    const result = await authService.register({ email, password, name, language });
+  const register = async (email: string, password: string, firstName: string, lastName: string, language?: string) => {
+    const result = await authService.register({ email, password, firstName, lastName, language });
     setUser(result.user);
     
     // New users always need to set up their profile
