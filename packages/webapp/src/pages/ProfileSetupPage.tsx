@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
+import { getEthnicGroupOptions } from '@mydoctor/country-data';
 import styles from './ProfileSetupPage.module.css';
 
 type Step = 'personal' | 'medical' | 'lifestyle';
@@ -137,6 +138,10 @@ export function ProfileSetupPage() {
   const firstName = user?.firstName || user?.name?.split(' ')[0] || 'there';
   const isEditing = !!profile;
 
+  // Get ethnic group options from country-data
+  // TODO: Get country code from user preferences or app config
+  const ethnicGroupOptions = useMemo(() => getEthnicGroupOptions('MOZ'), []);
+
   const handleSkip = () => {
     setIsNewUser(false);
     // Navigate back to profile if editing, otherwise to dashboard
@@ -241,18 +246,11 @@ export function ProfileSetupPage() {
                     onChange={e => setEthnicGroup(e.target.value)}
                   >
                     <option value="">{t('profile_setup_ethnic_group_placeholder')}</option>
-                    <option value="tsonga">{t('profile_setup_ethnic_group_tsonga')}</option>
-                    <option value="tonga">{t('profile_setup_ethnic_group_tonga')}</option>
-                    <option value="sena">{t('profile_setup_ethnic_group_sena')}</option>
-                    <option value="nyungwe">{t('profile_setup_ethnic_group_nyungwe')}</option>
-                    <option value="makua">{t('profile_setup_ethnic_group_makua')}</option>
-                    <option value="yao">{t('profile_setup_ethnic_group_yao')}</option>
-                    <option value="makonde">{t('profile_setup_ethnic_group_makonde')}</option>
-                    <option value="ndau">{t('profile_setup_ethnic_group_ndau')}</option>
-                    <option value="shona">{t('profile_setup_ethnic_group_shona')}</option>
-                    <option value="chuabo">{t('profile_setup_ethnic_group_chuabo')}</option>
-                    <option value="chopi">{t('profile_setup_ethnic_group_chopi')}</option>
-                    <option value="outro">{t('profile_setup_ethnic_group_outro')}</option>
+                    {ethnicGroupOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className={styles.row}>

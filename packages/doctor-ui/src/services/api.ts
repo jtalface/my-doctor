@@ -334,3 +334,88 @@ export async function getPatientHistory(id: string): Promise<{
   return request(`/patients/${id}/history`);
 }
 
+// ============================================
+// CALLS API
+// ============================================
+
+export interface CallInfo {
+  callId: string;
+  conversationId: string;
+  callerName: string;
+  callerPhone?: string;
+  callerType: 'patient' | 'provider';
+  status: string;
+  initiatedAt: string;
+  offer?: RTCSessionDescriptionInit;
+}
+
+export interface CallStatus {
+  callId: string;
+  conversationId: string;
+  status: string;
+  endReason?: string;
+  isCaller: boolean;
+  offer?: RTCSessionDescriptionInit;
+  answer?: RTCSessionDescriptionInit;
+  iceCandidates: RTCIceCandidateInit[];
+  iceIndex: number;
+  initiatedAt: string;
+  answeredAt?: string;
+  duration?: number;
+}
+
+export async function initiateCall(conversationId: string): Promise<{ callId: string; status: string }> {
+  return request('/calls/initiate', {
+    method: 'POST',
+    body: JSON.stringify({ conversationId }),
+  });
+}
+
+export async function checkIncomingCall(): Promise<{ hasIncomingCall: boolean; call?: CallInfo }> {
+  return request('/calls/incoming');
+}
+
+export async function getCallStatus(callId: string, lastIceIndex: number = 0): Promise<CallStatus> {
+  return request(`/calls/${callId}?lastIceIndex=${lastIceIndex}`);
+}
+
+export async function sendOffer(callId: string, offer: RTCSessionDescriptionInit): Promise<{ success: boolean }> {
+  return request(`/calls/${callId}/offer`, {
+    method: 'POST',
+    body: JSON.stringify({ offer }),
+  });
+}
+
+export async function sendAnswer(callId: string, answer: RTCSessionDescriptionInit): Promise<{ success: boolean }> {
+  return request(`/calls/${callId}/answer`, {
+    method: 'POST',
+    body: JSON.stringify({ answer }),
+  });
+}
+
+export async function sendIceCandidate(callId: string, candidate: RTCIceCandidateInit): Promise<{ success: boolean }> {
+  return request(`/calls/${callId}/ice`, {
+    method: 'POST',
+    body: JSON.stringify({ candidate }),
+  });
+}
+
+export async function declineCall(callId: string): Promise<{ success: boolean }> {
+  return request(`/calls/${callId}/decline`, {
+    method: 'POST',
+  });
+}
+
+export async function endCall(callId: string, reason?: string): Promise<{ success: boolean; duration?: number }> {
+  return request(`/calls/${callId}/end`, {
+    method: 'POST',
+    body: JSON.stringify({ reason }),
+  });
+}
+
+export async function markCallFallback(callId: string): Promise<{ success: boolean }> {
+  return request(`/calls/${callId}/fallback`, {
+    method: 'POST',
+  });
+}
+

@@ -81,7 +81,7 @@ export const MOZ_ETHNIC_GROUPS: EthnicGroup[] = [
     umbrella_group: "Yao",
     language_family: "Bantu",
     primary_language: "Chiyao",
-    subgroups: [],
+    subgroups: ["Ajaua"],
     regions: ["Niassa", "Cabo Delgado"],
     description: "The Yao are a predominantly Muslim community with strong historical ties to Tanzania and Malawi. They were historically known as traders and were among the first groups in the region to adopt Islam.",
     medicalNotes: "Islamic dietary laws (halal) may affect medication compliance - check for gelatin or alcohol-based medicines. Male circumcision is universally practiced (protective factor for HIV/STIs). Ramadan fasting may affect medication schedules and chronic disease management. Traditional Islamic medicine practices may be used alongside conventional treatment."
@@ -141,84 +141,3 @@ export const MOZ_ETHNIC_GROUPS: EthnicGroup[] = [
     medicalNotes: "May have diverse cultural backgrounds affecting healthcare preferences. Immigrants may have different vaccination histories - verify immunization status. Consider dietary restrictions based on religious or cultural background. Portuguese is commonly the primary language for urban mixed communities. Genetic predispositions may vary based on ancestry."
   }
 ];
-
-/**
- * Get ethnic group by umbrella group name
- */
-export function getEthnicGroup(name: string): EthnicGroup | undefined {
-  return MOZ_ETHNIC_GROUPS.find(group => 
-    group.umbrella_group.toLowerCase() === name.toLowerCase()
-  );
-}
-
-/**
- * Get ethnic groups by region/province
- */
-export function getEthnicGroupsByRegion(region: string): EthnicGroup[] {
-  return MOZ_ETHNIC_GROUPS.filter(group => {
-    // Check top-level regions
-    if (group.regions?.some(r => r.toLowerCase().includes(region.toLowerCase()))) {
-      return true;
-    }
-    // Check subgroup regions if subgroups are detailed objects
-    if (Array.isArray(group.subgroups) && group.subgroups.length > 0) {
-      const firstSubgroup = group.subgroups[0];
-      if (typeof firstSubgroup === 'object' && 'regions' in firstSubgroup) {
-        return (group.subgroups as Array<{ regions: string[] }>).some(sg =>
-          sg.regions.some(r => r.toLowerCase().includes(region.toLowerCase()))
-        );
-      }
-    }
-    return false;
-  });
-}
-
-/**
- * Get all ethnic group options for forms (value and label)
- */
-export function getEthnicGroupOptions(): Array<{ value: string; label: string }> {
-  return MOZ_ETHNIC_GROUPS.map(group => {
-    let label = group.umbrella_group;
-    
-    if (group.subgroups && group.subgroups.length > 0) {
-      const subgroupNames = group.subgroups.map(sg => 
-        typeof sg === 'string' ? sg : sg.name
-      );
-      label = `${group.umbrella_group} (${subgroupNames.join(', ')})`;
-    }
-    
-    return {
-      value: group.umbrella_group.toLowerCase(),
-      label,
-    };
-  });
-}
-
-/**
- * Get all subgroups flattened into a list
- */
-export function getAllSubgroups(): Array<{ name: string; umbrellaGroup: string; regions: string[] }> {
-  const result: Array<{ name: string; umbrellaGroup: string; regions: string[] }> = [];
-  
-  for (const group of MOZ_ETHNIC_GROUPS) {
-    if (Array.isArray(group.subgroups)) {
-      for (const subgroup of group.subgroups) {
-        if (typeof subgroup === 'object' && 'name' in subgroup) {
-          result.push({
-            name: subgroup.name,
-            umbrellaGroup: group.umbrella_group,
-            regions: subgroup.regions,
-          });
-        } else if (typeof subgroup === 'string') {
-          result.push({
-            name: subgroup,
-            umbrellaGroup: group.umbrella_group,
-            regions: group.regions || [],
-          });
-        }
-      }
-    }
-  }
-  
-  return result;
-}

@@ -2,13 +2,16 @@
  * ChatWindow Component
  * 
  * Displays messages in a conversation and handles sending new messages.
+ * Includes audio calling functionality.
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { api, Conversation, Message, Provider, MessageAttachment } from '../../services/api';
+import { WebRTCCall, CallState } from '../../services/webrtc';
 import { useTranslate } from '../../i18n';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
+import CallModal from '../CallModal';
 import styles from './ChatWindow.module.css';
 
 interface ChatWindowProps {
@@ -27,6 +30,11 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
   const isLoadingRef = useRef(false);
   const hasInitializedRef = useRef(false);
   const conversationIdRef = useRef(conversation._id);
+
+  // Call state
+  const [isCallActive, setIsCallActive] = useState(false);
+  const [callInstance, setCallInstance] = useState<WebRTCCall | null>(null);
+  const [isInitiatingCall, setIsInitiatingCall] = useState(false);
 
   // Scroll to bottom
   const scrollToBottom = useCallback(() => {
@@ -142,6 +150,48 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
     }
   };
 
+  // Call handling
+  const handleStartCall = async () => {
+    if (!WebRTCCall.isSupported()) {
+      alert(t('call_not_supported'));
+      return;
+    }
+
+    setIsInitiatingCall(true);
+
+    const call = new WebRTCCall({
+      onStateChange: (state: CallState) => {
+        console.log('[Call] State changed:', state);
+        if (state === 'ended' || state === 'failed') {
+          setIsCallActive(false);
+          setCallInstance(null);
+        }
+      },
+      onRemoteStream: () => {
+        // Handled in CallModal
+      },
+      onError: (errorMsg: string, canFallback: boolean) => {
+        console.error('[Call] Error:', errorMsg, canFallback);
+      },
+      onEnded: () => {
+        setIsCallActive(false);
+        setCallInstance(null);
+      },
+    });
+
+    setCallInstance(call);
+    setIsCallActive(true);
+    setIsInitiatingCall(false);
+
+    // Start the call
+    await call.initiateCall(conversation._id);
+  };
+
+  const handleCloseCall = () => {
+    setIsCallActive(false);
+    setCallInstance(null);
+  };
+
   if (isLoading) {
     return (
       <div className={styles.container}>
@@ -167,6 +217,17 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
 
   return (
     <div className={styles.container}>
+      {/* Call Modal */}
+      {isCallActive && callInstance && (
+        <CallModal
+          callInstance={callInstance}
+          remoteName={provider?.name || t('messages_unknown_provider')}
+          remotePhone={provider?.phone}
+          isIncoming={false}
+          onClose={handleCloseCall}
+        />
+      )}
+
       {/* Header */}
       <div className={styles.header}>
         {onBack && (
@@ -199,6 +260,16 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
             </span>
           </div>
         </div>
+
+        {/* Call button */}
+        <button
+          className={styles.callButton}
+          onClick={handleStartCall}
+          disabled={isInitiatingCall || isCallActive || conversation.status === 'closed'}
+          title={t('call_start')}
+        >
+          📞
+        </button>
       </div>
 
       {/* Messages */}

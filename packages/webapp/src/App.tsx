@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { Layout } from '@components/layout/Layout';
 import { AuthProvider, ProtectedRoute } from './auth';
-import { ActiveProfileProvider } from './contexts';
+import { ActiveProfileProvider, CallProvider } from './contexts';
 
 // Pages
 import { SplashPage } from '@pages/SplashPage';
@@ -24,88 +24,90 @@ import { NotFoundPage } from '@pages/NotFoundPage';
 function App() {
   return (
     <AuthProvider>
-      <ActiveProfileProvider>
-        <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<SplashPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        
-        {/* Semi-protected route (new users only) */}
-        <Route path="/profile/setup" element={
-          <ProtectedRoute>
-            <ProfileSetupPage />
-          </ProtectedRoute>
-        } />
-        
-        {/* Protected routes with layout */}
-        <Route element={<Layout />}>
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/checkup/start" element={
-            <ProtectedRoute>
-              <CheckupStartPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/checkup/consent" element={
-            <ProtectedRoute>
-              <CheckupConsentPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/checkup/session/:id" element={
-            <ProtectedRoute>
-              <CheckupSessionPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/checkup/alert" element={
-            <ProtectedRoute>
-              <RedFlagAlertPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/checkup/summary/:id" element={
-            <ProtectedRoute>
-              <VisitSummaryPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/messages" element={
-            <ProtectedRoute>
-              <MessagesPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/history" element={
-            <ProtectedRoute>
-              <HealthHistoryPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/history/:id" element={
-            <ProtectedRoute>
-              <VisitSummaryPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          } />
-          <Route path="/settings" element={
-            <ProtectedRoute>
-              <SettingsPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/dependent/:id/profile/setup" element={
-            <ProtectedRoute>
-              <DependentProfileSetupPage />
-            </ProtectedRoute>
-          } />
-        </Route>
-        
-        {/* 404 */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      </ActiveProfileProvider>
+      <CallProvider>
+        <ActiveProfileProvider>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<SplashPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            
+            {/* Semi-protected route (new users only) */}
+            <Route path="/profile/setup" element={
+              <ProtectedRoute>
+                <ProfileSetupPage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Protected routes with layout */}
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/checkup/start" element={
+                <ProtectedRoute>
+                  <CheckupStartPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/checkup/consent" element={
+                <ProtectedRoute>
+                  <CheckupConsentPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/checkup/session/:id" element={
+                <ProtectedRoute>
+                  <CheckupSessionPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/checkup/alert" element={
+                <ProtectedRoute>
+                  <RedFlagAlertPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/checkup/summary/:id" element={
+                <ProtectedRoute>
+                  <VisitSummaryPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/messages" element={
+                <ProtectedRoute>
+                  <MessagesPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/history" element={
+                <ProtectedRoute>
+                  <HealthHistoryPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/history/:id" element={
+                <ProtectedRoute>
+                  <VisitSummaryPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/dependent/:id/profile/setup" element={
+                <ProtectedRoute>
+                  <DependentProfileSetupPage />
+                </ProtectedRoute>
+              } />
+            </Route>
+            
+            {/* 404 */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </ActiveProfileProvider>
+      </CallProvider>
     </AuthProvider>
   );
 }

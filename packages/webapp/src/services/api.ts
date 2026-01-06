@@ -58,6 +58,7 @@ export interface PatientProfile {
     age?: number;
     sexAtBirth?: 'male' | 'female' | 'other';
     race?: 'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say';
+    ethnicGroup?: string;
     heightCm?: number;
     weightKg?: number;
   };
@@ -801,6 +802,117 @@ class ApiClient {
     }
 
     return response.blob();
+  }
+
+  // ==========================================
+  // CALL ENDPOINTS (PROTECTED)
+  // ==========================================
+
+  /**
+   * Initiate a call
+   */
+  async initiateCall(conversationId: string): Promise<{ callId: string; status: string }> {
+    return this.authRequest('/api/calls/initiate', {
+      method: 'POST',
+      body: JSON.stringify({ conversationId }),
+    });
+  }
+
+  /**
+   * Check for incoming calls
+   */
+  async checkIncomingCall(): Promise<{
+    hasIncomingCall: boolean;
+    call?: {
+      callId: string;
+      conversationId: string;
+      callerName: string;
+      callerPhone?: string;
+      callerType: 'patient' | 'provider';
+      status: string;
+      initiatedAt: string;
+      offer?: RTCSessionDescriptionInit;
+    };
+  }> {
+    return this.authRequest('/api/calls/incoming');
+  }
+
+  /**
+   * Get call status
+   */
+  async getCallStatus(callId: string, lastIceIndex: number = 0): Promise<{
+    callId: string;
+    conversationId: string;
+    status: string;
+    endReason?: string;
+    isCaller: boolean;
+    offer?: RTCSessionDescriptionInit;
+    answer?: RTCSessionDescriptionInit;
+    iceCandidates: RTCIceCandidateInit[];
+    iceIndex: number;
+    initiatedAt: string;
+    answeredAt?: string;
+    duration?: number;
+  }> {
+    return this.authRequest(`/api/calls/${callId}?lastIceIndex=${lastIceIndex}`);
+  }
+
+  /**
+   * Send WebRTC offer
+   */
+  async sendOffer(callId: string, offer: RTCSessionDescriptionInit): Promise<{ success: boolean }> {
+    return this.authRequest(`/api/calls/${callId}/offer`, {
+      method: 'POST',
+      body: JSON.stringify({ offer }),
+    });
+  }
+
+  /**
+   * Send WebRTC answer
+   */
+  async sendAnswer(callId: string, answer: RTCSessionDescriptionInit): Promise<{ success: boolean }> {
+    return this.authRequest(`/api/calls/${callId}/answer`, {
+      method: 'POST',
+      body: JSON.stringify({ answer }),
+    });
+  }
+
+  /**
+   * Send ICE candidate
+   */
+  async sendIceCandidate(callId: string, candidate: RTCIceCandidateInit): Promise<{ success: boolean }> {
+    return this.authRequest(`/api/calls/${callId}/ice`, {
+      method: 'POST',
+      body: JSON.stringify({ candidate }),
+    });
+  }
+
+  /**
+   * Decline an incoming call
+   */
+  async declineCall(callId: string): Promise<{ success: boolean }> {
+    return this.authRequest(`/api/calls/${callId}/decline`, {
+      method: 'POST',
+    });
+  }
+
+  /**
+   * End a call
+   */
+  async endCall(callId: string, reason?: string): Promise<{ success: boolean; duration?: number }> {
+    return this.authRequest(`/api/calls/${callId}/end`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  /**
+   * Mark that fallback (phone call) was used
+   */
+  async markCallFallback(callId: string): Promise<{ success: boolean }> {
+    return this.authRequest(`/api/calls/${callId}/fallback`, {
+      method: 'POST',
+    });
   }
 }
 

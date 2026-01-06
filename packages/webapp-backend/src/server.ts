@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import { config } from './config/index.js';
 import { sessionRoutes, userRoutes, healthRoutes, dependentRoutes, vaccinationRoutes } from './api/index.js';
 import messageRoutes from './api/message.routes.js';
+import callRoutes from './api/call.routes.js';
 import { authRoutes, authenticate, apiRateLimiter, authErrorHandler } from './auth/index.js';
 import { llmManager } from './services/llm/manager.js';
 import { stateLoader } from './core/state-loader.js';
@@ -84,6 +85,7 @@ app.use('/api/user', apiRateLimiter, authenticate, userRoutes);
 app.use('/api/dependents', apiRateLimiter, authenticate, dependentRoutes);
 app.use('/api/vaccination', apiRateLimiter, authenticate, vaccinationRoutes);
 app.use('/api/messages', apiRateLimiter, messageRoutes); // Auth middleware is applied inside
+app.use('/api/calls', apiRateLimiter, callRoutes); // WebRTC call signaling
 
 // ============================================
 // ERROR HANDLERS

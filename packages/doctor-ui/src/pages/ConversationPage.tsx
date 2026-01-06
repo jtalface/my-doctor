@@ -2,12 +2,15 @@
  * Conversation Page
  * 
  * Chat view for a single conversation with a patient.
+ * Includes audio calling functionality.
  */
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../auth';
 import * as api from '../services/api';
+import { WebRTCCall, CallState } from '../services/webrtc';
+import CallModal from '../components/CallModal';
 import styles from './ConversationPage.module.css';
 
 export default function ConversationPage() {
@@ -21,6 +24,11 @@ export default function ConversationPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasLoadedRef = useRef(false);
+
+  // Call state
+  const [isCallActive, setIsCallActive] = useState(false);
+  const [callInstance, setCallInstance] = useState<WebRTCCall | null>(null);
+  const [isInitiatingCall, setIsInitiatingCall] = useState(false);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -99,6 +107,48 @@ export default function ConversationPage() {
     }
   };
 
+  // Call handling
+  const handleStartCall = async () => {
+    if (!id || !WebRTCCall.isSupported()) {
+      alert('Audio calls are not supported in this browser. Please use Chrome, Firefox, or Safari.');
+      return;
+    }
+
+    setIsInitiatingCall(true);
+
+    const call = new WebRTCCall({
+      onStateChange: (state: CallState) => {
+        console.log('[Call] State changed:', state);
+        if (state === 'ended' || state === 'failed') {
+          setIsCallActive(false);
+          setCallInstance(null);
+        }
+      },
+      onRemoteStream: () => {
+        // Handled in CallModal
+      },
+      onError: (error: string, canFallback: boolean) => {
+        console.error('[Call] Error:', error, canFallback);
+      },
+      onEnded: () => {
+        setIsCallActive(false);
+        setCallInstance(null);
+      },
+    });
+
+    setCallInstance(call);
+    setIsCallActive(true);
+    setIsInitiatingCall(false);
+
+    // Start the call
+    await call.initiateCall(id);
+  };
+
+  const handleCloseCall = () => {
+    setIsCallActive(false);
+    setCallInstance(null);
+  };
+
   const formatTime = (dateStr: string) => {
     return new Date(dateStr).toLocaleTimeString([], { 
       hour: '2-digit', 
@@ -153,6 +203,17 @@ export default function ConversationPage() {
 
   return (
     <div className={styles.page}>
+      {/* Call Modal */}
+      {isCallActive && callInstance && (
+        <CallModal
+          callInstance={callInstance}
+          remoteName={conversation.patient?.name || 'Patient'}
+          remotePhone={undefined} // TODO: Get patient phone if available
+          isIncoming={false}
+          onClose={handleCloseCall}
+        />
+      )}
+
       {/* Header */}
       <header className={styles.header}>
         <Link to="/conversations" className={styles.backBtn}>
@@ -171,12 +232,22 @@ export default function ConversationPage() {
             )}
           </div>
         </div>
-        <Link 
-          to={`/patients/${conversation.patient?._id}`}
-          className={styles.viewProfileBtn}
-        >
-          View Profile
-        </Link>
+        <div className={styles.headerActions}>
+          <button
+            className={styles.callBtn}
+            onClick={handleStartCall}
+            disabled={isInitiatingCall || isCallActive}
+            title="Start audio call"
+          >
+            📞
+          </button>
+          <Link 
+            to={`/patients/${conversation.patient?._id}`}
+            className={styles.viewProfileBtn}
+          >
+            View Profile
+          </Link>
+        </div>
       </header>
 
       {/* Messages */}
@@ -241,4 +312,3 @@ export default function ConversationPage() {
     </div>
   );
 }
-

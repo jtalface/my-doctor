@@ -31,6 +31,7 @@ export interface PatientProfile {
     age?: number;
     sexAtBirth?: 'male' | 'female' | 'other';
     race?: 'black' | 'white' | 'asian' | 'latin_american' | 'mixed' | 'other' | 'prefer_not_to_say';
+    ethnicGroup?: string;
     heightCm?: number;
     weightKg?: number;
   };

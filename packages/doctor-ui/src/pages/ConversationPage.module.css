@@ -84,6 +84,36 @@
   opacity: 0.8;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.callBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.callBtn:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.8);
+  transform: scale(1.05);
+}
+
+.callBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .viewProfileBtn {
   background: rgba(255, 255, 255, 0.15);
   color: var(--color-text-inverse);

@@ -21,6 +21,7 @@ import rateLimit from 'express-rate-limit';
 import config from './config/index.js';
 import {
   authRoutes,
+  callRoutes,
   conversationRoutes,
   messageRoutes,
   patientRoutes,
@@ -94,6 +95,7 @@ app.get('/health', (_req, res) => {
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/calls', callRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/patients', patientRoutes);
