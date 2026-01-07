@@ -144,6 +144,12 @@ const response = await orchestrator.handleInput("yes", {
      (v2 - active)              (v1 - legacy)
 ```
 
+## 📚 Documentation
+
+- **[Production Architecture](README-architecture.md)** - How the application works in production (EC2, Nginx, PM2, request flow)
+- **[Deployment Guide](README-deployment.md)** - Step-by-step AWS EC2 deployment
+- **[Call Feature](README-calls.md)** - WebRTC audio call implementation
+
 ## ⚠️ Disclaimer
 
 **MyDoctor is not a substitute for professional medical advice, diagnosis, or treatment.**
