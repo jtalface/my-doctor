@@ -38,7 +38,7 @@ router.post('/register', async (req: Request, res: Response) => {
       secure: config.cookieSecure,
       sameSite: 'lax',
       maxAge: result.refreshExpiresAt.getTime() - Date.now(),
-      path: '/api/auth',
+      path: '/',
     });
 
     res.status(201).json({
@@ -92,7 +92,7 @@ router.post('/login', async (req: Request, res: Response) => {
       secure: config.cookieSecure,
       sameSite: 'lax',
       maxAge: result.refreshExpiresAt.getTime() - Date.now(),
-      path: '/api/auth',
+      path: '/',
     });
 
     res.json({
@@ -170,7 +170,7 @@ router.post('/logout', async (req: Request, res: Response) => {
       await authService.logout(refreshToken);
     }
 
-    res.clearCookie('doctor_refresh_token', { path: '/api/auth' });
+    res.clearCookie('doctor_refresh_token', { path: '/' });
     res.json({ success: true });
   } catch (error) {
     console.error('[Auth] Logout error:', error);
