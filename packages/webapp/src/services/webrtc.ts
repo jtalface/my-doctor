@@ -70,7 +70,8 @@ export class WebRTCCall {
    */
   static isSupported(): boolean {
     return !!(
-      navigator.mediaDevices?.getUserMedia &&
+      navigator.mediaDevices &&
+      typeof navigator.mediaDevices.getUserMedia === 'function' &&
       window.RTCPeerConnection
     );
   }
@@ -315,7 +316,7 @@ export class WebRTCCall {
     // Handle remote stream
     this.peerConnection.ontrack = (event) => {
       console.log('[WebRTC] Remote track received');
-      this.remoteStream = event.streams[0];
+      this.remoteStream = event.streams[0] || null;
       if (this.remoteStream) {
         this.handlers.onRemoteStream(this.remoteStream);
       }

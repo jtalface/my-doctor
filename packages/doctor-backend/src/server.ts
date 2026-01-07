@@ -12,7 +12,7 @@
  * - patientprofiles
  */
 
-import express from 'express';
+import express, { Express, RequestHandler } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
@@ -28,7 +28,7 @@ import {
   profileRoutes,
 } from './api/index.js';
 
-const app = express();
+const app: Express = express();
 
 // ===========================================
 // Middleware
@@ -52,33 +52,33 @@ app.use(cookieParser());
 // Rate limiting - general API
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // Limit each IP to 500 requests per window
+  limit: 500, // Limit each IP to 500 requests per window
   message: { error: 'RATE_LIMITED', message: 'Too many requests' },
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use('/api/', limiter);
+app.use('/api/', limiter as unknown as RequestHandler);
 
 // Auth rate limiting (stricter for login/register)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20, // 20 auth attempts per 15 minutes
+  limit: 20, // 20 auth attempts per 15 minutes
   message: { error: 'RATE_LIMITED', message: 'Too many authentication attempts' },
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/login', authLimiter as unknown as RequestHandler);
+app.use('/api/auth/register', authLimiter as unknown as RequestHandler);
 
 // More lenient limiter for refresh endpoint (called automatically)
 const refreshLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100, // 100 refresh attempts per 15 minutes
+  limit: 100, // 100 refresh attempts per 15 minutes
   message: { error: 'RATE_LIMITED', message: 'Too many refresh attempts' },
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use('/api/auth/refresh', refreshLimiter);
+app.use('/api/auth/refresh', refreshLimiter as unknown as RequestHandler);
 
 // ===========================================
 // Routes

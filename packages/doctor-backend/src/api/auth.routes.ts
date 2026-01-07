@@ -8,7 +8,7 @@ import { Router, Request, Response } from 'express';
 import { authService, AuthError, requireAuth } from '../auth/index.js';
 import config from '../config/index.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * POST /api/auth/register

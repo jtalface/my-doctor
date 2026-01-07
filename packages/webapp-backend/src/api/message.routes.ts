@@ -7,23 +7,20 @@
 
 import { Router, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import path from 'path';
 import fs from 'fs';
 
 import { authenticate } from '../auth/index.js';
 import { Conversation } from '../models/conversation.model.js';
 import { Message, IAttachment } from '../models/message.model.js';
 import { Provider } from '../models/provider.model.js';
-import { User } from '../models/user.model.js';
 import { 
   upload, 
   getFileUrl, 
   getFilePath, 
   deleteFile,
-  UPLOAD_CONFIG,
 } from '../services/messaging/file-upload.js';
 
-const router = Router();
+const router: Router = Router();
 
 // Apply auth middleware to all routes
 router.use(authenticate);
@@ -65,9 +62,9 @@ router.get('/providers', async (_req: Request, res: Response) => {
  */
 router.get('/providers/:providerId', async (req: Request, res: Response) => {
   try {
-    const { providerId } = req.params;
+    const providerId = req.params.providerId;
 
-    if (!mongoose.Types.ObjectId.isValid(providerId)) {
+    if (!providerId || !mongoose.Types.ObjectId.isValid(providerId)) {
       return res.status(400).json({ error: 'Invalid provider ID' });
     }
 
@@ -245,9 +242,9 @@ router.post('/conversations', async (req: Request, res: Response) => {
 router.get('/conversations/:conversationId', async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
-    const { conversationId } = req.params;
+    const conversationId = req.params.conversationId;
 
-    if (!mongoose.Types.ObjectId.isValid(conversationId)) {
+    if (!conversationId || !mongoose.Types.ObjectId.isValid(conversationId)) {
       return res.status(400).json({ error: 'Invalid conversation ID' });
     }
 
@@ -289,10 +286,10 @@ router.get('/conversations/:conversationId', async (req: Request, res: Response)
 router.patch('/conversations/:conversationId', async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
-    const { conversationId } = req.params;
+    const conversationId = req.params.conversationId;
     const { status, subject } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(conversationId)) {
+    if (!conversationId || !mongoose.Types.ObjectId.isValid(conversationId)) {
       return res.status(400).json({ error: 'Invalid conversation ID' });
     }
 
@@ -327,9 +324,9 @@ router.patch('/conversations/:conversationId', async (req: Request, res: Respons
 router.post('/conversations/:conversationId/read', async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
-    const { conversationId } = req.params;
+    const conversationId = req.params.conversationId;
 
-    if (!mongoose.Types.ObjectId.isValid(conversationId)) {
+    if (!conversationId || !mongoose.Types.ObjectId.isValid(conversationId)) {
       return res.status(400).json({ error: 'Invalid conversation ID' });
     }
 
@@ -374,10 +371,10 @@ router.post('/conversations/:conversationId/read', async (req: Request, res: Res
 router.get('/conversations/:conversationId/messages', async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
-    const { conversationId } = req.params;
+    const conversationId = req.params.conversationId;
     const { limit = 50, before, after } = req.query;
 
-    if (!mongoose.Types.ObjectId.isValid(conversationId)) {
+    if (!conversationId || !mongoose.Types.ObjectId.isValid(conversationId)) {
       return res.status(400).json({ error: 'Invalid conversation ID' });
     }
 
@@ -426,11 +423,11 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const userId = (req as any).user.userId;
-      const { conversationId } = req.params;
+      const conversationId = req.params.conversationId;
       const { content } = req.body;
       const files = req.files as Express.Multer.File[];
 
-      if (!mongoose.Types.ObjectId.isValid(conversationId)) {
+      if (!conversationId || !mongoose.Types.ObjectId.isValid(conversationId)) {
         return res.status(400).json({ error: 'Invalid conversation ID' });
       }
 
@@ -494,9 +491,9 @@ router.post(
 router.delete('/messages/:messageId', async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
-    const { messageId } = req.params;
+    const messageId = req.params.messageId;
 
-    if (!mongoose.Types.ObjectId.isValid(messageId)) {
+    if (!messageId || !mongoose.Types.ObjectId.isValid(messageId)) {
       return res.status(400).json({ error: 'Invalid message ID' });
     }
 
@@ -539,7 +536,11 @@ router.delete('/messages/:messageId', async (req: Request, res: Response) => {
 router.get('/files/:filename', async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
-    const { filename } = req.params;
+    const filename = req.params.filename;
+
+    if (!filename) {
+      return res.status(400).json({ error: 'Filename is required' });
+    }
 
     // Security: Prevent directory traversal
     if (filename.includes('..') || filename.includes('/')) {

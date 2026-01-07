@@ -8,7 +8,7 @@ import { Router, Request, Response } from 'express';
 import { requireAuth } from '../auth/index.js';
 import { Provider } from '../models/index.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * GET /api/profile
@@ -145,7 +145,7 @@ router.post('/availability', requireAuth, async (req: Request, res: Response) =>
  * POST /api/profile/avatar
  * Upload avatar (placeholder - would need file upload)
  */
-router.post('/avatar', requireAuth, async (req: Request, res: Response) => {
+router.post('/avatar', requireAuth, async (_req: Request, res: Response) => {
   // TODO: Implement avatar upload
   res.status(501).json({ 
     error: 'NOT_IMPLEMENTED',

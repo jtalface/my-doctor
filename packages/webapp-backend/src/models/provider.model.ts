@@ -15,6 +15,7 @@ export interface IProvider extends Document {
   // Basic info
   firstName: string;
   lastName: string;
+  name: string;    // Virtual: firstName + lastName
   email: string;
   passwordHash?: string;       // For doctor authentication (optional for legacy/seeded data)
   

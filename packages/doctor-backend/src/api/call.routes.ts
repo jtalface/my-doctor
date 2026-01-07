@@ -6,7 +6,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import mongoose from 'mongoose';
+import mongoose, { Document, Model } from 'mongoose';
 import { requireAuth } from '../auth/auth.middleware.js';
 import { Conversation, User } from '../models/index.js';
 
@@ -72,10 +72,34 @@ const CallSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Use existing model or create new one (handles hot-reloading)
-const Call = mongoose.models.Call || mongoose.model('Call', CallSchema);
+// Interface for Call document
+interface ICall extends Document {
+  conversationId: mongoose.Types.ObjectId;
+  callerId: mongoose.Types.ObjectId;
+  callerType: 'patient' | 'provider';
+  calleeId: mongoose.Types.ObjectId;
+  calleeType: 'patient' | 'provider';
+  status: 'pending' | 'ringing' | 'active' | 'ended' | 'missed' | 'declined' | 'failed';
+  endReason?: 'completed' | 'missed' | 'declined' | 'busy' | 'failed' | 'cancelled';
+  offer?: { sdp: string; type: string };
+  answer?: { sdp: string; type: string };
+  iceCandidates: Array<{
+    candidate: string;
+    sdpMid: string;
+    sdpMLineIndex: number;
+    from: 'caller' | 'callee';
+  }>;
+  initiatedAt: Date;
+  answeredAt?: Date;
+  endedAt?: Date;
+  duration?: number;
+  fallbackUsed: boolean;
+}
 
-const router = Router();
+// Use existing model or create new one (handles hot-reloading)
+const Call: Model<ICall> = (mongoose.models.Call as Model<ICall>) || mongoose.model<ICall>('Call', CallSchema);
+
+const router: Router = Router();
 
 // All routes require authentication
 router.use(requireAuth);

@@ -10,7 +10,7 @@ import * as api from '../services/api';
 import styles from './ProfilePage.module.css';
 
 export default function ProfilePage() {
-  const { doctor } = useAuth();
+  const { doctor: _doctor } = useAuth();
   const [profile, setProfile] = useState<api.DoctorProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

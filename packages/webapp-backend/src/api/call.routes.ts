@@ -12,15 +12,15 @@
  * 6. Either party ends call (POST /calls/:id/end)
  */
 
-import { Router, Request, Response } from 'express';
-import { Call, ICall } from '../models/call.model.js';
+import { Router, Response } from 'express';
+import { Call } from '../models/call.model.js';
 import { Conversation } from '../models/conversation.model.js';
 import { Provider } from '../models/provider.model.js';
 import { User } from '../models/user.model.js';
 import { authenticate } from '../auth/auth.middleware.js';
 import { AuthenticatedRequest } from '../auth/auth.types.js';
 
-const router = Router();
+const router: Router = Router();
 
 // All routes require authentication
 router.use(authenticate);

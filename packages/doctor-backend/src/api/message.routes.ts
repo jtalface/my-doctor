@@ -13,7 +13,7 @@ import { requireAuth } from '../auth/index.js';
 import { Conversation, Message } from '../models/index.js';
 import config from '../config/index.js';
 
-const router = Router();
+const router: Router = Router();
 
 // Ensure upload directory exists
 const uploadDir = config.uploadDir;
@@ -175,7 +175,11 @@ router.post(
  */
 router.get('/files/:filename', requireAuth, async (req: Request, res: Response) => {
   try {
-    const { filename } = req.params;
+    const filename = req.params.filename;
+    if (!filename) {
+      res.status(400).json({ error: 'BAD_REQUEST', message: 'Filename is required' });
+      return;
+    }
     const providerId = req.doctor!.providerId;
 
     // Find the message with this attachment to verify access

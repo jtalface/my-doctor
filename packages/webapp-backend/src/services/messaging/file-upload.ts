@@ -9,10 +9,6 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { randomUUID } from 'crypto';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Configuration
 export const UPLOAD_CONFIG = {
@@ -24,7 +20,7 @@ export const UPLOAD_CONFIG = {
     'image/jpg',
   ],
   allowedExtensions: ['.pdf', '.png', '.jpg', '.jpeg'],
-  uploadDir: path.resolve(__dirname, '../../../uploads/messages'),
+  uploadDir: path.resolve(process.cwd(), 'uploads/messages'),
 };
 
 // Ensure upload directory exists

@@ -15,7 +15,7 @@ import styles from './ConversationPage.module.css';
 
 export default function ConversationPage() {
   const { id } = useParams<{ id: string }>();
-  const { doctor } = useAuth();
+  const { doctor: _doctor } = useAuth();
   const [conversation, setConversation] = useState<api.Conversation | null>(null);
   const [messages, setMessages] = useState<api.Message[]>([]);
   const [newMessage, setNewMessage] = useState('');

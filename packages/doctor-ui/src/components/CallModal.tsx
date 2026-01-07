@@ -21,7 +21,7 @@ export default function CallModal({
   callInstance,
   remoteName,
   remotePhone,
-  isIncoming,
+  isIncoming: _isIncoming,
   onClose,
 }: CallModalProps) {
   const [callState, setCallState] = useState<CallState>('idle');

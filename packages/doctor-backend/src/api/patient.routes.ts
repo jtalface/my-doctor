@@ -9,7 +9,7 @@ import { Router, Request, Response } from 'express';
 import { requireAuth } from '../auth/index.js';
 import { Conversation, User, PatientProfile } from '../models/index.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * GET /api/patients

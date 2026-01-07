@@ -209,7 +209,7 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
         <div className={styles.errorState}>
           <span className={styles.errorIcon}>⚠️</span>
           <p>{error}</p>
-          <button onClick={() => loadMessages(true)}>{t('common_try_again')}</button>
+          <button onClick={() => loadMessages(true)}>{t('common_error')}</button>
         </div>
       </div>
     );

@@ -6,9 +6,9 @@
 
 import { Router, Request, Response } from 'express';
 import { requireAuth } from '../auth/index.js';
-import { Conversation, Message, User } from '../models/index.js';
+import { Conversation, Message } from '../models/index.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * GET /api/conversations

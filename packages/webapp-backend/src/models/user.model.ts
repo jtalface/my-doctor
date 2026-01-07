@@ -4,6 +4,7 @@ export interface IUser extends Document {
   email?: string;  // Optional for dependents (they don't login)
   firstName: string;
   lastName: string;
+  name: string;    // Virtual: firstName + lastName
   phone?: string;
   passwordHash?: string;
   isGuest: boolean;
