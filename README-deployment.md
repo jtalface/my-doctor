@@ -191,9 +191,9 @@ PORT=3003
 # MongoDB Atlas
 MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@cluster.mongodb.net/mydoctor?retryWrites=true&w=majority
 
-# JWT Secrets (generate secure random strings)
-JWT_SECRET=your-super-secure-jwt-secret-at-least-32-chars
-JWT_REFRESH_SECRET=your-super-secure-refresh-secret-at-least-32-chars
+# JWT Secrets (generate secure random strings with: openssl rand -base64 48)
+JWT_ACCESS_SECRET=your-super-secure-jwt-access-secret-at-least-32-chars
+JWT_REFRESH_SECRET=your-super-secure-jwt-refresh-secret-at-least-32-chars
 
 # LLM Provider
 DEFAULT_LLM_PROVIDER=openai
@@ -211,9 +211,11 @@ OPENAI_TIMEOUT=30000
 # Debug (set to false in production)
 DEBUG_MODE=false
 
-# CORS (your domain)
-CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+# CORS (your EC2 IP or domain)
+CORS_ORIGINS=http://YOUR_EC2_IP,http://localhost
 ```
+
+**Important:** Use `JWT_ACCESS_SECRET` (not `JWT_SECRET`) for webapp-backend!
 
 Save: `Ctrl+O`, `Enter`, `Ctrl+X`
 
@@ -239,9 +241,11 @@ JWT_REFRESH_SECRET=your-super-secure-refresh-secret-at-least-32-chars
 # Debug
 DEBUG_MODE=false
 
-# CORS
-CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+# CORS (your EC2 IP or domain)
+CORS_ORIGINS=http://YOUR_EC2_IP,http://localhost
 ```
+
+**Note:** Doctor backend uses standard `JWT_SECRET` (not `JWT_ACCESS_SECRET`).
 
 ### 3.3 Build All Packages
 
@@ -805,6 +809,75 @@ sudo setsebool -P httpd_read_user_content 1
 | SSL Certificate | Free (Let's Encrypt) | - |
 
 **Estimated Monthly Cost (Production):** $15-40/month
+
+---
+
+## Troubleshooting Common Issues
+
+### Backend Won't Start
+
+**Error:** `JWT_ACCESS_SECRET must be set and at least 32 characters in production`
+
+**Solution:** 
+- webapp-backend requires `JWT_ACCESS_SECRET` (not `JWT_SECRET`)
+- doctor-backend requires `JWT_SECRET` (not `JWT_ACCESS_SECRET`)
+- Generate secure secrets: `openssl rand -base64 48`
+
+**Error:** `MongooseServerSelectionError: Could not connect to any servers`
+
+**Solution:**
+1. Whitelist EC2 IP in MongoDB Atlas Network Access
+2. Verify connection string has correct password
+3. Ensure password special characters are URL-encoded
+
+### Frontend Shows 500 Error
+
+**Error:** `Permission denied` in Nginx error logs
+
+**Solution:**
+```bash
+# Fix directory permissions
+chmod 755 /home/ec2-user
+chmod -R 755 /home/ec2-user/my-doctor/packages/webapp/dist
+chmod -R 755 /home/ec2-user/my-doctor/packages/doctor-ui/dist
+sudo systemctl restart nginx
+```
+
+### Doctor UI Shows Blank Page
+
+**Error:** Assets loading from `/assets/` instead of `/doctor/assets/`
+
+**Solution:** Already fixed in codebase - ensure you've pulled latest changes:
+- `vite.config.ts` has `base: '/doctor/'`
+- `main.tsx` has `basename="/doctor"` in BrowserRouter
+- Rebuild: `cd packages/doctor-ui && pnpm build`
+
+### Login Doesn't Redirect
+
+**Error:** Doctor UI hitting `/api` instead of `/doctor-api`
+
+**Solution:** Already fixed in codebase - `api.ts` uses `import.meta.env.VITE_API_URL`
+
+Ensure `.env.production` exists:
+```bash
+echo 'VITE_API_URL=http://YOUR_EC2_IP/doctor-api' > packages/doctor-ui/.env.production
+```
+
+### Rate Limit Errors
+
+**Error:** `Too many requests` on login/register
+
+**Solution:**
+```bash
+pm2 restart all  # Resets rate limiters
+```
+
+### CORS Errors in Browser Console
+
+**Solution:** Update backend `.env.production` CORS_ORIGINS to include your EC2 IP or domain:
+```env
+CORS_ORIGINS=http://YOUR_EC2_IP,http://localhost
+```
 
 ---
 
