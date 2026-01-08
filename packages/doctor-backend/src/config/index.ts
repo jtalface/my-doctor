@@ -45,8 +45,10 @@ export const config = {
   jwtAccessExpiry: process.env.JWT_ACCESS_EXPIRY || '15m',
   jwtRefreshExpiry: process.env.JWT_REFRESH_EXPIRY || '7d',
   
-  // CORS
-  corsOrigin: process.env.DOCTOR_CORS_ORIGIN || 'http://localhost:3005',
+  // CORS - Parse comma-separated origins into array
+  corsOrigin: process.env.DOCTOR_CORS_ORIGIN 
+    ? process.env.DOCTOR_CORS_ORIGIN.split(',').map(o => o.trim())
+    : ['http://localhost:3005'],
   
   // Cookie
   cookieDomain: process.env.COOKIE_DOMAIN || 'localhost',

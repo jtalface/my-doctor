@@ -36,7 +36,18 @@ const app: Express = express();
 
 // CORS
 app.use(cors({
-  origin: config.corsOrigin,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list
+    if (config.corsOrigin.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    console.log(`[Doctor Backend] CORS blocked origin: ${origin}`);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -132,7 +143,7 @@ async function start() {
     // Start server
     app.listen(config.port, () => {
       console.log(`[Doctor Backend] Server running on port ${config.port}`);
-      console.log(`[Doctor Backend] CORS origin: ${config.corsOrigin}`);
+      console.log(`[Doctor Backend] CORS origins: ${config.corsOrigin.join(', ')}`);
       console.log(`[Doctor Backend] Environment: ${config.nodeEnv}`);
     });
   } catch (error) {
