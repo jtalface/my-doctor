@@ -59,10 +59,23 @@ router.post('/initiate', async (req: AuthenticatedRequest, res: Response) => {
     });
 
     if (existingCall) {
-      return res.status(409).json({ 
-        error: 'Call already in progress',
-        callId: existingCall._id,
-      });
+      // Auto-cleanup stale calls (older than 2 minutes)
+      const callAge = Date.now() - existingCall.initiatedAt.getTime();
+      const TWO_MINUTES = 2 * 60 * 1000;
+      
+      if (callAge > TWO_MINUTES && existingCall.status !== 'active') {
+        // Mark stale call as failed and allow new call
+        console.log(`[Call] Auto-cleaning stale call ${existingCall._id} (age: ${Math.round(callAge / 1000)}s)`);
+        existingCall.status = 'failed';
+        existingCall.endReason = 'failed';
+        existingCall.endedAt = new Date();
+        await existingCall.save();
+      } else {
+        return res.status(409).json({ 
+          error: 'Call already in progress',
+          callId: existingCall._id,
+        });
+      }
     }
 
     // Create new call
