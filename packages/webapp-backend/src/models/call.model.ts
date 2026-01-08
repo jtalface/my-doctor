@@ -108,14 +108,12 @@ const CallSchema = new Schema<ICall>(
         sdp: { type: String },
         type: { type: String },
       },
-      required: false,
     },
     answer: {
       type: {
         sdp: { type: String },
         type: { type: String },
       },
-      required: false,
     },
     iceCandidates: [{
       candidate: String,

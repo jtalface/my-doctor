@@ -54,14 +54,12 @@ const CallSchema = new mongoose.Schema(
         sdp: { type: String },
         type: { type: String },
       },
-      required: false,
     },
     answer: {
       type: {
         sdp: { type: String },
         type: { type: String },
       },
-      required: false,
     },
     iceCandidates: [{
       candidate: String,
