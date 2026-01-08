@@ -26,6 +26,37 @@ const router: Router = Router();
 router.use(authenticate);
 
 /**
+ * Clean up stale calls (for debugging)
+ * DELETE /api/calls/cleanup
+ */
+router.delete('/cleanup', async (_req: AuthenticatedRequest, res: Response) => {
+  try {
+    const result = await Call.updateMany(
+      { 
+        status: { $in: ['pending', 'ringing'] },
+        initiatedAt: { $lt: new Date(Date.now() - 2 * 60 * 1000) } // older than 2 minutes
+      },
+      { 
+        $set: { 
+          status: 'failed',
+          endReason: 'failed',
+          endedAt: new Date()
+        }
+      }
+    );
+    
+    console.log(`[Call] Cleaned up ${result.modifiedCount} stale calls`);
+    res.json({ 
+      message: `Cleaned up ${result.modifiedCount} stale calls`,
+      count: result.modifiedCount
+    });
+  } catch (error) {
+    console.error('[Call] Cleanup error:', error);
+    res.status(500).json({ error: 'Failed to cleanup calls' });
+  }
+});
+
+/**
  * Initiate a call
  * POST /api/calls/initiate
  */
