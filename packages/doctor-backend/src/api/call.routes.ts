@@ -50,16 +50,12 @@ const CallSchema = new mongoose.Schema(
       enum: ['completed', 'missed', 'declined', 'busy', 'failed', 'cancelled'],
     },
     offer: {
-      type: {
-        sdp: { type: String },
-        type: { type: String },
-      },
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
     },
     answer: {
-      type: {
-        sdp: { type: String },
-        type: { type: String },
-      },
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
     },
     iceCandidates: [{
       candidate: String,
