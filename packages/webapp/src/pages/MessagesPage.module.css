@@ -1,8 +1,13 @@
 .container {
-  min-height: 100vh;
+  position: fixed; /* Fix to viewport */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 50px; /* Leave room for footer */
   display: flex;
   flex-direction: column;
   background: var(--bg-primary);
+  overflow: hidden; /* Prevent page-level scrolling */
 }
 
 .header {
@@ -52,6 +57,7 @@
 
 .main {
   flex: 1;
+  min-height: 0; /* Critical: allows flex child to shrink */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -61,6 +67,7 @@
 .splitView {
   display: flex;
   flex: 1;
+  min-height: 0; /* Critical: allows flex child to shrink */
   overflow: hidden;
 }
 
@@ -70,10 +77,12 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border-color);
+  overflow: hidden; /* Sidebar itself doesn't scroll, content inside does */
 }
 
 .chatArea {
   flex: 1;
+  min-height: 0; /* Critical: allows flex child to shrink */
   display: flex;
   flex-direction: column;
   overflow: hidden;
