@@ -66,7 +66,7 @@ export const authConfig = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production', // HTTPS only in production
     sameSite: 'lax' as const,
-    path: '/api/auth',
+    path: '/api', // Scoped to patient API endpoints
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
   },
 
