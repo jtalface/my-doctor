@@ -98,11 +98,7 @@ export const loginRateLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: Request) => {
-    // Rate limit by IP + email (if provided)
-    const email = req.body?.email || '';
-    return `${req.ip}-${email.toLowerCase()}`;
-  },
+  // Use default IP-based rate limiting (handles IPv6 properly)
   skip: () => isDev, // Skip rate limiting in development
 });
 
