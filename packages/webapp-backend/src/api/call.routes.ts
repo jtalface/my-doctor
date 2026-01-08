@@ -34,7 +34,7 @@ router.delete('/cleanup', async (_req: AuthenticatedRequest, res: Response) => {
     const result = await Call.updateMany(
       { 
         status: { $in: ['pending', 'ringing'] },
-        initiatedAt: { $lt: new Date(Date.now() - 30 * 1000) } // older than 30 seconds
+        initiatedAt: { $lt: new Date(Date.now() - 10 * 1000) } // older than 10 seconds
       },
       { 
         $set: { 
@@ -90,9 +90,9 @@ router.post('/initiate', async (req: AuthenticatedRequest, res: Response) => {
     });
 
     if (existingCall) {
-      // Auto-cleanup stale calls (older than 30 seconds for pending/ringing)
+      // Auto-cleanup stale calls (older than 10 seconds for pending/ringing)
       const callAge = Date.now() - existingCall.initiatedAt.getTime();
-      const STALE_TIMEOUT = 30 * 1000; // 30 seconds
+      const STALE_TIMEOUT = 10 * 1000; // 10 seconds
       
       if (callAge > STALE_TIMEOUT && existingCall.status !== 'active') {
         // Mark stale call as failed and allow new call
