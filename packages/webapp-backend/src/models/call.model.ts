@@ -104,12 +104,18 @@ const CallSchema = new Schema<ICall>(
       enum: ['completed', 'missed', 'declined', 'busy', 'failed', 'cancelled'],
     },
     offer: {
-      sdp: String,
-      type: String,
+      type: {
+        sdp: { type: String },
+        type: { type: String },
+      },
+      required: false,
     },
     answer: {
-      sdp: String,
-      type: String,
+      type: {
+        sdp: { type: String },
+        type: { type: String },
+      },
+      required: false,
     },
     iceCandidates: [{
       candidate: String,

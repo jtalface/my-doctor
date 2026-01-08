@@ -50,12 +50,18 @@ const CallSchema = new mongoose.Schema(
       enum: ['completed', 'missed', 'declined', 'busy', 'failed', 'cancelled'],
     },
     offer: {
-      sdp: String,
-      type: String,
+      type: {
+        sdp: { type: String },
+        type: { type: String },
+      },
+      required: false,
     },
     answer: {
-      sdp: String,
-      type: String,
+      type: {
+        sdp: { type: String },
+        type: { type: String },
+      },
+      required: false,
     },
     iceCandidates: [{
       candidate: String,
@@ -113,7 +119,7 @@ router.delete('/cleanup', async (_req: Request, res: Response) => {
     const result = await Call.updateMany(
       { 
         status: { $in: ['pending', 'ringing'] },
-        initiatedAt: { $lt: new Date(Date.now() - 2 * 60 * 1000) } // older than 2 minutes
+        initiatedAt: { $lt: new Date(Date.now() - 30 * 1000) } // older than 30 seconds
       },
       { 
         $set: { 
@@ -166,11 +172,11 @@ router.post('/initiate', async (req: Request, res: Response) => {
     });
 
     if (existingCall) {
-      // Auto-cleanup stale calls (older than 2 minutes)
+      // Auto-cleanup stale calls (older than 30 seconds for pending/ringing)
       const callAge = Date.now() - existingCall.initiatedAt.getTime();
-      const TWO_MINUTES = 2 * 60 * 1000;
+      const STALE_TIMEOUT = 30 * 1000; // 30 seconds
       
-      if (callAge > TWO_MINUTES && existingCall.status !== 'active') {
+      if (callAge > STALE_TIMEOUT && existingCall.status !== 'active') {
         // Mark stale call as failed and allow new call
         console.log(`[Call] Auto-cleaning stale call ${existingCall._id} (age: ${Math.round(callAge / 1000)}s)`);
         existingCall.status = 'failed';
