@@ -242,10 +242,12 @@ JWT_REFRESH_SECRET=your-super-secure-refresh-secret-at-least-32-chars
 DEBUG_MODE=false
 
 # CORS (your EC2 IP or domain)
-CORS_ORIGINS=http://YOUR_EC2_IP,http://localhost
+DOCTOR_CORS_ORIGIN=http://YOUR_EC2_IP,http://localhost
 ```
 
-**Note:** Doctor backend uses standard `JWT_SECRET` (not `JWT_ACCESS_SECRET`).
+**Important Notes:**
+- Doctor backend uses `JWT_SECRET` (not `JWT_ACCESS_SECRET`)
+- Doctor backend uses `DOCTOR_CORS_ORIGIN` (not `CORS_ORIGINS`)
 
 ### 3.3 Build All Packages
 
@@ -771,9 +773,11 @@ sudo setsebool -P httpd_read_user_content 1
 
 ### CORS Errors
 
-1. Check `CORS_ORIGINS` in `.env.production` files
+1. Check CORS variables in `.env.production` files:
+   - `webapp-backend`: Uses `CORS_ORIGINS`
+   - `doctor-backend`: Uses `DOCTOR_CORS_ORIGIN`
 2. Ensure domain matches exactly (with/without www)
-3. Restart backends after changing env files
+3. Use `pm2 delete all && pm2 start ecosystem.config.cjs` to reload env vars (restart alone doesn't work!)
 
 ---
 
@@ -874,10 +878,44 @@ pm2 restart all  # Resets rate limiters
 
 ### CORS Errors in Browser Console
 
-**Solution:** Update backend `.env.production` CORS_ORIGINS to include your EC2 IP or domain:
+**Solution:** Update backend `.env.production` CORS variables to include your EC2 IP or domain:
+
+**For webapp-backend:**
 ```env
-CORS_ORIGINS=http://YOUR_EC2_IP,http://localhost
+CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
 ```
+
+**For doctor-backend:**
+```env
+DOCTOR_CORS_ORIGIN=https://yourdomain.com,https://www.yourdomain.com
+```
+
+**Critical:** After changing env files, use `pm2 delete all && pm2 start ecosystem.config.cjs` (not just `pm2 restart`!)
+
+### Environment Variables Not Loading in PM2
+
+**Symptoms:** 
+- Backend logs show default/old values despite updating `.env.production`
+- Example: CORS showing `http://localhost:3005` when you set `https://yourdomain.com`
+
+**Root Cause:** PM2 caches environment variables. Using `pm2 restart` does NOT reload them!
+
+**Solution:**
+```bash
+cd ~/my-doctor
+
+# Method 1: Delete and restart (cleanest)
+pm2 delete all
+pm2 start ecosystem.config.cjs
+
+# Method 2: Force reload ecosystem file
+pm2 delete all && pm2 start ecosystem.config.cjs --update-env
+
+# Verify env vars are loaded
+pm2 logs --lines 20 | grep -i "CORS\|loaded"
+```
+
+**Prevention:** Always use `pm2 delete all && pm2 start` when changing `.env.production` files.
 
 ---
 

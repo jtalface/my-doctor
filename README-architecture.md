@@ -512,7 +512,8 @@ pm2 restart webapp-backend
 | `JWT_SECRET` | doctor-backend | JWT signing (doctors) | ✅ Yes |
 | `JWT_REFRESH_SECRET` | Both backends | Refresh token signing | ✅ Yes |
 | `OPENAI_API_KEY` | webapp-backend | AI chat | ✅ Yes |
-| `CORS_ORIGINS` | Both backends | Allowed origins | ✅ Yes |
+| `CORS_ORIGINS` | webapp-backend | Allowed origins (comma-separated) | ✅ Yes |
+| `DOCTOR_CORS_ORIGIN` | doctor-backend | Allowed origins (comma-separated) | ✅ Yes |
 
 ---
 
