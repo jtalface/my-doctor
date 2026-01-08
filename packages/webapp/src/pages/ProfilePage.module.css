@@ -35,6 +35,13 @@
   background-color: var(--bg-secondary);
 }
 
+/* Desktop: hide entire header (not needed on desktop) */
+@media (min-width: 769px) {
+  .header {
+    display: none;
+  }
+}
+
 .title {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);

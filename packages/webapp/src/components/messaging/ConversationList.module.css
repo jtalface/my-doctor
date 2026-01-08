@@ -1,7 +1,8 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1 1 0; /* Match parent flex behavior */
+  min-height: 0; /* Allow shrinking */
   background: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
   overflow: hidden; /* Container doesn't scroll, only .list does */
@@ -13,13 +14,15 @@
   justify-content: space-between;
   padding: var(--space-4);
   border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0; /* Prevent header from shrinking */
+  flex: 0 0 auto; /* Don't grow or shrink, use content size */
+  box-sizing: border-box; /* Ensure padding is included in height calculation */
 }
 
 .title {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-primary);
+  margin: 0; /* Prevent margin collapse */
 }
 
 .newButton {
@@ -105,9 +108,8 @@
 }
 
 .list {
-  flex: 1;
+  flex: 1 1 0; /* Explicit flex basis of 0 to force proper calculation */
   min-height: 0; /* Critical: allows flex child to shrink and scroll */
-  max-height: calc(100vh - 150px); /* Force max height: viewport - headers (~150px) */
   overflow-y: auto;
   overflow-x: hidden;
 }

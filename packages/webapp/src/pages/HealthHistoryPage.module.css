@@ -46,6 +46,13 @@
   width: 36px; /* Balance the back button */
 }
 
+/* Desktop: hide entire header (not needed on desktop) */
+@media (min-width: 769px) {
+  .header {
+    display: none;
+  }
+}
+
 .main {
   padding: var(--space-4);
   max-width: 800px;

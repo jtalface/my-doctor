@@ -4,6 +4,7 @@
   padding: var(--space-3) var(--space-4);
   border-top: 1px solid var(--border-color);
   background: var(--bg-primary);
+  flex-shrink: 0; /* Prevent input from shrinking */
 }
 
 .error {
