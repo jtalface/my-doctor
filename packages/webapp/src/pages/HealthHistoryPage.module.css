@@ -47,7 +47,7 @@
 }
 
 /* Desktop: hide entire header (not needed on desktop) */
-@media (min-width: 769px) {
+@media (min-width: 1024px) {
   .header {
     display: none;
   }

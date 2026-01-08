@@ -120,7 +120,7 @@
 }
 
 /* Desktop: hide back button only (keep header for "New Message" button) */
-@media (min-width: 769px) {
+@media (min-width: 1024px) {
   .backButton {
     display: none;
   }
