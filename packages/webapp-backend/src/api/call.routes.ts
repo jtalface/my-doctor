@@ -328,6 +328,7 @@ router.post('/:id/ice', async (req: AuthenticatedRequest, res: Response) => {
       return res.status(400).json({ error: 'Candidate is required' });
     }
 
+    // First, verify the call exists and user is authorized
     const call = await Call.findById(id);
     if (!call) {
       return res.status(404).json({ error: 'Call not found' });
@@ -340,13 +341,20 @@ router.post('/:id/ice', async (req: AuthenticatedRequest, res: Response) => {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
-    call.iceCandidates.push({
-      candidate: candidate.candidate,
-      sdpMid: candidate.sdpMid,
-      sdpMLineIndex: candidate.sdpMLineIndex,
-      from: isCaller ? 'caller' : 'callee',
-    });
-    await call.save();
+    // Use atomic $push to avoid version conflicts
+    await Call.findByIdAndUpdate(
+      id,
+      {
+        $push: {
+          iceCandidates: {
+            candidate: candidate.candidate,
+            sdpMid: candidate.sdpMid,
+            sdpMLineIndex: candidate.sdpMLineIndex,
+            from: isCaller ? 'caller' : 'callee',
+          }
+        }
+      }
+    );
 
     res.json({ success: true });
   } catch (error) {
