@@ -5,6 +5,7 @@ import { LLMSelector } from '@components/settings';
 import { VaccinationAlert, VaccinationModal } from '../components/vaccinations';
 import { api, SessionHistoryItem, HealthStatus } from '../services/api';
 import { useActiveProfile } from '../contexts';
+import { useCycleEligibility } from '../hooks/useCycleEligibility';
 import { useTranslate } from '../i18n';
 import styles from './DashboardPage.module.css';
 
@@ -19,6 +20,7 @@ function formatDate(dateString: string): string {
 
 export function DashboardPage() {
   const { activeProfile, isViewingDependent } = useActiveProfile();
+  const { isEligible: showCycleTracker } = useCycleEligibility();
   const t = useTranslate();
   
   // Create stable values for useEffect dependencies
@@ -184,6 +186,18 @@ export function DashboardPage() {
             </CardContent>
           </Card>
         </Link>
+
+        {showCycleTracker && (
+          <Link to="/cycle" className={styles.actionCard}>
+            <Card variant="interactive" padding="lg">
+              <CardContent>
+                <div className={styles.actionIcon}>🌸</div>
+                <h3 className={styles.actionTitle}>Track Your Cycle</h3>
+                <p className={styles.actionDesc}>Period tracking & predictions</p>
+              </CardContent>
+            </Card>
+          </Link>
+        )}
       </section>
 
       {/* Recent Activity */}

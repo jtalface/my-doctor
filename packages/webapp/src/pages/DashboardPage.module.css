@@ -104,6 +104,12 @@
   }
 }
 
+@media (min-width: 900px) {
+  .quickActions {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .actionCard {
   text-decoration: none;
 }
