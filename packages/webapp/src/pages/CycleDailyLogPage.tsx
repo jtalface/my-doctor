@@ -149,7 +149,7 @@ export function CycleDailyLogPage() {
   if (!date) {
     return (
       <div className={styles.container}>
-        <div className={styles.error}>Invalid date</div>
+        <div className={styles.error}>{t('cycle_invalid_date')}</div>
       </div>
     );
   }
@@ -171,7 +171,7 @@ export function CycleDailyLogPage() {
         
         {/* Period Day Toggle */}
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Period</h3>
+          <h3 className={styles.sectionTitle}>{t('cycle_period_section')}</h3>
           <div className={styles.toggleContainer}>
             <button
               className={`${styles.toggleButton} ${isPeriodDay ? styles.active : ''}`}
@@ -187,7 +187,7 @@ export function CycleDailyLogPage() {
         {/* Flow Level */}
         {isPeriodDay && (
           <section className={styles.section}>
-            <h3 className={styles.sectionTitle}>Flow Level</h3>
+            <h3 className={styles.sectionTitle}>{t('cycle_flow_section')}</h3>
             <div className={styles.optionGrid}>
               {FLOW_LEVELS.map(level => (
                 <button
@@ -206,7 +206,7 @@ export function CycleDailyLogPage() {
         
         {/* Symptoms */}
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Symptoms</h3>
+          <h3 className={styles.sectionTitle}>{t('cycle_symptoms_section')}</h3>
           <div className={styles.optionGrid}>
             {SYMPTOMS.map(symptom => (
               <button
@@ -224,7 +224,7 @@ export function CycleDailyLogPage() {
         
         {/* Mood */}
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Mood</h3>
+          <h3 className={styles.sectionTitle}>{t('cycle_mood_section')}</h3>
           <div className={styles.optionGrid}>
             {MOODS.map(m => (
               <button

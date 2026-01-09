@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useActiveProfile } from '../contexts';
 import { useCycleData } from '../hooks/useCycleData';
+import { useTranslate } from '../i18n';
 import styles from './CycleOnboardingPage.module.css';
 
 export function CycleOnboardingPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { activeProfile } = useActiveProfile();
   
   const { createSettings } = useCycleData({
@@ -25,7 +27,7 @@ export function CycleOnboardingPage() {
     e.preventDefault();
     
     if (!lastPeriodStart) {
-      setError('Please select your last period start date');
+      setError(t('cycle_last_period_required'));
       return;
     }
     
@@ -61,24 +63,22 @@ export function CycleOnboardingPage() {
         <button className={styles.backButton} onClick={() => navigate('/cycle')}>
           ←
         </button>
-        <h1 className={styles.title}>Setup Cycle Tracking</h1>
+        <h1 className={styles.title}>{t('cycle_onboarding_title')}</h1>
         <div className={styles.headerRight} />
       </header>
       
       <main className={styles.main}>
         <div className={styles.intro}>
           <span className={styles.icon}>🌸</span>
-          <h2>Welcome to Cycle Tracking</h2>
-          <p>
-            Answer a few quick questions to get personalized predictions for your period and fertile window.
-          </p>
+          <h2>{t('cycle_welcome_title')}</h2>
+          <p>{t('cycle_onboarding_subtitle')}</p>
         </div>
         
         <form onSubmit={handleSubmit} className={styles.form}>
           {/* Last Period Start */}
           <div className={styles.formGroup}>
             <label htmlFor="lastPeriodStart" className={styles.label}>
-              When did your last period start? *
+              {t('cycle_last_period_label')}
             </label>
             <input
               id="lastPeriodStart"
@@ -94,7 +94,7 @@ export function CycleOnboardingPage() {
           {/* Average Cycle Length */}
           <div className={styles.formGroup}>
             <label htmlFor="cycleLenght" className={styles.label}>
-              Average cycle length
+              {t('cycle_cycle_length_label')}
             </label>
             <div className={styles.sliderContainer}>
               <input
@@ -106,17 +106,17 @@ export function CycleOnboardingPage() {
                 value={averageCycleLength}
                 onChange={(e) => setAverageCycleLength(parseInt(e.target.value))}
               />
-              <div className={styles.sliderValue}>{averageCycleLength} days</div>
+              <div className={styles.sliderValue}>{averageCycleLength} {t('cycle_stat_days')}</div>
             </div>
             <p className={styles.hint}>
-              A typical cycle is 28 days, measured from the first day of one period to the first day of the next.
+              {t('cycle_cycle_length_help')}
             </p>
           </div>
           
           {/* Average Period Length */}
           <div className={styles.formGroup}>
             <label htmlFor="periodLength" className={styles.label}>
-              Average period length
+              {t('cycle_period_length_label')}
             </label>
             <div className={styles.sliderContainer}>
               <input
@@ -128,10 +128,10 @@ export function CycleOnboardingPage() {
                 value={averagePeriodLength}
                 onChange={(e) => setAveragePeriodLength(parseInt(e.target.value))}
               />
-              <div className={styles.sliderValue}>{averagePeriodLength} days</div>
+              <div className={styles.sliderValue}>{averagePeriodLength} {t('cycle_stat_days')}</div>
             </div>
             <p className={styles.hint}>
-              The average period lasts 3-7 days.
+              {t('cycle_period_length_help')}
             </p>
           </div>
           
@@ -144,10 +144,10 @@ export function CycleOnboardingPage() {
                 onChange={(e) => setIrregularCycle(e.target.checked)}
                 className={styles.checkbox}
               />
-              <span>My cycle is irregular</span>
+              <span>{t('cycle_irregular_label')}</span>
             </label>
             <p className={styles.hint}>
-              If your cycle length varies by more than a few days each month, check this box. We'll show prediction ranges instead of exact dates.
+              {t('cycle_irregular_help')}
             </p>
           </div>
           
@@ -163,14 +163,12 @@ export function CycleOnboardingPage() {
             className={styles.submitButton}
             disabled={isSaving}
           >
-            {isSaving ? 'Saving...' : 'Start Tracking'}
+            {isSaving ? t('cycle_settings_saving') : t('cycle_setup_complete')}
           </button>
           
           <div className={styles.privacyNote}>
             <span className={styles.lockIcon}>🔒</span>
-            <p>
-              Your cycle data is private and stored securely. You can export or delete it at any time.
-            </p>
+            <p>{t('cycle_privacy_description')}</p>
           </div>
         </form>
       </main>
