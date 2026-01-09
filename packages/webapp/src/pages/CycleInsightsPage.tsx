@@ -4,10 +4,12 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useActiveProfile } from '../contexts';
 import { useCycleData } from '../hooks/useCycleData';
 import { useCycleStats } from '../hooks/useCycleStats';
+import { useTranslate } from '../i18n';
 import styles from './CycleInsightsPage.module.css';
 
 export function CycleInsightsPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { activeProfile, isViewingDependent } = useActiveProfile();
   
   const {
@@ -63,7 +65,7 @@ export function CycleInsightsPage() {
       <div className={styles.container}>
         <div className={styles.error}>
           <span className={styles.errorIcon}>⚠️</span>
-          <h3>Error Loading Insights</h3>
+          <h3>{t('cycle_error_loading')}</h3>
           <p>{error}</p>
           <button className={styles.primaryButton} onClick={() => window.location.reload()}>
             Try Again
@@ -80,7 +82,7 @@ export function CycleInsightsPage() {
           <button className={styles.backButton} onClick={() => navigate('/cycle')}>
             ←
           </button>
-          <h1 className={styles.title}>Insights</h1>
+          <h1 className={styles.title}>{t('cycle_insights_title')}</h1>
           <div className={styles.headerRight} />
         </header>
         
@@ -103,7 +105,7 @@ export function CycleInsightsPage() {
           ←
         </button>
         <h1 className={styles.title}>
-          {isViewingDependent ? `${activeProfile?.name}'s ` : ''}Insights
+          {isViewingDependent ? `${activeProfile?.name}'s ` : ''}{t('cycle_insights_title')}
         </h1>
         <div className={styles.headerRight} />
       </header>
@@ -111,28 +113,28 @@ export function CycleInsightsPage() {
       <main className={styles.main}>
         {/* Stats Overview */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Overview</h2>
+          <h2 className={styles.sectionTitle}>{t('cycle_overview_section')}</h2>
           
           <div className={styles.statsGrid}>
             <div className={styles.statCard}>
               <div className={styles.statIcon}>📅</div>
               <div className={styles.statValue}>{stats.averageCycleLength}</div>
-              <div className={styles.statLabel}>Avg Cycle Length</div>
-              <div className={styles.statUnit}>days</div>
+              <div className={styles.statLabel}>{t('cycle_stat_avg_cycle')}</div>
+              <div className={styles.statUnit}>{t('cycle_stat_days')}</div>
             </div>
             
             <div className={styles.statCard}>
               <div className={styles.statIcon}>🩸</div>
               <div className={styles.statValue}>{stats.averagePeriodLength}</div>
-              <div className={styles.statLabel}>Avg Period Length</div>
-              <div className={styles.statUnit}>days</div>
+              <div className={styles.statLabel}>{t('cycle_stat_avg_period')}</div>
+              <div className={styles.statUnit}>{t('cycle_stat_days')}</div>
             </div>
             
             <div className={styles.statCard}>
               <div className={styles.statIcon}>📊</div>
               <div className={styles.statValue}>{stats.totalCycles}</div>
-              <div className={styles.statLabel}>Total Cycles</div>
-              <div className={styles.statUnit}>logged</div>
+              <div className={styles.statLabel}>{t('cycle_stat_total_cycles')}</div>
+              <div className={styles.statUnit}>{t('cycle_stat_logged')}</div>
             </div>
             
             <div className={styles.statCard}>
@@ -140,7 +142,7 @@ export function CycleInsightsPage() {
                 {stats.cycleRegularity === 'regular' ? '✅' : '⚠️'}
               </div>
               <div className={styles.statValue}>
-                {stats.cycleRegularity === 'regular' ? 'Regular' : 'Irregular'}
+                {stats.cycleRegularity === 'regular' ? t('cycle_pattern_regular') : t('cycle_pattern_irregular')}
               </div>
               <div className={styles.statLabel}>Cycle Pattern</div>
               <div className={styles.statUnit}>
@@ -153,7 +155,7 @@ export function CycleInsightsPage() {
         {/* Cycle Length Chart */}
         {chartData.length > 0 && (
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Cycle Length Over Time</h2>
+            <h2 className={styles.sectionTitle}>{t('cycle_chart_cycle_length')}</h2>
             <div className={styles.chartContainer}>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -190,7 +192,7 @@ export function CycleInsightsPage() {
         {/* Period Length Chart */}
         {chartData.length > 0 && (
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Period Length Over Time</h2>
+            <h2 className={styles.sectionTitle}>{t('cycle_chart_period_length')}</h2>
             <div className={styles.chartContainer}>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -226,7 +228,7 @@ export function CycleInsightsPage() {
         
         {/* History */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Cycle History</h2>
+          <h2 className={styles.sectionTitle}>{t('cycle_history_section')}</h2>
           
           {stats.oldestCycleDate && (
             <p className={styles.trackingSince}>
@@ -269,7 +271,7 @@ export function CycleInsightsPage() {
               <div className={styles.settingItem}>
                 <span className={styles.settingLabel}>Cycle Type:</span>
                 <span className={styles.settingValue}>
-                  {settings.irregularCycle ? 'Irregular' : 'Regular'}
+                  {settings.irregularCycle ? t('cycle_pattern_irregular') : t('cycle_pattern_regular')}
                 </span>
               </div>
               <div className={styles.settingItem}>

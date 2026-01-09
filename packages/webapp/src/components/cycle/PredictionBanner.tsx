@@ -1,5 +1,6 @@
 import type { Prediction } from '../../types/cycle';
 import { isRegularPrediction } from '../../types/cycle';
+import { useTranslate } from '../../i18n';
 import styles from './PredictionBanner.module.css';
 
 interface PredictionBannerProps {
@@ -23,6 +24,8 @@ function calculateDaysUntil(dateStr: string): number {
 }
 
 export function PredictionBanner({ predictions }: PredictionBannerProps) {
+  const t = useTranslate();
+  
   if (isRegularPrediction(predictions)) {
     const daysUntilPeriod = calculateDaysUntil(predictions.nextPeriod.start);
     
@@ -32,7 +35,10 @@ export function PredictionBanner({ predictions }: PredictionBannerProps) {
           <span className={styles.icon}>🌸</span>
           <div className={styles.content}>
             <h3 className={styles.title}>
-              {daysUntilPeriod > 0 ? `Period expected in ${daysUntilPeriod} days` : 'Period expected today'}
+              {daysUntilPeriod > 0 
+                ? t('cycle_prediction_in_days', { days: daysUntilPeriod })
+                : t('cycle_prediction_today')
+              }
             </h3>
             <p className={styles.subtitle}>
               {formatDate(predictions.nextPeriod.start)} - {formatDate(predictions.nextPeriod.end)}
@@ -42,13 +48,13 @@ export function PredictionBanner({ predictions }: PredictionBannerProps) {
         
         <div className={styles.secondaryInfo}>
           <div className={styles.infoItem}>
-            <span className={styles.label}>Fertile window:</span>
+            <span className={styles.label}>{t('cycle_fertile_window')}:</span>
             <span className={styles.value}>
               {formatDate(predictions.fertileWindow.start)} - {formatDate(predictions.fertileWindow.end)}
             </span>
           </div>
           <div className={styles.infoItem}>
-            <span className={styles.label}>Ovulation:</span>
+            <span className={styles.label}>{t('cycle_ovulation')}:</span>
             <span className={styles.value}>{formatDate(predictions.ovulation.date)}</span>
           </div>
         </div>
@@ -65,23 +71,23 @@ export function PredictionBanner({ predictions }: PredictionBannerProps) {
         <span className={styles.icon}>🌸</span>
         <div className={styles.content}>
           <h3 className={styles.title}>
-            Period expected around {daysUntilPeriod} days
+            {t('cycle_prediction_around_days', { days: daysUntilPeriod })}
           </h3>
           <p className={styles.subtitle}>
-            {formatDate(predictions.nextPeriod.startRange.min)} - {formatDate(predictions.nextPeriod.endRange.max)} (estimated range)
+            {formatDate(predictions.nextPeriod.startRange.min)} - {formatDate(predictions.nextPeriod.endRange.max)} {t('cycle_estimated_range')}
           </p>
         </div>
       </div>
       
       <div className={styles.secondaryInfo}>
         <div className={styles.infoItem}>
-          <span className={styles.label}>Fertile window (approx):</span>
+          <span className={styles.label}>{t('cycle_fertile_window_approx')}:</span>
           <span className={styles.value}>
             {formatDate(predictions.fertileWindow.start)} - {formatDate(predictions.fertileWindow.end)}
           </span>
         </div>
         <div className={styles.infoItem}>
-          <span className={styles.label}>Ovulation (approx):</span>
+          <span className={styles.label}>{t('cycle_ovulation_approx')}:</span>
           <span className={styles.value}>
             {formatDate(predictions.ovulation.dateRange.min)} - {formatDate(predictions.ovulation.dateRange.max)}
           </span>

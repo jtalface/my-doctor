@@ -2,40 +2,43 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useActiveProfile } from '../contexts';
 import { useCycleData } from '../hooks/useCycleData';
+import { useTranslate } from '../i18n';
 import type { Symptom, Mood, FlowLevel } from '../types/cycle';
 import styles from './CycleDailyLogPage.module.css';
-
-const SYMPTOMS: { value: Symptom; label: string; icon: string }[] = [
-  { value: 'cramps', label: 'Cramps', icon: '💢' },
-  { value: 'headache', label: 'Headache', icon: '🤕' },
-  { value: 'bloating', label: 'Bloating', icon: '🎈' },
-  { value: 'acne', label: 'Acne', icon: '😣' },
-  { value: 'breast_tenderness', label: 'Breast Tenderness', icon: '💛' },
-  { value: 'fatigue', label: 'Fatigue', icon: '😴' },
-  { value: 'nausea', label: 'Nausea', icon: '🤢' },
-  { value: 'back_pain', label: 'Back Pain', icon: '🔙' },
-];
-
-const MOODS: { value: Mood; label: string; icon: string }[] = [
-  { value: 'happy', label: 'Happy', icon: '😊' },
-  { value: 'anxious', label: 'Anxious', icon: '😰' },
-  { value: 'irritable', label: 'Irritable', icon: '😠' },
-  { value: 'sad', label: 'Sad', icon: '😢' },
-  { value: 'energetic', label: 'Energetic', icon: '⚡' },
-  { value: 'calm', label: 'Calm', icon: '😌' },
-];
-
-const FLOW_LEVELS: { value: FlowLevel; label: string; icon: string }[] = [
-  { value: 'none', label: 'None', icon: '⚪' },
-  { value: 'light', label: 'Light', icon: '🔴' },
-  { value: 'medium', label: 'Medium', icon: '🔴🔴' },
-  { value: 'heavy', label: 'Heavy', icon: '🔴🔴🔴' },
-];
 
 export function CycleDailyLogPage() {
   const { date } = useParams<{ date: string }>();
   const navigate = useNavigate();
+  const t = useTranslate();
   const { activeProfile } = useActiveProfile();
+  
+  // Translation-aware constants
+  const SYMPTOMS: { value: Symptom; label: string; icon: string }[] = [
+    { value: 'cramps', label: t('cycle_symptom_cramps'), icon: '💢' },
+    { value: 'headache', label: t('cycle_symptom_headache'), icon: '🤕' },
+    { value: 'bloating', label: t('cycle_symptom_bloating'), icon: '🎈' },
+    { value: 'acne', label: t('cycle_symptom_acne'), icon: '😣' },
+    { value: 'breast_tenderness', label: t('cycle_symptom_breast_tenderness'), icon: '💛' },
+    { value: 'fatigue', label: t('cycle_symptom_fatigue'), icon: '😴' },
+    { value: 'nausea', label: t('cycle_symptom_nausea'), icon: '🤢' },
+    { value: 'back_pain', label: t('cycle_symptom_back_pain'), icon: '🔙' },
+  ];
+
+  const MOODS: { value: Mood; label: string; icon: string }[] = [
+    { value: 'happy', label: t('cycle_mood_happy'), icon: '😊' },
+    { value: 'anxious', label: t('cycle_mood_anxious'), icon: '😰' },
+    { value: 'irritable', label: t('cycle_mood_irritable'), icon: '😠' },
+    { value: 'sad', label: t('cycle_mood_sad'), icon: '😢' },
+    { value: 'energetic', label: t('cycle_mood_energetic'), icon: '⚡' },
+    { value: 'calm', label: t('cycle_mood_calm'), icon: '😌' },
+  ];
+
+  const FLOW_LEVELS: { value: FlowLevel; label: string; icon: string }[] = [
+    { value: 'none', label: t('cycle_flow_none'), icon: '⚪' },
+    { value: 'light', label: t('cycle_flow_light'), icon: '🔴' },
+    { value: 'medium', label: t('cycle_flow_medium'), icon: '🔴🔴' },
+    { value: 'heavy', label: t('cycle_flow_heavy'), icon: '🔴🔴🔴' },
+  ];
   
   const {
     dailyLogs,
@@ -245,13 +248,13 @@ export function CycleDailyLogPage() {
           <h3 className={styles.sectionTitle}>Notes</h3>
           <textarea
             className={styles.textarea}
-            placeholder="Add any additional notes about today..."
+            placeholder={t('cycle_notes_placeholder')}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             maxLength={500}
             rows={4}
           />
-          <div className={styles.charCount}>{notes.length}/500</div>
+          <div className={styles.charCount}>{t('cycle_char_count', { count: notes.length })}</div>
         </section>
         
         {/* Actions */}
@@ -261,7 +264,7 @@ export function CycleDailyLogPage() {
             onClick={handleSave}
             disabled={isSaving}
           >
-            {isSaving ? 'Saving...' : existingLog ? 'Update Log' : 'Save Log'}
+            {isSaving ? t('cycle_settings_saving') : t('cycle_save_log')}
           </button>
           
           {existingLog && (

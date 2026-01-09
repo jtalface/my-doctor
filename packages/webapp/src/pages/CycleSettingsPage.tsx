@@ -2,11 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useActiveProfile } from '../contexts';
 import { useCycleData } from '../hooks/useCycleData';
+import { useTranslate } from '../i18n';
 import * as cycleApi from '../services/cycleApi';
 import styles from './CycleSettingsPage.module.css';
 
 export function CycleSettingsPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { activeProfile } = useActiveProfile();
   
   const {
@@ -191,7 +193,7 @@ export function CycleSettingsPage() {
         >
           ←
         </button>
-        <h1 className={styles.title}>Cycle Settings</h1>
+        <h1 className={styles.title}>{t('cycle_settings_title')}</h1>
       </header>
       
       <main className={styles.main}>
@@ -211,11 +213,11 @@ export function CycleSettingsPage() {
         
         <form onSubmit={handleSave} className={styles.form}>
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Cycle Information</h2>
+            <h2 className={styles.sectionTitle}>{t('cycle_info_section')}</h2>
             
             <div className={styles.field}>
               <label htmlFor="lastPeriodStart" className={styles.label}>
-                Last Period Start Date
+                {t('cycle_last_period_label')}
               </label>
               <input
                 id="lastPeriodStart"
@@ -232,7 +234,7 @@ export function CycleSettingsPage() {
             
             <div className={styles.field}>
               <label htmlFor="cycleLength" className={styles.label}>
-                Average Cycle Length (days)
+                {t('cycle_cycle_length_label')}
               </label>
               <input
                 id="cycleLength"
@@ -251,7 +253,7 @@ export function CycleSettingsPage() {
             
             <div className={styles.field}>
               <label htmlFor="periodLength" className={styles.label}>
-                Average Period Length (days)
+                {t('cycle_period_length_label')}
               </label>
               <input
                 id="periodLength"
@@ -285,7 +287,7 @@ export function CycleSettingsPage() {
           </section>
           
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Reminders</h2>
+            <h2 className={styles.sectionTitle}>{t('cycle_reminders_section')}</h2>
             
             <div className={styles.field}>
               <label className={styles.checkboxLabel}>
@@ -323,12 +325,12 @@ export function CycleSettingsPage() {
             className={styles.primaryButton}
             disabled={isSaving}
           >
-            {isSaving ? 'Saving...' : 'Save Settings'}
+            {isSaving ? t('cycle_settings_saving') : t('cycle_save_settings')}
           </button>
         </form>
         
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Data Management</h2>
+          <h2 className={styles.sectionTitle}>{t('cycle_data_section')}</h2>
           
           <div className={styles.dataActions}>
             <button
@@ -364,7 +366,7 @@ export function CycleSettingsPage() {
         </section>
         
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Danger Zone</h2>
+          <h2 className={styles.sectionTitle}>{t('cycle_danger_zone')}</h2>
           
           {!showDeleteConfirm ? (
             <>
