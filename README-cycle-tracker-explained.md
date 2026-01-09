@@ -1,0 +1,1426 @@
+# 🌸 Cycle Tracker - Visual Guide & Technical Explanation
+
+A comprehensive visual guide to understanding the MyDoctor Cycle Tracker feature, including architecture diagrams, data flows, and prediction algorithms.
+
+## 📊 System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         USER INTERFACE                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │   Calendar   │  │  Daily Log   │  │   Insights   │          │
+│  │     Page     │  │     Page     │  │     Page     │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
+│         │                 │                  │                    │
+│         └─────────────────┼──────────────────┘                    │
+│                           │                                        │
+│                    ┌──────▼──────┐                               │
+│                    │  React Hooks │                               │
+│                    └──────┬──────┘                               │
+│                           │                                        │
+│                    ┌──────▼──────┐                               │
+│                    │  Cycle API   │                               │
+│                    └──────┬──────┘                               │
+└───────────────────────────┼────────────────────────────────────┘
+                            │
+                     ┌──────▼──────┐
+                     │   JWT Auth   │
+                     └──────┬──────┘
+                            │
+┌───────────────────────────┼────────────────────────────────────┐
+│                      BACKEND API                                 │
+├───────────────────────────┼────────────────────────────────────┤
+│                           │                                       │
+│                    ┌──────▼──────┐                              │
+│                    │Cycle Routes │                              │
+│                    │ (11 endpoints)│                             │
+│                    └──────┬──────┘                              │
+│                           │                                       │
+│                    ┌──────▼──────┐                              │
+│                    │Cycle Service│                              │
+│                    │ (Business   │                              │
+│                    │   Logic)    │                              │
+│                    └──────┬──────┘                              │
+│                           │                                       │
+│        ┌──────────────────┼──────────────────┐                 │
+│        │                  │                  │                  │
+│  ┌─────▼─────┐    ┌──────▼──────┐    ┌─────▼─────┐           │
+│  │  Cycle    │    │   Daily     │    │  Cycle    │           │
+│  │ Settings  │    │    Log      │    │  History  │           │
+│  │  Model    │    │   Model     │    │   Model   │           │
+│  └───────────┘    └─────────────┘    └───────────┘           │
+└───────────────────────────┬────────────────────────────────────┘
+                            │
+                     ┌──────▼──────┐
+                     │   MongoDB   │
+                     └─────────────┘
+```
+
+### Architecture Layers Explained
+
+1. **User Interface Layer**
+   - React components with lazy loading
+   - Code-split for performance (female-only feature)
+   - Responsive design (mobile-first)
+
+2. **Data Management Layer**
+   - Custom React hooks for state management
+   - API service with JWT authentication
+   - Local state + server sync
+
+3. **Backend API Layer**
+   - Express.js REST API
+   - Authentication & authorization middleware
+   - Business logic in service layer
+
+4. **Data Persistence Layer**
+   - MongoDB with Mongoose ODM
+   - Indexed queries for performance
+   - Three main collections
+
+---
+
+## 🗂️ Data Models
+
+### 1. Cycle Settings Model
+
+Stores user-specific configuration and preferences.
+
+```
+┌─────────────────────────────────────────┐
+│         CycleSettings                   │
+├─────────────────────────────────────────┤
+│ userId           : ObjectId             │
+│ profileType      : 'user' | 'dependent' │
+│ lastPeriodStart  : "2026-01-01"         │
+│ averageCycleLength: 28 (days)           │
+│ averagePeriodLength: 5 (days)           │
+│ irregularCycle   : boolean              │
+│ reminders:                              │
+│   - periodExpected: true                │
+│   - fertileWindow: false                │
+│ createdAt        : Date                 │
+│ updatedAt        : Date                 │
+└─────────────────────────────────────────┘
+```
+
+**Purpose:** Foundation for all predictions and tracking
+**Unique Index:** `userId` (one settings document per user)
+
+### 2. Daily Log Model
+
+Stores day-by-day symptom, mood, and flow data.
+
+```
+┌─────────────────────────────────────────┐
+│           DailyLog                      │
+├─────────────────────────────────────────┤
+│ userId         : ObjectId               │
+│ profileType    : 'user' | 'dependent'   │
+│ date           : "2026-01-15"           │
+│ isPeriodDay    : true                   │
+│ flowLevel      : 'none' | 'light' |     │
+│                  'medium' | 'heavy'     │
+│ symptoms       : ['cramps', 'fatigue',  │
+│                   'headache', 'bloating'│
+│                   'acne', 'tender']     │
+│ mood           : ['happy', 'anxious',   │
+│                   'irritable', 'sad']   │
+│ notes          : "Feeling good today"   │
+│                  (max 500 chars)        │
+│ createdAt      : Date                   │
+│ updatedAt      : Date                   │
+└─────────────────────────────────────────┘
+```
+
+**Purpose:** Daily health tracking and pattern recognition
+**Unique Index:** `userId + date` (one log per day per user)
+
+### 3. Cycle Record Model
+
+Stores computed historical cycles.
+
+```
+┌─────────────────────────────────────────┐
+│             Cycle                       │
+├─────────────────────────────────────────┤
+│ userId         : ObjectId               │
+│ profileType    : 'user' | 'dependent'   │
+│ startDate      : "2026-01-01"           │
+│ endDate        : "2026-01-28"           │
+│ cycleLength    : 28                     │
+│ periodLength   : 5                      │
+│ createdAt      : Date                   │
+└─────────────────────────────────────────┘
+```
+
+**Purpose:** Historical tracking and statistics calculation
+**Unique Index:** `userId + startDate` (one cycle per start date)
+**Additional Index:** `userId + endDate` (for efficient queries)
+
+---
+
+## 🧮 Prediction Algorithm
+
+### Visual Representation of a Complete Cycle
+
+```
+Day:     1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28
+         │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │  │
+Period:  ●══●══●══●══●                                                                        
+         ▲                                                                               ▲
+      Period                                                                        Next Period
+      Start                                                                          Start
+                                                      
+Fertile:                         ░░░░░░░░░░░░░       
+                                 ▲              ▲
+                            Fertile Window    Ovulation
+                              Starts           Day (14)
+                              (Day 9)
+
+Legend:
+●══●  = Period days (bleeding)
+░░░   = Fertile window (5 days before + ovulation day)
+▲     = Key milestone
+```
+
+### Calculation Formulas
+
+```
+┌─────────────────────────────────────────────────────┐
+│           PREDICTION FORMULAS                       │
+├─────────────────────────────────────────────────────┤
+│                                                      │
+│  1. Next Period Start:                              │
+│     next_period = last_period + cycle_length        │
+│     Example: Jan 1 + 28 days = Jan 29              │
+│                                                      │
+│  2. Ovulation Day (14 days before next period):     │
+│     ovulation = next_period - 14                    │
+│     Example: Jan 29 - 14 = Jan 15                  │
+│     Note: Based on standard luteal phase            │
+│                                                      │
+│  3. Fertile Window (6 days total):                  │
+│     fertile_start = ovulation - 5                   │
+│     fertile_end = ovulation                         │
+│     Example: Jan 10 to Jan 15                      │
+│     Rationale: Sperm survival up to 5 days          │
+│                                                      │
+│  4. Period Window:                                   │
+│     period_end = next_period + period_length - 1    │
+│     Example: Jan 29 + 5 - 1 = Feb 2                │
+│                                                      │
+│  5. Irregular Cycle Adjustment:                     │
+│     If irregular = true: ±2 days range              │
+│     Example: Jan 27-31 (instead of Jan 29)         │
+│     Applies to both period and ovulation            │
+│                                                      │
+└─────────────────────────────────────────────────────┘
+```
+
+### Algorithm Transparency
+
+The prediction engine is intentionally simple and transparent:
+- **No black-box AI** - Users can understand the math
+- **Medical standard** - Based on established 14-day luteal phase
+- **User control** - Irregular toggle for variable cycles
+- **Auto-updates** - Recalculates when new period logged
+
+**Important Disclaimer:**
+These are estimates only. Not suitable for birth control or medical decisions.
+
+---
+
+## 📅 Calendar View
+
+### Interactive Calendar Representation
+
+```
+                    January 2026
+    ┌─────────────────────────────────────────────┐
+    │  Sun   Mon   Tue   Wed   Thu   Fri   Sat   │
+    ├─────────────────────────────────────────────┤
+    │              1🔴   2🔴   3🔴   4🔴   5🔴  │  🔴 = Period (logged)
+    │   6     7     8     9🟦  10🟦  11🟦  12   │  🟦 = Fertile window
+    │  13    14    15🟢  16    17    18    19    │  🟢 = Ovulation day
+    │  20    21    22    23    24    25    26    │  🩷 = Predicted period
+    │  27    28🩷  29🩷  30🩷  31🩷              │  ⚪ = Regular day
+    └─────────────────────────────────────────────┘
+
+Interaction:
+  • Click any day → Opens daily log page
+  • Navigation arrows → Previous/next month
+  • "Today" button → Jump to current month
+  • Color-coded for quick visual scanning
+```
+
+### Calendar Color Logic
+
+```
+For each day:
+  IF day in dailyLogs AND isPeriodDay = true:
+    → Color: RED (logged period)
+  
+  ELSE IF day in predictedPeriod range:
+    → Color: PINK (predicted period)
+  
+  ELSE IF day in fertile window:
+    IF day = ovulation day:
+      → Color: GREEN (ovulation)
+    ELSE:
+      → Color: BLUE (fertile)
+  
+  ELSE:
+    → Color: WHITE (regular day)
+```
+
+---
+
+## 🔄 User Flow Diagrams
+
+### First Time User (Onboarding)
+
+```
+                 START
+                   │
+                   ▼
+        ┌──────────────────────┐
+        │   User Opens Cycle   │
+        │      Tracker Tab     │
+        └──────────┬───────────┘
+                   │
+                   ▼
+        ┌──────────────────────┐
+        │  No Settings Found   │
+        │  Show Welcome Screen │
+        │  "Welcome to Cycle   │
+        │   Tracking" 🌸       │
+        └──────────┬───────────┘
+                   │
+                   ▼
+        ┌──────────────────────┐
+        │  Click "Get Started" │
+        └──────────┬───────────┘
+                   │
+                   ▼
+        ┌──────────────────────┐
+        │  Onboarding Form:    │
+        │  ┌─────────────────┐ │
+        │  │ Last period date│ │
+        │  │ Cycle length    │ │
+        │  │ Period length   │ │
+        │  │ ☐ Irregular?   │ │
+        │  └─────────────────┘ │
+        └──────────┬───────────┘
+                   │
+                   ▼
+        ┌──────────────────────┐
+        │  Validate Input      │
+        │  • Date not future   │
+        │  • Length 21-45 days │
+        └──────────┬───────────┘
+                   │
+                   ▼
+        ┌──────────────────────┐
+        │  POST /api/cycle/    │
+        │       settings       │
+        └──────────┬───────────┘
+                   │
+                   ▼
+        ┌──────────────────────┐
+        │  Calculate Initial   │
+        │    Predictions       │
+        └──────────┬───────────┘
+                   │
+                   ▼
+        ┌──────────────────────┐
+        │ Redirect to Calendar │
+        │  with Predictions    │
+        │  Ready to Track! ✅  │
+        └──────────────────────┘
+                   │
+                   ▼
+                  END
+```
+
+### Daily Logging Flow
+
+```
+          User on Calendar
+                 │
+                 ▼
+      ┌──────────────────────┐
+      │  Click Any Day       │
+      │  (e.g., Jan 15)      │
+      └──────────┬───────────┘
+                 │
+                 ▼
+      ┌──────────────────────┐
+      │  Navigate to         │
+      │  /cycle/log/2026-01-15│
+      └──────────┬───────────┘
+                 │
+                 ▼
+      ┌──────────────────────┐
+      │  Daily Log Page      │
+      │  Shows:              │
+      │  ┌─────────────────┐ │
+      │  │☐ Period Day     │ │
+      │  │  Flow: [None▼]  │ │
+      │  │                 │ │
+      │  │ Symptoms:       │ │
+      │  │ ☐ Cramps        │ │
+      │  │ ☐ Headache      │ │
+      │  │ ☐ Bloating      │ │
+      │  │                 │ │
+      │  │ Mood:           │ │
+      │  │ ☐ Happy         │ │
+      │  │ ☐ Anxious       │ │
+      │  │                 │ │
+      │  │ Notes:          │ │
+      │  │ [___________]   │ │
+      │  └─────────────────┘ │
+      └──────────┬───────────┘
+                 │
+                 ▼
+      ┌──────────────────────┐
+      │  User Checks         │
+      │  "Period Day"        │
+      │  Selects "Heavy"     │
+      │  Checks "Cramps"     │
+      └──────────┬───────────┘
+                 │
+                 ▼
+      ┌──────────────────────┐
+      │   Click "Save Log"   │
+      └──────────┬───────────┘
+                 │
+                 ▼
+      ┌──────────────────────┐
+      │  POST /api/cycle/    │
+      │        logs          │
+      │  {date, isPeriod,    │
+      │   flow, symptoms}    │
+      └──────────┬───────────┘
+                 │
+                 ▼
+      ┌──────────────────────┐
+      │  Backend Checks:     │
+      │  • New period start? │
+      │  • Create cycle?     │
+      └──────────┬───────────┘
+                 │
+         ┌───────┴───────┐
+         │               │
+    ┌────▼────┐    ┌────▼────┐
+    │  YES    │    │   NO    │
+    │ Update  │    │  Just   │
+    │Predict. │    │  Save   │
+    └────┬────┘    └────┬────┘
+         │               │
+         └───────┬───────┘
+                 │
+                 ▼
+      ┌──────────────────────┐
+      │  Return Success      │
+      └──────────┬───────────┘
+                 │
+                 ▼
+      ┌──────────────────────┐
+      │  Back to Calendar    │
+      │  • Day now RED       │
+      │  • Updated banner    │
+      └──────────────────────┘
+```
+
+### Viewing Insights Flow
+
+```
+      User on Calendar
+            │
+            ▼
+   ┌────────────────┐
+   │ Click 📊 Icon  │
+   │   or Button    │
+   └────────┬───────┘
+            │
+            ▼
+   ┌────────────────┐
+   │  Navigate to   │
+   │ /cycle/insights│
+   └────────┬───────┘
+            │
+            ▼
+   ┌────────────────────────────┐
+   │  Fetch Data:               │
+   │  • GET /api/cycle/cycles   │
+   │  • GET /api/cycle/logs     │
+   └────────┬───────────────────┘
+            │
+            ▼
+   ┌────────────────────────────┐
+   │  Calculate Statistics:     │
+   │  • Average cycle length    │
+   │  • Average period length   │
+   │  • Regularity (std dev)    │
+   └────────┬───────────────────┘
+            │
+            ▼
+   ┌────────────────────────────┐
+   │  Display:                  │
+   │  ┌──────────────────────┐  │
+   │  │ Cycle History        │  │
+   │  │ • Dec 1 - Dec 28    │  │
+   │  │ • Dec 29 - Jan 26   │  │
+   │  │                      │  │
+   │  │ Statistics           │  │
+   │  │ • Avg: 28 days      │  │
+   │  │ • Regular ✓         │  │
+   │  │                      │  │
+   │  │ Chart                │  │
+   │  │ [Line graph]         │  │
+   │  └──────────────────────┘  │
+   └────────────────────────────┘
+```
+
+---
+
+## 🎯 Feature Map
+
+```
+                  ┌─────────────────────┐
+                  │   CYCLE TRACKER     │
+                  │    Main Feature     │
+                  └──────────┬──────────┘
+                             │
+           ┌─────────────────┼─────────────────┐
+           │                 │                 │
+    ┌──────▼──────┐   ┌─────▼─────┐   ┌──────▼──────┐
+    │   CALENDAR  │   │   LOGS    │   │  INSIGHTS   │
+    │    VIEW     │   │  TRACKING │   │   & STATS   │
+    └──────┬──────┘   └─────┬─────┘   └──────┬──────┘
+           │                │                 │
+    ┌──────▼──────┐   ┌─────▼─────┐   ┌──────▼──────┐
+    │ • View Month│   │• Symptoms │   │• History    │
+    │ • Navigate  │   │  - Cramps │   │  Timeline   │
+    │   Prev/Next │   │  - Headache│  │• Statistics │
+    │ • See Today │   │  - Bloating│  │  - Avg Cycle│
+    │ • Predict   │   │  - Acne   │   │  - Avg Per. │
+    │   Period    │   │  - Fatigue│   │  - Regular? │
+    │ • Predict   │   │• Mood     │   │• Charts     │
+    │   Fertile   │   │  - Happy  │   │  - Line     │
+    │ • Click Day │   │  - Anxious│   │  - Recharts │
+    │   to Log    │   │  - Sad    │   │• Trends     │
+    │             │   │• Flow     │   │  Over Time  │
+    │             │   │  Level    │   │             │
+    │             │   │• Notes    │   │             │
+    │             │   │  (500chr) │   │             │
+    └─────────────┘   └───────────┘   └─────────────┘
+           │                                   │
+           │                                   │
+    ┌──────▼──────┐                    ┌──────▼──────┐
+    │  SETTINGS   │                    │DATA MGMT    │
+    │   ⚙️        │                    │   💾        │
+    └──────┬──────┘                    └──────┬──────┘
+           │                                   │
+    ┌──────▼──────┐                    ┌──────▼──────┐
+    │• Edit Info  │                    │• Export     │
+    │  - Last Per.│                    │  to JSON    │
+    │  - Cycle Ln.│                    │• Import     │
+    │  - Per. Len.│                    │  from JSON  │
+    │  - Irregular│                    │• Backup     │
+    │• Reminders  │                    │  & Restore  │
+    │  - Period   │                    │• Delete All │
+    │  - Fertile  │                    │  (Confirm)  │
+    │• Delete All │                    │             │
+    └─────────────┘                    └─────────────┘
+```
+
+---
+
+## 📊 Statistics & Insights
+
+### Example Statistics Display
+
+```
+┌─────────────────────────────────────────────────────┐
+│               CYCLE STATISTICS                      │
+├─────────────────────────────────────────────────────┤
+│                                                      │
+│  Average Cycle Length:     28 days                  │
+│  Average Period Length:    5 days                   │
+│  Regularity:              Regular ✓                 │
+│  Cycles Tracked:          6                         │
+│  Data Since:              Dec 2025                  │
+│                                                      │
+│  ┌────────────────────────────────────────────┐    │
+│  │        Cycle Length Over Time              │    │
+│  │  30 ┤                    ●                  │    │
+│  │  29 ┤          ●                            │    │
+│  │  28 ┤  ●              ●        ●           │    │
+│  │  27 ┤                              ●       │    │
+│  │  26 ┤                                      │    │
+│  │     └──────────────────────────────────────│    │
+│  │      Dec   Jan   Feb   Mar   Apr   May    │    │
+│  └────────────────────────────────────────────┘    │
+│                                                      │
+│  Recent Cycles:                                     │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    │
+│  • Dec 1 - Dec 28  (28 days, 5 day period)         │
+│  • Dec 29 - Jan 26 (29 days, 4 day period)         │
+│  • Jan 27 - Feb 23 (28 days, 5 day period)         │
+│  • Feb 24 - Mar 23 (28 days, 5 day period)         │
+│                                                      │
+│  Regularity Indicator:                              │
+│  ┌────────────────────────────────────┐            │
+│  │ Standard Deviation: 0.8 days       │            │
+│  │ Status: Regular (< 2 days SD)      │            │
+│  │                                    │            │
+│  │ Regular  ●━━━━━━━━━━━━━━━● Irregular│            │
+│  │          ▲                          │            │
+│  │         You                         │            │
+│  └────────────────────────────────────┘            │
+│                                                      │
+└─────────────────────────────────────────────────────┘
+```
+
+### Regularity Calculation
+
+```python
+# Pseudocode for regularity calculation
+def calculate_regularity(cycles):
+    if len(cycles) < 3:
+        return "Need more data"
+    
+    lengths = [cycle.cycleLength for cycle in cycles]
+    avg = sum(lengths) / len(lengths)
+    variance = sum((x - avg) ** 2 for x in lengths) / len(lengths)
+    std_dev = variance ** 0.5
+    
+    if std_dev < 2:
+        return "Regular"
+    elif std_dev < 4:
+        return "Fairly Regular"
+    else:
+        return "Irregular"
+```
+
+---
+
+## 🔐 Access Control & Security
+
+### Access Control Flow
+
+```
+                    User Logs In
+                         │
+                         ▼
+              ┌──────────────────────┐
+              │  Load User Profile   │
+              │  from AuthContext    │
+              └──────────┬───────────┘
+                         │
+              ┌──────────▼───────────┐
+              │ useCycleEligibility  │
+              │       Hook           │
+              └──────────┬───────────┘
+                         │
+          ┌──────────────┼──────────────┐
+          │              │              │
+   ┌──────▼──────┐  ┌───▼────┐  ┌─────▼─────┐
+   │sexAtBirth:  │  │ Male   │  │Dependent  │
+   │'female'     │  │        │  │ Age < 10  │
+   └──────┬──────┘  └───┬────┘  └─────┬─────┘
+          │              │              │
+    ┌─────▼─────┐  ┌────▼────┐   ┌────▼────┐
+    │ Age 10+?  │  │  HIDE   │   │  HIDE   │
+    │           │  │  Cycle  │   │  Cycle  │
+    │   YES     │  │ Feature │   │ Feature │
+    └─────┬─────┘  │  from   │   │  from   │
+          │        │  Nav    │   │  Nav    │
+    ┌─────▼─────┐  └─────────┘   └─────────┘
+    │   SHOW    │
+    │   Cycle   │
+    │  Feature  │
+    │  in Nav   │
+    └───────────┘
+```
+
+### API Authorization Flow
+
+```
+                Client Makes Request
+                         │
+                         ▼
+              ┌──────────────────────┐
+              │  Extract JWT Token   │
+              │  from Authorization  │
+              │       Header         │
+              └──────────┬───────────┘
+                         │
+                    ┌────▼────┐
+                    │ Valid?  │
+                    └────┬────┘
+                         │
+              ┌──────────┼──────────┐
+              │                     │
+         ┌────▼────┐          ┌────▼────┐
+         │   YES   │          │   NO    │
+         └────┬────┘          └────┬────┘
+              │                     │
+              │              ┌──────▼──────┐
+              │              │  Return 401 │
+              │              │Unauthorized │
+              │              └─────────────┘
+              │
+    ┌─────────▼─────────┐
+    │ Extract userId    │
+    │ from Token        │
+    └─────────┬─────────┘
+              │
+    ┌─────────▼─────────┐
+    │ Check Query Param │
+    │ userId=?          │
+    └─────────┬─────────┘
+              │
+         ┌────▼────┐
+         │ Exists? │
+         └────┬────┘
+              │
+    ┌─────────┼─────────┐
+    │                   │
+┌───▼────┐        ┌────▼────┐
+│  YES   │        │   NO    │
+│ (Dep.) │        │ (Self)  │
+└───┬────┘        └────┬────┘
+    │                   │
+    │            ┌──────▼──────┐
+    │            │ Use token   │
+    │            │   userId    │
+    │            └──────┬──────┘
+    │                   │
+    │            ┌──────▼──────┐
+    │            │ Query user's│
+    │            │  own data   │
+    │            └─────────────┘
+    │
+┌───▼────────────┐
+│ Verify user    │
+│ is guardian    │
+│ of dependent   │
+└───┬────────────┘
+    │
+┌───▼────┐
+│ Valid? │
+└───┬────┘
+    │
+┌───┼───┐
+│       │
+▼       ▼
+YES     NO
+│       │
+│    ┌──▼──┐
+│    │ 403 │
+│    │Forb.│
+│    └─────┘
+│
+▼
+┌──────────────┐
+│ Query dep's  │
+│    data      │
+└──────────────┘
+```
+
+### Security Features
+
+1. **Authentication**
+   - JWT tokens (access + refresh)
+   - httpOnly cookies for refresh tokens
+   - Automatic token refresh
+
+2. **Authorization**
+   - User can only access own data
+   - Guardians can access dependent data (verified)
+   - Age restrictions enforced (10+)
+
+3. **Data Privacy**
+   - HTTPS in production
+   - No third-party sharing
+   - Local export option
+
+4. **Input Validation**
+   - Date ranges validated
+   - Symptom/mood from predefined list
+   - Notes max 500 characters
+   - MongoDB injection protection
+
+---
+
+## 🚀 API Endpoint Structure
+
+### Complete API Map
+
+```
+/api/cycle
+    │
+    ├── SETTINGS
+    │   │
+    │   ├── GET    /settings?userId={id}
+    │   │   → Get cycle settings
+    │   │   → Returns: CycleSettings | null (404)
+    │   │
+    │   ├── POST   /settings?userId={id}
+    │   │   → Create initial settings (onboarding)
+    │   │   → Body: { lastPeriodStart, cycleLength, periodLength, irregular }
+    │   │   → Returns: CycleSettings
+    │   │
+    │   └── PATCH  /settings?userId={id}
+    │       → Update settings
+    │       → Body: Partial<CycleSettings>
+    │       → Returns: CycleSettings
+    │
+    ├── DAILY LOGS
+    │   │
+    │   ├── POST   /logs?userId={id}
+    │   │   → Create or update daily log
+    │   │   → Body: { date, isPeriod, flow, symptoms, mood, notes }
+    │   │   → Returns: DailyLog
+    │   │   → Side Effect: May create cycle record
+    │   │
+    │   ├── GET    /logs?startDate={}&endDate={}&userId={}
+    │   │   → Get logs for date range
+    │   │   → Returns: DailyLog[]
+    │   │
+    │   └── DELETE /logs/:date?userId={id}
+    │       → Delete specific log
+    │       → Returns: { success: true }
+    │
+    ├── CYCLES & PREDICTIONS
+    │   │
+    │   ├── GET    /cycles?userId={id}
+    │   │   → Get historical cycles
+    │   │   → Returns: Cycle[]
+    │   │
+    │   └── GET    /predictions?userId={id}
+    │       → Get predictions
+    │       → Returns: Prediction
+    │       → Includes: nextPeriod, fertileWindow, ovulation
+    │
+    └── DATA MANAGEMENT
+        │
+        ├── GET    /export?userId={id}
+        │   → Export all data
+        │   → Returns: ExportData (JSON)
+        │   → Includes: settings, logs, cycles, metadata
+        │
+        ├── POST   /import?userId={id}
+        │   → Import previously exported data
+        │   → Body: ExportData + { mode: 'replace' }
+        │   → Returns: ImportDataResponse
+        │   → Validates schema before import
+        │
+        └── DELETE /all?userId={id}
+            → Delete all cycle data
+            → Requires confirmation
+            → Returns: DeleteAllDataResponse
+            → Removes: settings, logs, cycles
+```
+
+### Example API Requests
+
+#### Create Settings (Onboarding)
+```http
+POST /api/cycle/settings
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "lastPeriodStart": "2026-01-01",
+  "averageCycleLength": 28,
+  "averagePeriodLength": 5,
+  "irregularCycle": false,
+  "reminders": {
+    "periodExpected": true,
+    "fertileWindow": false
+  }
+}
+```
+
+#### Log Period Day
+```http
+POST /api/cycle/logs
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "date": "2026-01-15",
+  "isPeriodDay": true,
+  "flowLevel": "heavy",
+  "symptoms": ["cramps", "fatigue"],
+  "mood": ["irritable"],
+  "notes": "First day of period"
+}
+```
+
+#### Get Predictions
+```http
+GET /api/cycle/predictions
+Authorization: Bearer <jwt_token>
+
+Response:
+{
+  "nextPeriod": {
+    "startDate": "2026-01-29",
+    "endDate": "2026-02-02",
+    "daysUntil": 14
+  },
+  "fertileWindow": {
+    "startDate": "2026-01-10",
+    "endDate": "2026-01-15",
+    "daysUntil": -5
+  },
+  "ovulation": {
+    "date": "2026-01-15",
+    "daysUntil": 0
+  }
+}
+```
+
+---
+
+## 💾 Data Export Format
+
+### Complete Export Schema
+
+```json
+{
+  "exportDate": "2026-01-15T10:30:00.000Z",
+  "version": "1.0.0",
+  "userId": "69607c5e7187fe746db3b029",
+  "profileType": "user",
+  
+  "settings": {
+    "lastPeriodStart": "2026-01-01",
+    "averageCycleLength": 28,
+    "averagePeriodLength": 5,
+    "irregularCycle": false,
+    "reminders": {
+      "periodExpected": true,
+      "fertileWindow": false
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-15T10:00:00.000Z"
+  },
+  
+  "dailyLogs": [
+    {
+      "date": "2026-01-01",
+      "isPeriodDay": true,
+      "flowLevel": "heavy",
+      "symptoms": ["cramps", "fatigue"],
+      "mood": ["irritable"],
+      "notes": "First day"
+    },
+    {
+      "date": "2026-01-02",
+      "isPeriodDay": true,
+      "flowLevel": "heavy",
+      "symptoms": ["cramps"],
+      "mood": ["anxious"],
+      "notes": ""
+    },
+    {
+      "date": "2026-01-15",
+      "isPeriodDay": false,
+      "flowLevel": "none",
+      "symptoms": [],
+      "mood": ["happy"],
+      "notes": "Feeling great!"
+    }
+  ],
+  
+  "cycles": [
+    {
+      "startDate": "2025-12-01",
+      "endDate": "2025-12-28",
+      "cycleLength": 28,
+      "periodLength": 5,
+      "createdAt": "2025-12-28T00:00:00.000Z"
+    },
+    {
+      "startDate": "2025-12-29",
+      "endDate": "2026-01-26",
+      "cycleLength": 29,
+      "periodLength": 4,
+      "createdAt": "2026-01-26T00:00:00.000Z"
+    }
+  ],
+  
+  "metadata": {
+    "totalLogs": 15,
+    "totalCycles": 2,
+    "firstLogDate": "2025-12-01",
+    "lastLogDate": "2026-01-15"
+  }
+}
+```
+
+### Import Validation
+
+```javascript
+// Validation schema enforced on import
+{
+  exportDate: string (ISO date),
+  version: "1.0.0",
+  settings: {
+    lastPeriodStart: string (YYYY-MM-DD),
+    averageCycleLength: number (21-45),
+    averagePeriodLength: number (2-10),
+    irregularCycle: boolean,
+    reminders: {
+      periodExpected: boolean,
+      fertileWindow: boolean
+    }
+  },
+  dailyLogs: [
+    {
+      date: string (YYYY-MM-DD),
+      isPeriodDay: boolean,
+      flowLevel: enum ['none', 'light', 'medium', 'heavy'],
+      symptoms: string[],
+      mood: string[],
+      notes: string (max 500)
+    }
+  ],
+  cycles: [
+    {
+      startDate: string (YYYY-MM-DD),
+      endDate: string (YYYY-MM-DD),
+      cycleLength: number,
+      periodLength: number
+    }
+  ]
+}
+```
+
+---
+
+## 🎨 UI Component Hierarchy
+
+```
+CycleTrackerPage (Main)
+│
+├── Header
+│   ├── Title
+│   ├── Insights Button (📊)
+│   └── Settings Button (⚙️)
+│
+├── PredictionBanner
+│   ├── Next Period Info
+│   │   ├── Date
+│   │   ├── Days Until
+│   │   └── Status Indicator
+│   │
+│   └── Fertile Window Info
+│       ├── Date Range
+│       ├── Days Until/Remaining
+│       └── Status Indicator
+│
+├── MonthNavigation
+│   ├── Previous Month Button (←)
+│   ├── Current Month Display
+│   ├── Next Month Button (→)
+│   └── Today Button
+│
+├── Calendar
+│   ├── Weekday Headers (Sun-Sat)
+│   └── Day Cells (6 weeks)
+│       ├── Day Number
+│       ├── Color Indicator
+│       └── Click Handler
+│
+└── Quick Actions
+    ├── Log Today Button
+    └── View Insights Button
+
+─────────────────────────────────
+
+CycleDailyLogPage
+│
+├── Header
+│   ├── Back Button
+│   └── Date Display
+│
+├── Period Section
+│   ├── Period Day Toggle
+│   └── Flow Level Selector
+│       ├── None
+│       ├── Light
+│       ├── Medium
+│       └── Heavy
+│
+├── Symptoms Section
+│   └── Checkboxes
+│       ├── Cramps
+│       ├── Headache
+│       ├── Bloating
+│       ├── Acne
+│       ├── Breast Tenderness
+│       └── Fatigue
+│
+├── Mood Section
+│   └── Checkboxes
+│       ├── Happy
+│       ├── Anxious
+│       ├── Irritable
+│       └── Sad
+│
+├── Notes Section
+│   └── Textarea (500 chars)
+│
+└── Actions
+    ├── Save Button
+    ├── Delete Button (if exists)
+    └── Cancel Button
+
+─────────────────────────────────
+
+CycleInsightsPage
+│
+├── Header
+│   ├── Back Button
+│   └── Export Button
+│
+├── Statistics Cards
+│   ├── Average Cycle Length
+│   ├── Average Period Length
+│   ├── Regularity Indicator
+│   └── Cycles Tracked
+│
+├── Chart Section
+│   └── Recharts LineChart
+│       ├── X-Axis (Months)
+│       ├── Y-Axis (Days)
+│       └── Data Points
+│
+└── Cycle History List
+    └── Cycle Items
+        ├── Date Range
+        ├── Cycle Length
+        └── Period Length
+
+─────────────────────────────────
+
+CycleSettingsPage
+│
+├── Header
+│   ├── Back Button
+│   └── Title
+│
+├── Cycle Information Form
+│   ├── Last Period Date
+│   ├── Cycle Length
+│   ├── Period Length
+│   └── Irregular Toggle
+│
+├── Reminders Section
+│   ├── Period Expected
+│   └── Fertile Window
+│
+├── Save Button
+│
+├── Data Management Section
+│   ├── Export Button
+│   └── Import Button (file input)
+│
+└── Danger Zone
+    └── Delete All Button
+        └── Confirmation Dialog
+```
+
+---
+
+## 🔄 State Management Flow
+
+### React Hook Data Flow
+
+```
+┌─────────────────────────────────────────────────┐
+│              useCycleData Hook                  │
+│  (Main data management hook)                    │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  State:                                          │
+│  ┌──────────────────────────────────┐           │
+│  │ settings: CycleSettings | null   │           │
+│  │ dailyLogs: DailyLog[]            │           │
+│  │ cycles: Cycle[]                  │           │
+│  │ predictions: Prediction | null   │           │
+│  │ isLoading: boolean               │           │
+│  │ error: string | null             │           │
+│  └──────────────────────────────────┘           │
+│                                                  │
+│  Methods:                                        │
+│  ┌──────────────────────────────────┐           │
+│  │ loadSettings()                   │───┐       │
+│  │ loadDailyLogs(start, end)        │   │       │
+│  │ loadCycles()                     │   │       │
+│  │ loadPredictions()                │   │       │
+│  │ refreshSettings()                │   │       │
+│  │ refreshAll()                     │   │       │
+│  └──────────────────────────────────┘   │       │
+│                                          │       │
+└──────────────────────────────────────────┼───────┘
+                                           │
+                                           ▼
+                                    ┌──────────────┐
+                                    │  cycleApi    │
+                                    │  Service     │
+                                    └──────┬───────┘
+                                           │
+                                           ▼
+                                    ┌──────────────┐
+                                    │  Backend API │
+                                    └──────────────┘
+
+┌─────────────────────────────────────────────────┐
+│           useCycleCalendar Hook                 │
+│  (Generates calendar view data)                 │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  Inputs:                                         │
+│  • year, month                                   │
+│  • dailyLogs                                     │
+│  • predictions                                   │
+│                                                  │
+│  Output:                                         │
+│  ┌──────────────────────────────────┐           │
+│  │ CalendarMonth {                  │           │
+│  │   year: 2026,                    │           │
+│  │   month: 0, // January           │           │
+│  │   weeks: [                       │           │
+│  │     [                            │           │
+│  │       {                          │           │
+│  │         date: "2026-01-01",      │           │
+│  │         dayOfMonth: 1,           │           │
+│  │         isCurrentMonth: true,    │           │
+│  │         isPeriodDay: true,       │           │
+│  │         isPredictedPeriod: false,│           │
+│  │         isFertileWindow: false,  │           │
+│  │         isOvulation: false       │           │
+│  │       },                         │           │
+│  │       ...                        │           │
+│  │     ],                           │           │
+│  │     ...                          │           │
+│  │   ]                              │           │
+│  │ }                                │           │
+│  └──────────────────────────────────┘           │
+│                                                  │
+└──────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│             useCycleStats Hook                  │
+│  (Calculates statistics)                        │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  Input: cycles[]                                 │
+│                                                  │
+│  Output:                                         │
+│  ┌──────────────────────────────────┐           │
+│  │ {                                │           │
+│  │   averageCycleLength: 28,        │           │
+│  │   averagePeriodLength: 5,        │           │
+│  │   regularity: "Regular",         │           │
+│  │   standardDeviation: 0.8,        │           │
+│  │   totalCycles: 6                 │           │
+│  │ }                                │           │
+│  └──────────────────────────────────┘           │
+│                                                  │
+└──────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│          useCycleEligibility Hook               │
+│  (Access control)                               │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  Inputs:                                         │
+│  • activeProfile                                 │
+│  • activePatientProfile                          │
+│  • isViewingDependent                            │
+│                                                  │
+│  Logic:                                          │
+│  1. Check sexAtBirth === 'female'               │
+│  2. If dependent, check age >= 10               │
+│                                                  │
+│  Output:                                         │
+│  ┌──────────────────────────────────┐           │
+│  │ {                                │           │
+│  │   isEligible: boolean,           │           │
+│  │   isLoading: boolean             │           │
+│  │ }                                │           │
+│  └──────────────────────────────────┘           │
+│                                                  │
+└──────────────────────────────────────────────────┘
+```
+
+---
+
+## 🎯 Key Design Decisions
+
+### 1. **Why Code Splitting?**
+```
+Problem: Not all users need cycle tracking (only females)
+Solution: Lazy load cycle components
+Result: 
+  • Male users: Smaller bundle (faster load)
+  • Female users: Load on demand (still fast)
+  • Savings: ~200KB of code + dependencies
+```
+
+### 2. **Why Simple Predictions?**
+```
+Problem: Complex AI predictions are a "black box"
+Solution: Transparent mathematical formulas
+Benefits:
+  • Users understand the math
+  • Medically sound (14-day luteal phase)
+  • Easy to explain to doctors
+  • No training data needed
+  • Predictable behavior
+```
+
+### 3. **Why MongoDB (Not Local Storage)?**
+```
+Problem: Need multi-device sync, dependent access
+Solution: Backend storage with API
+Benefits:
+  • Access from any device
+  • Guardians can see dependent data
+  • Secure with authentication
+  • Easy backup/export
+  • Professional medical record
+```
+
+### 4. **Why No Push Notifications?**
+```
+Problem: Complex to implement, privacy concerns
+Solution: In-app reminders only (for MVP)
+Future: Can add push notifications later
+Benefits:
+  • Simpler implementation
+  • No permission prompts
+  • Better privacy
+  • Works everywhere
+```
+
+### 5. **Why String Dates ("YYYY-MM-DD")?**
+```
+Problem: JavaScript Date has timezone issues
+Solution: Store as ISO date strings
+Benefits:
+  • No timezone bugs
+  • Easy to compare
+  • Standard format
+  • Works with date inputs
+  • MongoDB friendly
+```
+
+---
+
+## 🔮 Future Enhancements
+
+### Potential Features (Not Implemented)
+
+1. **Machine Learning Predictions**
+   ```
+   Current: Simple average-based
+   Future: ML model learns user's patterns
+   Benefits: More accurate for irregular cycles
+   ```
+
+2. **Pregnancy Mode**
+   ```
+   Feature: Track conception, due date, symptoms
+   Integration: Seamlessly transition from period tracking
+   ```
+
+3. **Symptom Correlations**
+   ```
+   Analysis: "You often have headaches on day 14"
+   Insights: Pattern recognition across cycles
+   ```
+
+4. **PDF Export**
+   ```
+   Purpose: Printable report for doctor visits
+   Contents: 3-6 month summary with charts
+   ```
+
+5. **Multi-Language Support**
+   ```
+   Integration: Use existing i18n system
+   Languages: Portuguese, Spanish, French
+   ```
+
+6. **Push Notifications**
+   ```
+   Triggers: Period expected, fertile window
+   Platform: Web Push API + service workers
+   ```
+
+7. **Cycle Sharing**
+   ```
+   Feature: Share with partner or doctor
+   Security: Temporary access links
+   ```
+
+8. **Custom Symptoms**
+   ```
+   Allow: User-defined symptom tracking
+   Storage: Additional flexible fields
+   ```
+
+---
+
+## 📚 Related Documentation
+
+- **Main README**: `/README.md`
+- **Feature README**: `/packages/webapp/CYCLE-TRACKER.md`
+- **Architecture**: `/README-architecture.md`
+- **API Documentation**: See `/packages/webapp-backend/src/api/cycle.routes.ts`
+- **Data Models**: See `/packages/webapp-backend/src/models/`
+
+---
+
+## 🙋 FAQ
+
+**Q: Why is the feature not showing?**
+A: Check user profile sexAtBirth is set to 'female' and age is 10+.
+
+**Q: Can predictions be used for birth control?**
+A: NO. This is for tracking only, not contraception.
+
+**Q: How accurate are predictions?**
+A: Accuracy improves with more logged cycles. Irregular cycles have wider ranges.
+
+**Q: Can I export my data?**
+A: Yes! Settings page has export/import buttons for JSON backups.
+
+**Q: Is my data private?**
+A: Yes. Stored securely, not shared, only you (and guardians for dependents) can access.
+
+**Q: Can male users see this feature?**
+A: No, it's automatically hidden based on profile data.
+
+**Q: Can I track for my daughter?**
+A: Yes! If she's 10+ and marked as female, guardians can track and view.
+
+---
+
+**Created:** January 2026  
+**Version:** 1.0.0  
+**Status:** Production Ready ✅  
+**Maintained by:** MyDoctor Development Team
+
