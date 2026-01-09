@@ -12,6 +12,7 @@ export function HealthHistoryPage() {
   const [sessions, setSessions] = useState<SessionHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Create a stable key from profile ID and type
   const profileId = activeProfile?.id;
@@ -110,11 +111,51 @@ export function HealthHistoryPage() {
     return t('history_duration_min', { minutes });
   };
 
+  // Filter sessions based on search query
+  const filterSessions = () => {
+    if (!searchQuery.trim()) {
+      return sessions;
+    }
+
+    const query = searchQuery.toLowerCase();
+    
+    return sessions.filter(session => {
+      // Search in formatted date
+      const formattedDate = formatDate(session.startedAt).toLowerCase();
+      if (formattedDate.includes(query)) return true;
+
+      // Search in status
+      const status = session.status.toLowerCase();
+      if (status.includes(query)) return true;
+
+      // Search in summary data
+      if (session.summary) {
+        // Search in red flags
+        if (session.summary.redFlags?.some(flag => flag.toLowerCase().includes(query))) {
+          return true;
+        }
+
+        // Search in recommendations
+        if (session.summary.recommendations?.some(rec => rec.toLowerCase().includes(query))) {
+          return true;
+        }
+
+        // Search in notes
+        if (session.summary.notes?.toLowerCase().includes(query)) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+  };
+
   // Group sessions by month
   const groupSessionsByMonth = () => {
     const grouped: { [key: string]: SessionHistoryItem[] } = {};
+    const filteredSessions = filterSessions();
     
-    sessions.forEach(session => {
+    filteredSessions.forEach(session => {
       const monthYear = formatMonthYear(session.startedAt);
       if (!grouped[monthYear]) {
         grouped[monthYear] = [];
@@ -200,72 +241,95 @@ export function HealthHistoryPage() {
 
       <main className={styles.main}>
         <div className={styles.searchBar}>
-          <input
-            type="text"
-            placeholder={t('history_search_placeholder')}
-            className={styles.searchInput}
-          />
-          <Button variant="outline" size="sm">
-            📅 {t('history_filter')}
-          </Button>
+          <div className={styles.searchInputWrapper}>
+            <input
+              type="text"
+              placeholder={t('history_search_placeholder')}
+              className={styles.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                className={styles.clearButton}
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
 
-        {months.map((monthYear) => (
-          <section key={monthYear} className={styles.monthSection}>
-            <h2 className={styles.monthTitle}>{monthYear}</h2>
-            
-            {(sessionsByMonth[monthYear] || []).map(session => {
-              const flagCount = session.summary?.redFlags?.length || 0;
-              const isCompleted = session.status === 'completed';
-              const isAbandoned = session.status === 'abandoned';
+        {months.length === 0 && searchQuery ? (
+          <Card variant="outline" padding="lg">
+            <CardContent>
+              <div className={styles.emptyState}>
+                <span className={styles.emptyIcon}>🔍</span>
+                <h3>No results found</h3>
+                <p>Try adjusting your search terms</p>
+                <Button onClick={() => setSearchQuery('')}>Clear search</Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          months.map((monthYear) => (
+            <section key={monthYear} className={styles.monthSection}>
+              <h2 className={styles.monthTitle}>{monthYear}</h2>
+              
+              {(sessionsByMonth[monthYear] || []).map(session => {
+                const flagCount = session.summary?.redFlags?.length || 0;
+                const isCompleted = session.status === 'completed';
+                const isAbandoned = session.status === 'abandoned';
 
-              return (
-                <Link 
-                  to={`/history/${session._id}`} 
-                  key={session._id} 
-                  className={styles.sessionLink}
-                >
-                  <Card variant="default" padding="md">
-                    <CardContent>
-                      <div className={styles.sessionRow}>
-                        <div className={styles.sessionInfo}>
-                          <span className={styles.sessionIcon}>
-                            {isCompleted ? '✅' : isAbandoned ? '❌' : '📋'}
-                          </span>
-                          <div>
-                            <h3 className={styles.sessionTitle}>
-                              {t('history_health_checkup')}
-                            </h3>
-                            <p className={styles.sessionMeta}>
-                              {formatDate(session.startedAt)} • {calculateDuration(session.startedAt, session.completedAt)}
-                            </p>
+                return (
+                  <Link 
+                    to={`/history/${session._id}`} 
+                    key={session._id} 
+                    className={styles.sessionLink}
+                  >
+                    <Card variant="default" padding="md">
+                      <CardContent>
+                        <div className={styles.sessionRow}>
+                          <div className={styles.sessionInfo}>
+                            <span className={styles.sessionIcon}>
+                              {isCompleted ? '✅' : isAbandoned ? '❌' : '📋'}
+                            </span>
+                            <div>
+                              <h3 className={styles.sessionTitle}>
+                                {t('history_health_checkup')}
+                              </h3>
+                              <p className={styles.sessionMeta}>
+                                {formatDate(session.startedAt)} • {calculateDuration(session.startedAt, session.completedAt)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className={styles.sessionRight}>
+                            {flagCount > 0 && isCompleted && (
+                              <span className={styles.flagBadge}>
+                                ⚠️ {t('history_flagged_count', { count: flagCount })}
+                              </span>
+                            )}
+                            {isCompleted && flagCount === 0 && (
+                              <span className={styles.completed}>✓ {t('history_status_completed')}</span>
+                            )}
+                            {isAbandoned && (
+                              <span className={styles.abandoned}>{t('history_status_abandoned')}</span>
+                            )}
+                            {!isCompleted && !isAbandoned && (
+                              <span className={styles.inProgress}>⏳ {t('history_status_in_progress')}</span>
+                            )}
+                            <span className={styles.arrow}>▶</span>
                           </div>
                         </div>
-                        <div className={styles.sessionRight}>
-                          {flagCount > 0 && isCompleted && (
-                            <span className={styles.flagBadge}>
-                              ⚠️ {t('history_flagged_count', { count: flagCount })}
-                            </span>
-                          )}
-                          {isCompleted && flagCount === 0 && (
-                            <span className={styles.completed}>✓ {t('history_status_completed')}</span>
-                          )}
-                          {isAbandoned && (
-                            <span className={styles.abandoned}>{t('history_status_abandoned')}</span>
-                          )}
-                          {!isCompleted && !isAbandoned && (
-                            <span className={styles.inProgress}>⏳ {t('history_status_in_progress')}</span>
-                          )}
-                          <span className={styles.arrow}>▶</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-          </section>
-        ))}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </section>
+          ))
+        )}
       </main>
     </div>
   );
