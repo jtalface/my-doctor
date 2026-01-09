@@ -3,12 +3,14 @@ import { Link, useLocation } from 'react-router-dom';
 import { Logo } from '@components/common';
 import { ProfileSwitcher, AddDependentModal } from '@components/dependents';
 import { useActiveProfile } from '../../contexts';
+import { useCycleEligibility } from '../../hooks/useCycleEligibility';
 import { useTranslate } from '../../i18n';
 import styles from './Header.module.css';
 
 export function Header() {
   const location = useLocation();
   const { isViewingDependent, activeProfile } = useActiveProfile();
+  const { isEligible } = useCycleEligibility();
   const t = useTranslate();
   const [showAddDependent, setShowAddDependent] = useState(false);
   
@@ -33,6 +35,14 @@ export function Header() {
             >
               History
             </Link>
+            {isEligible && (
+              <Link 
+                to="/cycle" 
+                className={`${styles.navLink} ${location.pathname.startsWith('/cycle') ? styles.active : ''}`}
+              >
+                Cycle
+              </Link>
+            )}
             <Link 
               to="/messages" 
               className={`${styles.navLink} ${location.pathname.startsWith('/messages') ? styles.active : ''}`}

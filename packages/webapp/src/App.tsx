@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Layout } from '@components/layout/Layout';
 import { AuthProvider, ProtectedRoute } from './auth';
@@ -20,6 +21,28 @@ import { ProfilePage } from '@pages/ProfilePage';
 import { SettingsPage } from '@pages/SettingsPage';
 import { MessagesPage } from '@pages/MessagesPage';
 import { NotFoundPage } from '@pages/NotFoundPage';
+
+// Cycle Tracker - Lazy loaded for code splitting (female-only feature)
+const CycleTrackerPage = lazy(() => import('@pages/CycleTrackerPage').then(m => ({ default: m.CycleTrackerPage })));
+const CycleDailyLogPage = lazy(() => import('@pages/CycleDailyLogPage').then(m => ({ default: m.CycleDailyLogPage })));
+const CycleInsightsPage = lazy(() => import('@pages/CycleInsightsPage').then(m => ({ default: m.CycleInsightsPage })));
+const CycleSettingsPage = lazy(() => import('@pages/CycleSettingsPage').then(m => ({ default: m.CycleSettingsPage })));
+const CycleOnboardingPage = lazy(() => import('@pages/CycleOnboardingPage').then(m => ({ default: m.CycleOnboardingPage })));
+
+// Loading component for lazy-loaded routes
+function PageLoader() {
+  return (
+    <div style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      minHeight: '100vh',
+      fontSize: '1.5rem'
+    }}>
+      Loading...
+    </div>
+  );
+}
 
 function App() {
   return (
@@ -99,6 +122,43 @@ function App() {
               <Route path="/dependent/:id/profile/setup" element={
                 <ProtectedRoute>
                   <DependentProfileSetupPage />
+                </ProtectedRoute>
+              } />
+              
+              {/* Cycle Tracker - Code-split for performance */}
+              <Route path="/cycle" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <CycleTrackerPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/cycle/log/:date" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <CycleDailyLogPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/cycle/insights" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <CycleInsightsPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/cycle/settings" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <CycleSettingsPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/cycle/onboarding" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <CycleOnboardingPage />
+                  </Suspense>
                 </ProtectedRoute>
               } />
             </Route>

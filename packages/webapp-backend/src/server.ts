@@ -4,7 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import { config } from './config/index.js';
-import { sessionRoutes, userRoutes, healthRoutes, dependentRoutes, vaccinationRoutes } from './api/index.js';
+import { sessionRoutes, userRoutes, healthRoutes, dependentRoutes, vaccinationRoutes, cycleRoutes } from './api/index.js';
 import messageRoutes from './api/message.routes.js';
 import callRoutes from './api/call.routes.js';
 import { authRoutes, authenticate, apiRateLimiter, authErrorHandler } from './auth/index.js';
@@ -71,6 +71,7 @@ app.get('/', (_req, res) => {
       dependents: '/api/dependents (authenticated)',
       vaccination: '/api/vaccination (authenticated)',
       messages: '/api/messages (authenticated)',
+      cycle: '/api/cycle (authenticated)',
     },
   });
 });
@@ -84,6 +85,7 @@ app.use('/api/session', apiRateLimiter, authenticate, sessionRoutes);
 app.use('/api/user', apiRateLimiter, authenticate, userRoutes);
 app.use('/api/dependents', apiRateLimiter, authenticate, dependentRoutes);
 app.use('/api/vaccination', apiRateLimiter, authenticate, vaccinationRoutes);
+app.use('/api/cycle', apiRateLimiter, authenticate, cycleRoutes);
 app.use('/api/messages', apiRateLimiter, messageRoutes); // Auth middleware is applied inside
 app.use('/api/calls', apiRateLimiter, callRoutes); // WebRTC call signaling
 
