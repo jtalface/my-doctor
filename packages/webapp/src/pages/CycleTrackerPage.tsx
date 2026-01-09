@@ -6,10 +6,12 @@ import { useCycleCalendar } from '../hooks/useCycleCalendar';
 import { Calendar } from '../components/cycle/Calendar';
 import { PredictionBanner } from '../components/cycle/PredictionBanner';
 import { MonthNavigation } from '../components/cycle/MonthNavigation';
+import { useTranslate } from '../i18n';
 import styles from './CycleTrackerPage.module.css';
 
 export function CycleTrackerPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { activeProfile, isViewingDependent } = useActiveProfile();
   
   // Get cycle data
@@ -95,15 +97,13 @@ export function CycleTrackerPage() {
         <div className={styles.onboarding}>
           <div className={styles.onboardingContent}>
             <span className={styles.onboardingIcon}>🌸</span>
-            <h2>Welcome to Cycle Tracking</h2>
-            <p>
-              Track your period, predict fertile windows, and understand your cycle better.
-            </p>
+            <h2>{t('cycle_welcome_title')}</h2>
+            <p>{t('cycle_welcome_description')}</p>
             <button
               className={styles.primaryButton}
               onClick={() => navigate('/cycle/onboarding')}
             >
-              Get Started
+              {t('cycle_get_started')}
             </button>
           </div>
         </div>
@@ -116,10 +116,10 @@ export function CycleTrackerPage() {
       <div className={styles.container}>
         <div className={styles.error}>
           <span className={styles.errorIcon}>⚠️</span>
-          <h3>Error Loading Cycle Data</h3>
+          <h3>{t('cycle_error_loading')}</h3>
           <p>{error}</p>
           <button className={styles.primaryButton} onClick={() => window.location.reload()}>
-            Try Again
+            {t('cycle_try_again')}
           </button>
         </div>
       </div>
@@ -130,22 +130,22 @@ export function CycleTrackerPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>
-          {isViewingDependent ? `${activeProfile?.name}'s ` : ''}Cycle Tracker
+          {isViewingDependent ? `${activeProfile?.name}'s ` : ''}{t('cycle_tracker_title')}
         </h1>
         <div className={styles.headerActions}>
           <button
             className={styles.iconButton}
             onClick={handleGoToInsights}
-            aria-label="View insights"
-            title="Insights"
+            aria-label={t('cycle_insights_button')}
+            title={t('cycle_insights_button')}
           >
             📊
           </button>
           <button
             className={styles.iconButton}
             onClick={handleGoToSettings}
-            aria-label="Settings"
-            title="Settings"
+            aria-label={t('cycle_settings_button')}
+            title={t('cycle_settings_button')}
           >
             ⚙️
           </button>
@@ -168,7 +168,7 @@ export function CycleTrackerPage() {
         {isLoading ? (
           <div className={styles.loading}>
             <div className={styles.spinner} />
-            <p>Loading calendar...</p>
+            <p>{t('cycle_loading_calendar')}</p>
           </div>
         ) : (
           <Calendar
@@ -186,13 +186,13 @@ export function CycleTrackerPage() {
               navigate(`/cycle/log/${today}`);
             }}
           >
-            Log Today
+            {t('cycle_log_today')}
           </button>
           <button
             className={styles.secondaryButton}
             onClick={handleGoToInsights}
           >
-            View Insights
+            {t('cycle_view_insights')}
           </button>
         </div>
       </main>
