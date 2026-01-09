@@ -191,7 +191,7 @@ export const CONTEXT_OPTIONS = [
   { value: 'resting', label: 'Resting (Recommended)' },
   { value: 'after_exercise', label: 'After Exercise' },
   { value: 'stressed', label: 'Stressed/Anxious' },
-  { value: 'clinic', label: 'At Doctor's Office' },
+  { value: 'clinic', label: "At Doctor's Office" },
   { value: 'other', label: 'Other' },
 ] as const;
 
