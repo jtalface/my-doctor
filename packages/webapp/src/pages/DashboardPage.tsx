@@ -198,6 +198,16 @@ export function DashboardPage() {
             </Card>
           </Link>
         )}
+        
+        <Link to="/glucose" className={styles.actionCard}>
+          <Card variant="interactive" padding="lg">
+            <CardContent>
+              <div className={styles.actionIcon}>🩸</div>
+              <h3 className={styles.actionTitle}>Track Glucose</h3>
+              <p className={styles.actionDesc}>Diabetes management & insights</p>
+            </CardContent>
+          </Card>
+        </Link>
       </section>
 
       {/* Recent Activity */}

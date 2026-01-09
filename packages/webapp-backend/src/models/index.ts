@@ -13,3 +13,10 @@ export * from './message.model.js';
 export * from './cycle-settings.model.js';
 export * from './daily-log.model.js';
 export * from './cycle.model.js';
+
+// Glucose/Diabetes tracking models
+export * from './glucose-settings.model.js';
+export * from './glucose-reading.model.js';
+export * from './other-metrics.model.js';
+export * from './suggestion-audit.model.js';
+export * from './activity-audit.model.js';

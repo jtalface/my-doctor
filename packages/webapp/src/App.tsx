@@ -29,6 +29,15 @@ const CycleInsightsPage = lazy(() => import('@pages/CycleInsightsPage').then(m =
 const CycleSettingsPage = lazy(() => import('@pages/CycleSettingsPage').then(m => ({ default: m.CycleSettingsPage })));
 const CycleOnboardingPage = lazy(() => import('@pages/CycleOnboardingPage').then(m => ({ default: m.CycleOnboardingPage })));
 
+// Glucose Tracker - Lazy loaded for code splitting (opt-in feature for diabetes management)
+const GlucoseEntryPage = lazy(() => import('@pages/GlucoseEntryPage').then(m => ({ default: m.GlucoseEntryPage })));
+const GlucoseDashboardPage = lazy(() => import('@pages/GlucoseDashboardPage').then(m => ({ default: m.GlucoseDashboardPage })));
+const GlucoseLogPage = lazy(() => import('@pages/GlucoseLogPage').then(m => ({ default: m.GlucoseLogPage })));
+const GlucoseInsightsPage = lazy(() => import('@pages/GlucoseInsightsPage').then(m => ({ default: m.GlucoseInsightsPage })));
+const GlucoseReportsPage = lazy(() => import('@pages/GlucoseReportsPage').then(m => ({ default: m.GlucoseReportsPage })));
+const GlucoseSettingsPage = lazy(() => import('@pages/GlucoseSettingsPage').then(m => ({ default: m.GlucoseSettingsPage })));
+const GlucoseOnboardingPage = lazy(() => import('@pages/GlucoseOnboardingPage').then(m => ({ default: m.GlucoseOnboardingPage })));
+
 // Loading component for lazy-loaded routes
 function PageLoader() {
   return (
@@ -158,6 +167,57 @@ function App() {
                 <ProtectedRoute>
                   <Suspense fallback={<PageLoader />}>
                     <CycleOnboardingPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              
+              {/* Glucose Tracker - Code-split for performance */}
+              <Route path="/glucose" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <GlucoseEntryPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/glucose/dashboard" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <GlucoseDashboardPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/glucose/log" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <GlucoseLogPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/glucose/insights" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <GlucoseInsightsPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/glucose/reports" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <GlucoseReportsPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/glucose/settings" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <GlucoseSettingsPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/glucose/onboarding" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <GlucoseOnboardingPage />
                   </Suspense>
                 </ProtectedRoute>
               } />

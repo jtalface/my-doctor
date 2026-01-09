@@ -7,8 +7,47 @@ An AI-powered health assistant monorepo built with React, TypeScript, pnpm works
 | Package | Version | Description |
 |---------|---------|-------------|
 | `@mydoctor/app` | 1.0.0 | React frontend application |
+| `@mydoctor/webapp` | 1.0.0 | Main web application with health features |
+| `@mydoctor/webapp-backend` | 1.0.0 | Backend API server |
 | `@mydoctor/state-machine` | 2.0.0 | **NEW** - Enhanced state machine with analytics, screening logic, risk scores, multilingual support |
 | `@mydoctor/state-machine-v1` | 1.0.0 | Legacy state machine (maintained for backwards compatibility) |
+
+## 🌟 Features
+
+### Core Health Features
+- **AI-Powered Health Checkups** — Interactive symptom assessment and health analysis
+- **Health History** — Track and review past checkup sessions
+- **Secure Messaging** — Communicate with healthcare providers
+- **Dependent Management** — Track health for family members
+
+### Specialized Health Trackers
+
+#### 🌸 Cycle Tracker
+Period tracking with predictions, symptom logging, and insights. Available for female users age 10+.
+- Period predictions and ovulation tracking
+- Symptom and mood logging
+- Calendar view and history
+- Data export for healthcare providers
+
+#### 🩸 GlucoGuide - Diabetes Management Tracker ⚠️
+**IMPORTANT: For educational purposes only. Not a substitute for medical advice.**
+
+A comprehensive glucose tracking system for diabetes management with safety-first design:
+- Glucose reading logging with context (fasting, post-meal, etc.)
+- Transparent, rule-based educational suggestions
+- Pattern detection and analytics
+- A1C estimation and time-in-range tracking
+- Data export for healthcare team
+- Full audit trail for safety compliance
+
+**Safety Features:**
+- All suggestions are educational only (NO medical advice)
+- Never recommends medication or insulin dose changes
+- Clear disclaimers on every suggestion
+- Emergency guidance for critical situations
+- Comprehensive unit tests for all safety rules
+
+📄 **See `CLINICAL-SAFETY-NOTES-GLUCOSE.md` for complete safety documentation.**
 
 ## 🛠 Tech Stack
 

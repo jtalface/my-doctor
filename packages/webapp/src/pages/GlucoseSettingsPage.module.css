@@ -1,0 +1,367 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+.loading {
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.header {
+  margin-bottom: var(--space-6);
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: var(--space-3);
+  padding: 0;
+}
+
+.backButton:hover {
+  text-decoration: underline;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.section {
+  padding: var(--space-5);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+.field label {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.field input,
+.field select {
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+}
+
+.field small {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.rangeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-4);
+}
+
+.rangeField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.rangeField label {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.rangeInputs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.rangeInputs input {
+  flex: 1;
+  padding: var(--space-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+}
+
+.rangeInputs span {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.medicationInput {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.medicationInput input[type='text'] {
+  flex: 1;
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.checkboxLabel input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkboxLabel span {
+  font-size: 0.875rem;
+}
+
+.addButton {
+  padding: var(--space-3) var(--space-4);
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.addButton:hover {
+  background: var(--primary-dark);
+}
+
+.medicationList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.medicationItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+}
+
+.removeButton {
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.removeButton:hover {
+  background: var(--error-dark);
+}
+
+.error {
+  padding: var(--space-3);
+  background: var(--error-light);
+  color: var(--error-dark);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--error-color);
+}
+
+.success {
+  padding: var(--space-3);
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: var(--radius-md);
+  border: 1px solid #10b981;
+}
+
+.saveButton {
+  width: 100%;
+  padding: var(--space-4);
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dangerZone {
+  margin-top: var(--space-8);
+  padding: var(--space-5);
+  background: #fef2f2;
+  border: 2px solid #ef4444;
+  border-radius: var(--radius-lg);
+}
+
+.dangerTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #991b1b;
+  margin-bottom: var(--space-3);
+}
+
+.dangerDescription {
+  color: #7f1d1d;
+  margin-bottom: var(--space-4);
+  line-height: 1.5;
+}
+
+.deleteButton {
+  padding: var(--space-3) var(--space-5);
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.deleteButton:hover {
+  background: #dc2626;
+}
+
+.confirmDelete {
+  padding: var(--space-4);
+  background: white;
+  border-radius: var(--radius-md);
+}
+
+.confirmText {
+  color: #991b1b;
+  margin-bottom: var(--space-4);
+  line-height: 1.5;
+}
+
+.confirmText strong {
+  font-weight: 700;
+}
+
+.confirmActions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.cancelButton,
+.confirmDeleteButton {
+  flex: 1;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: var(--bg-secondary);
+}
+
+.confirmDeleteButton {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+
+.confirmDeleteButton:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.cancelButton:disabled,
+.confirmDeleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: var(--space-4);
+  }
+
+  .section {
+    padding: var(--space-4);
+  }
+
+  .rangeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .medicationInput {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .confirmActions {
+    flex-direction: column;
+  }
+}
+
