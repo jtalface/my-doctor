@@ -208,6 +208,16 @@ export function DashboardPage() {
             </CardContent>
           </Card>
         </Link>
+        
+        <Link to="/bp" className={styles.actionCard}>
+          <Card variant="interactive" padding="lg">
+            <CardContent>
+              <div className={styles.actionIcon}>❤️</div>
+              <h3 className={styles.actionTitle}>Track Blood Pressure</h3>
+              <p className={styles.actionDesc}>BP monitoring & heart health</p>
+            </CardContent>
+          </Card>
+        </Link>
       </section>
 
       {/* Recent Activity */}

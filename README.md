@@ -40,6 +40,18 @@ A comprehensive glucose tracking system for diabetes management with safety-firs
 - Data export for healthcare team
 - Full audit trail for safety compliance
 
+#### ❤️ PressurePal (Blood Pressure Tracker)
+Home blood pressure monitoring with comprehensive safety features. Opt-in for all users.
+- Multi-reading session logging with automatic averaging
+- 8-point measurement quality checklist
+- BP classification and target tracking
+- Emergency recognition (hypertensive crisis detection)
+- Transparent, safety-first rule-based suggestions
+- Pattern detection (persistent elevation, variability, adherence)
+- AM/PM comparison and scheduling
+- Data export for healthcare providers
+- Full audit trail and clinical safety documentation
+
 **Safety Features:**
 - All suggestions are educational only (NO medical advice)
 - Never recommends medication or insulin dose changes

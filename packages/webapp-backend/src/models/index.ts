@@ -20,3 +20,9 @@ export * from './glucose-reading.model.js';
 export * from './other-metrics.model.js';
 export * from './suggestion-audit.model.js';
 export * from './activity-audit.model.js';
+
+// Blood Pressure tracking models
+export * from './bp-settings.model.js';
+export * from './bp-session.model.js';
+export * from './bp-suggestion-audit.model.js';
+export * from './bp-activity-audit.model.js';

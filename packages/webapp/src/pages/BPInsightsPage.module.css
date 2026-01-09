@@ -1,0 +1,341 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.backButton {
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.summarySection, .suggestionsSection, .sessionsSection {
+  margin-bottom: var(--space-8);
+}
+
+.summarySection h2, .suggestionsSection h2, .sessionsSection h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.statCard {
+  padding: var(--space-4);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.statMeta {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+}
+
+.distributionSection, .comparisonSection {
+  padding: var(--space-4);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+}
+
+.distributionSection h3, .comparisonSection h3 {
+  font-size: 1.125rem;
+  margin-bottom: var(--space-3);
+}
+
+.distributionBars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.distBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.distLabel {
+  width: 100px;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+
+.barContainer {
+  flex: 1;
+  height: 24px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  transition: width 0.3s;
+}
+
+.distValue {
+  width: 40px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.comparisonGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.comparisonCard {
+  text-align: center;
+}
+
+.comparisonLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.comparisonValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.filterButtons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.filterButtons button {
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.filterButtons button:hover {
+  background: var(--bg-tertiary);
+}
+
+.filterButtons button.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.emptyState {
+  padding: var(--space-8);
+  text-align: center;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+}
+
+.suggestionsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.suggestionCard {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 2px solid;
+}
+
+.suggestionCard.urgent {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.suggestionCard.warn {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.suggestionCard.info {
+  background: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.suggestionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-3);
+}
+
+.suggestionHeader h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.badge {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.message {
+  margin-bottom: var(--space-3);
+  line-height: 1.6;
+}
+
+.rationale, .actions, .references {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+}
+
+.actions ul, .references {
+  margin-top: var(--space-2);
+  margin-left: var(--space-4);
+}
+
+.disclaimer {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.sessionsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sessionItem {
+  padding: var(--space-4);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid;
+  border-radius: var(--radius-md);
+}
+
+.sessionItem.flagged {
+  background: #fffbeb;
+}
+
+.sessionTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.sessionValue {
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.flag {
+  font-size: 1rem;
+}
+
+.sessionClass {
+  font-size: 0.875rem;
+  text-transform: capitalize;
+  color: var(--text-secondary);
+}
+
+.sessionMeta {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.sessionNotes {
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-4);
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparisonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .filterButtons {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .filterButtons button {
+    flex: 1;
+    min-width: 80px;
+  }
+}
+

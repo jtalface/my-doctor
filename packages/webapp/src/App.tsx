@@ -38,6 +38,15 @@ const GlucoseReportsPage = lazy(() => import('@pages/GlucoseReportsPage').then(m
 const GlucoseSettingsPage = lazy(() => import('@pages/GlucoseSettingsPage').then(m => ({ default: m.GlucoseSettingsPage })));
 const GlucoseOnboardingPage = lazy(() => import('@pages/GlucoseOnboardingPage').then(m => ({ default: m.GlucoseOnboardingPage })));
 
+// BP Tracker - Lazy loaded for code splitting (opt-in feature for blood pressure management)
+const BPEntryPage = lazy(() => import('@pages/BPEntryPage').then(m => ({ default: m.BPEntryPage })));
+const BPDashboardPage = lazy(() => import('@pages/BPDashboardPage').then(m => ({ default: m.BPDashboardPage })));
+const BPSessionLogPage = lazy(() => import('@pages/BPSessionLogPage').then(m => ({ default: m.BPSessionLogPage })));
+const BPInsightsPage = lazy(() => import('@pages/BPInsightsPage').then(m => ({ default: m.BPInsightsPage })));
+const BPReportsPage = lazy(() => import('@pages/BPReportsPage').then(m => ({ default: m.BPReportsPage })));
+const BPSettingsPage = lazy(() => import('@pages/BPSettingsPage').then(m => ({ default: m.BPSettingsPage })));
+const BPOnboardingPage = lazy(() => import('@pages/BPOnboardingPage').then(m => ({ default: m.BPOnboardingPage })));
+
 // Loading component for lazy-loaded routes
 function PageLoader() {
   return (
@@ -218,6 +227,57 @@ function App() {
                 <ProtectedRoute>
                   <Suspense fallback={<PageLoader />}>
                     <GlucoseOnboardingPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              
+              {/* Blood Pressure Tracker - Code-split for performance */}
+              <Route path="/bp" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <BPEntryPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/bp/dashboard" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <BPDashboardPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/bp/log" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <BPSessionLogPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/bp/insights" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <BPInsightsPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/bp/reports" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <BPReportsPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/bp/settings" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <BPSettingsPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/bp/onboarding" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <BPOnboardingPage />
                   </Suspense>
                 </ProtectedRoute>
               } />

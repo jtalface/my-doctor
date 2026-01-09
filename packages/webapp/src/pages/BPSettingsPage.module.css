@@ -1,0 +1,313 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+.loading {
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.backButton {
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.section {
+  padding: var(--space-4);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.section h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.targetInputs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.inputGroup {
+  flex: 1;
+}
+
+.inputGroup label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: var(--space-2);
+  color: var(--text-secondary);
+}
+
+.inputWithUnit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.inputWithUnit input {
+  flex: 1;
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.inputWithUnit span {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.slash {
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--text-tertiary);
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+.checkboxLabel:hover {
+  background: var(--bg-secondary);
+}
+
+.checkboxLabel input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkboxLabel span {
+  font-size: 0.875rem;
+}
+
+.medicationInput {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.medicationInput input,
+.medicationInput select {
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.medicationInput input {
+  flex: 2;
+}
+
+.medicationInput select {
+  flex: 1;
+}
+
+.addButton {
+  padding: var(--space-3) var(--space-4);
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.addButton:hover {
+  background: var(--primary-dark);
+}
+
+.medicationList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.medicationItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+}
+
+.removeButton {
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.removeButton:hover {
+  background: var(--error-dark);
+}
+
+.error {
+  padding: var(--space-3);
+  background: var(--error-light);
+  color: var(--error-dark);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  border: 1px solid var(--error-color);
+}
+
+.success {
+  padding: var(--space-3);
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  border: 1px solid #10b981;
+}
+
+.saveButton {
+  padding: var(--space-4);
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dangerZone {
+  padding: var(--space-6);
+  background: #fef2f2;
+  border: 2px solid #ef4444;
+  border-radius: var(--radius-md);
+}
+
+.dangerZone h3 {
+  font-size: 1.125rem;
+  color: #991b1b;
+  margin-bottom: var(--space-2);
+}
+
+.dangerZone p {
+  color: #7f1d1d;
+  margin-bottom: var(--space-4);
+}
+
+.deleteButton {
+  padding: var(--space-3) var(--space-4);
+  background: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: var(--error-dark);
+}
+
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: var(--space-4);
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .targetInputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .slash {
+    display: none;
+  }
+
+  .medicationInput {
+    flex-direction: column;
+  }
+}
+

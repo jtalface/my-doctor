@@ -5,3 +5,4 @@ export { default as dependentRoutes } from './dependent.routes.js';
 export { vaccinationRoutes } from './vaccination.routes.js';
 export { default as cycleRoutes } from './cycle.routes.js';
 export { default as glucoseRoutes } from './glucose.routes.js';
+export { default as bpRoutes } from './bp.routes.js';
