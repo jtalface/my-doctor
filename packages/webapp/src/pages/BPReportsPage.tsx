@@ -31,7 +31,7 @@ export function BPReportsPage() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error: any) {
-      alert('Export failed: ' + error.message);
+      alert(t('bp_reports_export_failed') + ' ' + error.message);
     } finally {
       setIsExporting(false);
     }
@@ -44,7 +44,7 @@ export function BPReportsPage() {
   if (!settings) {
     return (
       <div className={styles.container}>
-        <div className={styles.emptyState}>No data to export yet.</div>
+        <div className={styles.emptyState}>{t('bp_reports_no_data')}</div>
       </div>
     );
   }
@@ -53,34 +53,34 @@ export function BPReportsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <button onClick={() => navigate('/bp/dashboard')} className={styles.backButton}>
-          ← {t('bp_back')}
+          ← {t('common_back')}
         </button>
         <h1 className={styles.title}>📄 {t('bp_reports_title')}</h1>
       </div>
 
       <div className={styles.actions}>
         <button onClick={handlePrint} className={styles.actionButton}>
-          🖨️ Print Report
+          {t('bp_reports_print_button')}
         </button>
         <button onClick={handleExport} disabled={isExporting} className={styles.actionButton}>
-          {isExporting ? t('bp_exporting') : `💾 ${t('bp_download_json')}`}
+          {isExporting ? t('bp_exporting') : t('bp_reports_export_json_button')}
         </button>
       </div>
 
       <div className={styles.reportCard}>
         <div className={styles.reportHeader}>
-          <h2>Blood Pressure Summary Report</h2>
-          <p className={styles.reportDate}>Generated: {new Date().toLocaleDateString()}</p>
+          <h2>{t('bp_reports_summary_title')}</h2>
+          <p className={styles.reportDate}>{t('bp_reports_generated')} {new Date().toLocaleDateString()}</p>
         </div>
 
         {/* Patient Info */}
         <div className={styles.section}>
-          <h3>Settings</h3>
+          <h3>{t('bp_reports_settings_section')}</h3>
           <div className={styles.infoGrid}>
-            <div><strong>Target BP:</strong> {settings.targets.systolic}/{settings.targets.diastolic} mmHg</div>
-            <div><strong>Schedule:</strong> {settings.measurementSchedule.join(', ')}</div>
+            <div><strong>{t('bp_reports_target_label')}</strong> {settings.targets.systolic}/{settings.targets.diastolic} mmHg</div>
+            <div><strong>{t('bp_reports_schedule_label')}</strong> {settings.measurementSchedule.join(', ')}</div>
             {settings.medications.length > 0 && (
-              <div><strong>Medications:</strong> {settings.medications.map(m => m.name).join(', ')}</div>
+              <div><strong>{t('bp_reports_medications_label')}</strong> {settings.medications.map(m => m.name).join(', ')}</div>
             )}
           </div>
         </div>
@@ -112,16 +112,16 @@ export function BPReportsPage() {
 
         {/* Recent Readings */}
         <div className={styles.section}>
-          <h3>Recent Readings (Last 30)</h3>
+          <h3>{t('bp_reports_recent_readings_section')}</h3>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Date/Time</th>
-                <th>Systolic</th>
-                <th>Diastolic</th>
-                <th>Pulse</th>
-                <th>Classification</th>
-                <th>Context</th>
+                <th>{t('bp_reports_table_date_time')}</th>
+                <th>{t('bp_reports_table_systolic')}</th>
+                <th>{t('bp_reports_table_diastolic')}</th>
+                <th>{t('bp_reports_table_pulse')}</th>
+                <th>{t('bp_reports_table_classification')}</th>
+                <th>{t('bp_reports_table_context')}</th>
               </tr>
             </thead>
             <tbody>
@@ -140,7 +140,7 @@ export function BPReportsPage() {
         </div>
 
         <div className={styles.reportFooter}>
-          <p><strong>Important:</strong> This report is for informational purposes only and should be reviewed with your healthcare provider. Do not make medical decisions based solely on this report.</p>
+          <p><strong>{t('bp_reports_disclaimer_important')}</strong> {t('bp_reports_disclaimer_text')}</p>
         </div>
       </div>
     </div>

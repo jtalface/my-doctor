@@ -28,7 +28,7 @@ export function GlucoseReportsPage() {
   if (isLoading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Loading...</div>
+        <div className={styles.loading}>{t('common_loading')}</div>
       </div>
     );
   }
@@ -47,7 +47,7 @@ export function GlucoseReportsPage() {
       a.click();
       URL.revokeObjectURL(url);
     } catch (err: any) {
-      setExportError(err.message || 'Failed to export data');
+      setExportError(err.message || t('glucose_export_failed'));
     } finally {
       setIsExporting(false);
     }
@@ -80,7 +80,7 @@ export function GlucoseReportsPage() {
       a.click();
       URL.revokeObjectURL(url);
     } catch (err: any) {
-      setExportError(err.message || 'Failed to export CSV');
+      setExportError(err.message || t('glucose_csv_export_failed'));
     }
   };
 
