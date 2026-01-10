@@ -7,12 +7,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGlucoseData } from '../hooks/useGlucoseData';
+import { useTranslate } from '../i18n';
 import * as glucoseApi from '../services/glucoseApi';
 import { useActiveProfile } from '../contexts';
 import styles from './GlucoseReportsPage.module.css';
 
 export function GlucoseReportsPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { activeProfile } = useActiveProfile();
   const { settings, readings, analytics, isLoading } = useGlucoseData();
   const [isExporting, setIsExporting] = useState(false);
@@ -93,28 +95,28 @@ export function GlucoseReportsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <button onClick={() => navigate('/glucose/dashboard')} className={styles.backButton}>
-          ← Back
+          ← {t('glucose_back')}
         </button>
-        <h1 className={styles.title}>📄 Reports & Export</h1>
+        <h1 className={styles.title}>📄 {t('glucose_reports_title')}</h1>
       </div>
 
       <div className={styles.summaryCard}>
-        <h2 className={styles.cardTitle}>Data Summary</h2>
+        <h2 className={styles.cardTitle}>{t('glucose_data_summary')}</h2>
         <div className={styles.summaryGrid}>
           <div className={styles.summaryItem}>
-            <span className={styles.summaryLabel}>Total Readings:</span>
+            <span className={styles.summaryLabel}>{t('glucose_total_readings')}</span>
             <span className={styles.summaryValue}>{readings.length}</span>
           </div>
           <div className={styles.summaryItem}>
-            <span className={styles.summaryLabel}>Last 7 Days:</span>
-            <span className={styles.summaryValue}>{last7Days.length} readings</span>
+            <span className={styles.summaryLabel}>{t('glucose_last_7days')}</span>
+            <span className={styles.summaryValue}>{t('glucose_readings_count', { count: last7Days.length })}</span>
           </div>
           <div className={styles.summaryItem}>
-            <span className={styles.summaryLabel}>Last 30 Days:</span>
-            <span className={styles.summaryValue}>{last30Days.length} readings</span>
+            <span className={styles.summaryLabel}>{t('glucose_last_30days')}</span>
+            <span className={styles.summaryValue}>{t('glucose_readings_count', { count: last30Days.length })}</span>
           </div>
           <div className={styles.summaryItem}>
-            <span className={styles.summaryLabel}>Diabetes Type:</span>
+            <span className={styles.summaryLabel}>{t('glucose_diabetes_type')}:</span>
             <span className={styles.summaryValue}>{settings?.diabetesType}</span>
           </div>
         </div>
@@ -122,24 +124,24 @@ export function GlucoseReportsPage() {
 
       {analytics && (
         <div className={styles.summaryCard}>
-          <h2 className={styles.cardTitle}>7-Day Statistics</h2>
+          <h2 className={styles.cardTitle}>{t('glucose_statistics')}</h2>
           <div className={styles.summaryGrid}>
             <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Average Glucose:</span>
+              <span className={styles.summaryLabel}>{t('glucose_average_glucose')}:</span>
               <span className={styles.summaryValue}>
                 {analytics.averageGlucose} {settings?.unitPreference}
               </span>
             </div>
             <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Time in Range:</span>
+              <span className={styles.summaryLabel}>{t('glucose_time_in_range')}:</span>
               <span className={styles.summaryValue}>{analytics.timeInRange.percentage}%</span>
             </div>
             <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>High Readings:</span>
+              <span className={styles.summaryLabel}>{t('glucose_high_readings')}</span>
               <span className={styles.summaryValue}>{analytics.highCount}</span>
             </div>
             <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Low Readings:</span>
+              <span className={styles.summaryLabel}>{t('glucose_low_readings')}</span>
               <span className={styles.summaryValue}>{analytics.lowCount}</span>
             </div>
           </div>
@@ -147,34 +149,34 @@ export function GlucoseReportsPage() {
       )}
 
       <div className={styles.exportSection}>
-        <h2 className={styles.sectionTitle}>Export Options</h2>
+        <h2 className={styles.sectionTitle}>{t('glucose_export_options')}</h2>
 
         <div className={styles.exportCard}>
           <div className={styles.exportIcon}>📊</div>
           <div className={styles.exportInfo}>
-            <h3>CSV Export (Spreadsheet)</h3>
-            <p>Download your glucose readings in CSV format for Excel or Google Sheets.</p>
+            <h3>{t('glucose_csv_export')}</h3>
+            <p>{t('glucose_csv_description')}</p>
             <ul>
-              <li>All glucose readings with timestamps</li>
-              <li>Carbs, insulin, activity data</li>
-              <li>Symptoms and notes</li>
+              <li>{t('glucose_csv_includes')}</li>
+              <li>{t('glucose_csv_carbs_insulin')}</li>
+              <li>{t('glucose_csv_symptoms')}</li>
             </ul>
           </div>
           <button onClick={handleExportCSV} className={styles.exportButton} disabled={readings.length === 0}>
-            Download CSV
+            {t('glucose_download_csv')}
           </button>
         </div>
 
         <div className={styles.exportCard}>
           <div className={styles.exportIcon}>📦</div>
           <div className={styles.exportInfo}>
-            <h3>JSON Export (Complete Data)</h3>
-            <p>Download all your data including settings, analytics, and suggestions.</p>
+            <h3>{t('glucose_json_export')}</h3>
+            <p>{t('glucose_json_description')}</p>
             <ul>
-              <li>All glucose readings</li>
-              <li>Settings and target ranges</li>
-              <li>7-day analytics and patterns</li>
-              <li>Complete data backup</li>
+              <li>{t('glucose_json_includes')}</li>
+              <li>{t('glucose_json_settings')}</li>
+              <li>{t('glucose_json_analytics')}</li>
+              <li>{t('glucose_json_backup')}</li>
             </ul>
           </div>
           <button
@@ -182,7 +184,7 @@ export function GlucoseReportsPage() {
             className={styles.exportButton}
             disabled={isExporting || readings.length === 0}
           >
-            {isExporting ? 'Exporting...' : 'Download JSON'}
+            {isExporting ? t('glucose_exporting') : t('glucose_download_json')}
           </button>
         </div>
 
@@ -190,21 +192,19 @@ export function GlucoseReportsPage() {
       </div>
 
       <div className={styles.infoSection}>
-        <h2 className={styles.sectionTitle}>💡 Share with Your Healthcare Team</h2>
+        <h2 className={styles.sectionTitle}>💡 {t('glucose_share_with_team')}</h2>
         <div className={styles.infoCard}>
           <p>
-            Your healthcare provider can use these exports to review your glucose patterns and make informed
-            decisions about your diabetes management plan.
+            {t('glucose_share_description')}
           </p>
           <ul>
-            <li>Share the CSV file for easy viewing in any spreadsheet program</li>
-            <li>Email or print reports before your appointment</li>
-            <li>Discuss patterns and trends with your care team</li>
-            <li>Keep regular backups of your data</li>
+            <li>{t('glucose_share_csv')}</li>
+            <li>{t('glucose_share_email')}</li>
+            <li>{t('glucose_share_discuss')}</li>
+            <li>{t('glucose_share_backups')}</li>
           </ul>
           <div className={styles.disclaimer}>
-            <strong>Remember:</strong> Always consult your healthcare provider before making changes to your
-            diabetes management plan. This app provides data tracking, not medical advice.
+            <strong>{t('glucose_remember')}</strong> {t('glucose_remember_text')}
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGlucoseData } from '../hooks/useGlucoseData';
+import { useTranslate } from '../i18n';
 import * as glucoseApi from '../services/glucoseApi';
 import { useActiveProfile } from '../contexts';
 import { DIABETES_TYPES, UNIT_OPTIONS } from '../types/glucose';
@@ -14,6 +15,7 @@ import styles from './GlucoseSettingsPage.module.css';
 
 export function GlucoseSettingsPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { activeProfile } = useActiveProfile();
   const { settings, updateSettings, isLoading } = useGlucoseData();
 
@@ -75,10 +77,10 @@ export function GlucoseSettingsPage() {
 
     try {
       await updateSettings(formData);
-      setSuccess('Settings saved successfully!');
+      setSuccess(t('glucose_settings_saved'));
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
-      setError(err.message || 'Failed to save settings');
+      setError(err.message || t('glucose_failed_settings'));
     } finally {
       setIsSaving(false);
     }
@@ -108,18 +110,18 @@ export function GlucoseSettingsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <button onClick={() => navigate('/glucose/dashboard')} className={styles.backButton}>
-          ← Back
+          ← {t('glucose_back')}
         </button>
-        <h1 className={styles.title}>⚙️ Glucose Settings</h1>
+        <h1 className={styles.title}>⚙️ {t('glucose_settings_title')}</h1>
       </div>
 
       <form onSubmit={handleSave} className={styles.form}>
         {/* Basic Settings */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Basic Settings</h2>
+          <h2 className={styles.sectionTitle}>{t('glucose_basic_settings')}</h2>
 
           <div className={styles.field}>
-            <label htmlFor="diabetesType">Diabetes Type</label>
+            <label htmlFor="diabetesType">{t('glucose_diabetes_type')}</label>
             <select
               id="diabetesType"
               value={formData.diabetesType}
@@ -136,7 +138,7 @@ export function GlucoseSettingsPage() {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="unitPreference">Glucose Unit</label>
+            <label htmlFor="unitPreference">{t('glucose_glucose_unit')}</label>
             <select
               id="unitPreference"
               value={formData.unitPreference}
@@ -150,18 +152,18 @@ export function GlucoseSettingsPage() {
                 </option>
               ))}
             </select>
-            <small>Changing this won't convert existing readings</small>
+            <small>{t('glucose_unit_warning')}</small>
           </div>
         </div>
 
         {/* Target Ranges */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Target Ranges ({formData.unitPreference})</h2>
-          <p className={styles.hint}>Set your personalized target ranges. Discuss these with your healthcare provider.</p>
+          <h2 className={styles.sectionTitle}>{t('glucose_target_ranges_section', { unit: formData.unitPreference })}</h2>
+          <p className={styles.hint}>{t('glucose_target_ranges_hint')}</p>
 
           <div className={styles.rangeGrid}>
             <div className={styles.rangeField}>
-              <label>Fasting (morning)</label>
+              <label>{t('glucose_fasting')}</label>
               <div className={styles.rangeInputs}>
                 <input
                   type="number"
@@ -204,7 +206,7 @@ export function GlucoseSettingsPage() {
             </div>
 
             <div className={styles.rangeField}>
-              <label>Pre-meal</label>
+              <label>{t('glucose_pre_meal')}</label>
               <div className={styles.rangeInputs}>
                 <input
                   type="number"
@@ -247,7 +249,7 @@ export function GlucoseSettingsPage() {
             </div>
 
             <div className={styles.rangeField}>
-              <label>Post-meal (2 hours)</label>
+              <label>{t('glucose_post_meal')}</label>
               <div className={styles.rangeInputs}>
                 <input
                   type="number"
@@ -290,7 +292,7 @@ export function GlucoseSettingsPage() {
             </div>
 
             <div className={styles.rangeField}>
-              <label>Bedtime</label>
+              <label>{t('glucose_bedtime')}</label>
               <div className={styles.rangeInputs}>
                 <input
                   type="number"
@@ -336,13 +338,13 @@ export function GlucoseSettingsPage() {
 
         {/* Medications */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Medications</h2>
-          <p className={styles.hint}>For tracking only. Never used to suggest dose changes.</p>
+          <h2 className={styles.sectionTitle}>{t('glucose_medications')}</h2>
+          <p className={styles.hint}>{t('glucose_medications_hint')}</p>
 
           <div className={styles.medicationInput}>
             <input
               type="text"
-              placeholder="Medication name"
+              placeholder={t('glucose_medication_name')}
               value={medicationInput}
               onChange={(e) => setMedicationInput(e.target.value)}
               onKeyPress={(e) => {
@@ -358,14 +360,14 @@ export function GlucoseSettingsPage() {
                 checked={isInsulin}
                 onChange={(e) => setIsInsulin(e.target.checked)}
               />
-              <span>Insulin</span>
+              <span>{t('glucose_insulin')}</span>
             </label>
             <button
               type="button"
               onClick={handleAddMedication}
               className={styles.addButton}
             >
-              Add
+              {t('glucose_add')}
             </button>
           </div>
 
@@ -374,7 +376,7 @@ export function GlucoseSettingsPage() {
               {formData.medications.map((med, index) => (
                 <div key={index} className={styles.medicationItem}>
                   <span>
-                    {med.name} {med.isInsulin && '(Insulin)'}
+                    {med.name} {med.isInsulin && `(${t('glucose_insulin')})`}
                   </span>
                   <button
                     type="button"
@@ -393,15 +395,15 @@ export function GlucoseSettingsPage() {
         {success && <div className={styles.success}>{success}</div>}
 
         <button type="submit" className={styles.saveButton} disabled={isSaving}>
-          {isSaving ? 'Saving...' : 'Save Settings'}
+          {isSaving ? t('glucose_saving') : t('glucose_save_settings')}
         </button>
       </form>
 
       {/* Danger Zone */}
       <div className={styles.dangerZone}>
-        <h2 className={styles.dangerTitle}>⚠️ Danger Zone</h2>
+        <h2 className={styles.dangerTitle}>⚠️ {t('glucose_danger_zone')}</h2>
         <p className={styles.dangerDescription}>
-          Deleting your data is permanent and cannot be undone. Export your data first if you want to keep a backup.
+          {t('glucose_danger_description')}
         </p>
 
         {!showDeleteConfirm ? (
@@ -409,12 +411,12 @@ export function GlucoseSettingsPage() {
             onClick={handleDeleteAllData}
             className={styles.deleteButton}
           >
-            Delete All Glucose Data
+            {t('glucose_delete_all_data')}
           </button>
         ) : (
           <div className={styles.confirmDelete}>
             <p className={styles.confirmText}>
-              <strong>Are you absolutely sure?</strong> This will permanently delete all your glucose data, settings, and history.
+              <strong>{t('glucose_confirm_delete')}</strong> {t('glucose_confirm_delete_text')}
             </p>
             <div className={styles.confirmActions}>
               <button
@@ -422,14 +424,14 @@ export function GlucoseSettingsPage() {
                 className={styles.cancelButton}
                 disabled={isDeleting}
               >
-                Cancel
+                {t('glucose_cancel')}
               </button>
               <button
                 onClick={handleDeleteAllData}
                 className={styles.confirmDeleteButton}
                 disabled={isDeleting}
               >
-                {isDeleting ? 'Deleting...' : 'Yes, Delete Everything'}
+                {isDeleting ? t('glucose_deleting') : t('glucose_yes_delete')}
               </button>
             </div>
           </div>
