@@ -7,11 +7,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGlucoseData } from '../hooks/useGlucoseData';
+import { useTranslate } from '../i18n';
 import { CONTEXT_OPTIONS, SYMPTOM_OPTIONS, CreateReadingRequest, GlucoseContext } from '../types/glucose';
 import styles from './GlucoseLogPage.module.css';
 
 export function GlucoseLogPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { settings, createReading, isLoading } = useGlucoseData();
 
   const [formData, setFormData] = useState<CreateReadingRequest>({
@@ -48,12 +50,12 @@ export function GlucoseLogPage() {
     const unit = formData.unit;
     if (unit === 'mg/dL') {
       if (value < 40 || value > 500) {
-        setValidationWarning('This value seems unusual. Please double-check your reading.');
+        setValidationWarning(t('glucose_validation_warning'));
       }
     } else {
       // mmol/L
       if (value < 2.2 || value > 27.8) {
-        setValidationWarning('This value seems unusual. Please double-check your reading.');
+        setValidationWarning(t('glucose_validation_warning'));
       }
     }
   };
@@ -78,7 +80,7 @@ export function GlucoseLogPage() {
     setError('');
 
     if (formData.glucoseValue <= 0) {
-      setError('Please enter a valid glucose value');
+      setError(t('glucose_validation_required'));
       return;
     }
 
@@ -91,7 +93,7 @@ export function GlucoseLogPage() {
       });
       navigate('/glucose/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Failed to log reading');
+      setError(err.message || t('glucose_failed_save'));
     } finally {
       setIsSubmitting(false);
     }
@@ -101,16 +103,16 @@ export function GlucoseLogPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <button onClick={() => navigate('/glucose/dashboard')} className={styles.backButton}>
-          ← Back
+          ← {t('glucose_back')}
         </button>
-        <h1 className={styles.title}>📝 Log Glucose Reading</h1>
+        <h1 className={styles.title}>📝 {t('glucose_log_title')}</h1>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         {/* Glucose Value (Required) */}
         <div className={styles.primarySection}>
           <div className={styles.field}>
-            <label htmlFor="glucoseValue">Glucose Reading *</label>
+            <label htmlFor="glucoseValue">{t('glucose_reading_required')}</label>
             <div className={styles.glucoseInput}>
               <input
                 type="number"
@@ -138,7 +140,7 @@ export function GlucoseLogPage() {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="timestamp">Date & Time *</label>
+            <label htmlFor="timestamp">{t('glucose_date_time_required')}</label>
             <input
               type="datetime-local"
               id="timestamp"
@@ -150,7 +152,7 @@ export function GlucoseLogPage() {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="context">Context *</label>
+            <label htmlFor="context">{t('glucose_context_required')}</label>
             <select
               id="context"
               value={formData.context}
@@ -163,17 +165,17 @@ export function GlucoseLogPage() {
                 </option>
               ))}
             </select>
-            <small>When was this reading taken?</small>
+            <small>{t('glucose_context_help')}</small>
           </div>
         </div>
 
         {/* Optional Details */}
         <div className={styles.optionalSection}>
-          <h3 className={styles.sectionTitle}>Optional Details</h3>
+          <h3 className={styles.sectionTitle}>{t('glucose_optional_details')}</h3>
 
           <div className={styles.row}>
             <div className={styles.field}>
-              <label htmlFor="carbsGrams">Carbs (grams)</label>
+              <label htmlFor="carbsGrams">{t('glucose_carbs_grams')}</label>
               <input
                 type="number"
                 id="carbsGrams"
@@ -188,7 +190,7 @@ export function GlucoseLogPage() {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="activityMinutes">Activity (minutes)</label>
+              <label htmlFor="activityMinutes">{t('glucose_activity_minutes')}</label>
               <input
                 type="number"
                 id="activityMinutes"
@@ -207,7 +209,7 @@ export function GlucoseLogPage() {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="insulinUnits">Insulin Taken (units) - LOG ONLY</label>
+            <label htmlFor="insulinUnits">{t('glucose_insulin_units')}</label>
             <input
               type="number"
               id="insulinUnits"
@@ -221,12 +223,12 @@ export function GlucoseLogPage() {
               placeholder="e.g., 5.5"
             />
             <small className={styles.disclaimer}>
-              ⚠️ For logging only. Never used to suggest dose changes.
+              ⚠️ {t('glucose_insulin_disclaimer')}
             </small>
           </div>
 
           <div className={styles.field}>
-            <label>Symptoms (select all that apply)</label>
+            <label>{t('glucose_symptoms')}</label>
             <div className={styles.symptomGrid}>
               {SYMPTOM_OPTIONS.map((symptom) => (
                 <label key={symptom} className={styles.checkboxLabel}>
@@ -242,16 +244,16 @@ export function GlucoseLogPage() {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="notes">Notes</label>
+            <label htmlFor="notes">{t('glucose_notes')}</label>
             <textarea
               id="notes"
               value={formData.notes || ''}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Any additional notes or observations..."
+              placeholder={t('glucose_notes_placeholder')}
               rows={3}
               maxLength={500}
             />
-            <small>{(formData.notes?.length || 0)} / 500 characters</small>
+            <small>{t('glucose_char_count', { count: formData.notes?.length || 0 })}</small>
           </div>
         </div>
 
@@ -264,10 +266,10 @@ export function GlucoseLogPage() {
             className={styles.cancelButton}
             disabled={isSubmitting}
           >
-            Cancel
+            {t('glucose_cancel')}
           </button>
           <button type="submit" className={styles.submitButton} disabled={isSubmitting || isLoading}>
-            {isSubmitting ? 'Saving...' : 'Save Reading'}
+            {isSubmitting ? t('glucose_saving') : t('glucose_save_reading')}
           </button>
         </div>
       </form>

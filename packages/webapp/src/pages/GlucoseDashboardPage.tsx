@@ -6,10 +6,12 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useGlucoseData } from '../hooks/useGlucoseData';
+import { useTranslate } from '../i18n';
 import styles from './GlucoseDashboardPage.module.css';
 
 export function GlucoseDashboardPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { settings, readings, suggestions, analytics, isLoading, hasOnboarded } = useGlucoseData();
 
   const handleSettingsClick = () => {
@@ -26,7 +28,7 @@ export function GlucoseDashboardPage() {
   if (isLoading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Loading glucose data...</div>
+        <div className={styles.loading}>{t('glucose_entry_loading')}</div>
       </div>
     );
   }
@@ -58,13 +60,13 @@ export function GlucoseDashboardPage() {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>🩸 Glucose Tracking</h1>
+          <h1 className={styles.title}>🩸 {t('glucose_dashboard_title')}</h1>
           <p className={styles.subtitle}>
-            Tracking for: <strong>{settings?.diabetesType}</strong>
+            {t('glucose_tracking_for')} <strong>{settings?.diabetesType}</strong>
           </p>
         </div>
         <button onClick={handleSettingsClick} className={styles.settingsButton} type="button">
-          ⚙️ Settings
+          ⚙️ {t('glucose_settings_button')}
         </button>
       </div>
 
@@ -85,13 +87,13 @@ export function GlucoseDashboardPage() {
 
       {/* Quick Action */}
       <button onClick={() => navigate('/glucose/log')} className={styles.quickLogButton}>
-        + Log Glucose Reading
+        {t('glucose_quick_log')}
       </button>
 
       {/* Summary Cards */}
       <div className={styles.summaryGrid}>
         <div className={styles.summaryCard}>
-          <div className={styles.cardLabel}>Latest Reading</div>
+          <div className={styles.cardLabel}>{t('glucose_latest_reading')}</div>
           <div className={styles.cardValue}>
             {latestReading ? (
               <>
@@ -99,7 +101,7 @@ export function GlucoseDashboardPage() {
                 <span className={styles.unit}>{latestReading.unit}</span>
               </>
             ) : (
-              <span className={styles.noData}>No readings yet</span>
+              <span className={styles.noData}>{t('glucose_no_readings')}</span>
             )}
           </div>
           {latestReading && (
@@ -110,28 +112,28 @@ export function GlucoseDashboardPage() {
         </div>
 
         <div className={styles.summaryCard}>
-          <div className={styles.cardLabel}>7-Day Average</div>
+          <div className={styles.cardLabel}>{t('glucose_7day_average')}</div>
           <div className={styles.cardValue}>
             {last7Days.length > 0 ? (
               <>
                 {avgGlucose} <span className={styles.unit}>{settings?.unitPreference}</span>
               </>
             ) : (
-              <span className={styles.noData}>Not enough data</span>
+              <span className={styles.noData}>{t('glucose_not_enough_data')}</span>
             )}
           </div>
-          <div className={styles.cardMeta}>{last7Days.length} readings</div>
+          <div className={styles.cardMeta}>{t('glucose_readings_count', { count: last7Days.length })}</div>
         </div>
 
         <div className={styles.summaryCard}>
-          <div className={styles.cardLabel}>Time in Range</div>
+          <div className={styles.cardLabel}>{t('glucose_time_in_range')}</div>
           <div className={styles.cardValue}>
             {last7Days.length > 0 ? (
               <>
                 {timeInRange}<span className={styles.unit}>%</span>
               </>
             ) : (
-              <span className={styles.noData}>Not enough data</span>
+              <span className={styles.noData}>{t('glucose_not_enough_data')}</span>
             )}
           </div>
           <div className={styles.cardMeta}>
@@ -140,11 +142,11 @@ export function GlucoseDashboardPage() {
         </div>
 
         <div className={styles.summaryCard}>
-          <div className={styles.cardLabel}>Patterns</div>
+          <div className={styles.cardLabel}>{t('glucose_patterns')}</div>
           <div className={styles.cardValue}>{analytics?.patterns.length || 0}</div>
           <div className={styles.cardMeta}>
             <button onClick={() => navigate('/glucose/insights')} className={styles.linkButton}>
-              View insights →
+              {t('glucose_view_insights')}
             </button>
           </div>
         </div>

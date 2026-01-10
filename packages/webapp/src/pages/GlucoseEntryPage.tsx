@@ -7,9 +7,11 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGlucoseData } from '../hooks/useGlucoseData';
+import { useTranslate } from '../i18n';
 
 export function GlucoseEntryPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { hasOnboarded, isLoading } = useGlucoseData();
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export function GlucoseEntryPage() {
       minHeight: '100vh',
       fontSize: '1.5rem'
     }}>
-      Loading...
+      {t('glucose_loading')}
     </div>
   );
 }

@@ -7,11 +7,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGlucoseData } from '../hooks/useGlucoseData';
+import { useTranslate } from '../i18n';
 import { DIABETES_TYPES, UNIT_OPTIONS, CreateSettingsRequest } from '../types/glucose';
 import styles from './GlucoseOnboardingPage.module.css';
 
 export function GlucoseOnboardingPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { createSettings, isLoading } = useGlucoseData();
 
   const [step, setStep] = useState(1); // 1: Disclaimer, 2: Setup
@@ -71,7 +73,7 @@ export function GlucoseOnboardingPage() {
         navigate('/glucose/dashboard', { replace: true });
       }, 100);
     } catch (err: any) {
-      setError(err.message || 'Failed to complete onboarding');
+      setError(err.message || t('glucose_failed_save'));
       setIsSubmitting(false);
     }
   };
@@ -80,66 +82,66 @@ export function GlucoseOnboardingPage() {
     return (
       <div className={styles.container}>
         <div className={styles.disclaimerCard}>
-          <h1 className={styles.title}>🩸 GlucoGuide - Important Information</h1>
+          <h1 className={styles.title}>🩸 {t('glucose_onboarding_title')}</h1>
 
           <div className={styles.disclaimerSection}>
-            <h2>⚠️ Medical Disclaimer</h2>
+            <h2>⚠️ {t('glucose_disclaimer_medical')}</h2>
             <p>
-              <strong>This application is for informational and educational purposes only.</strong> It is NOT intended to:
+              <strong>{t('glucose_disclaimer_text')}</strong> {t('glucose_not_intended')}
             </p>
             <ul>
-              <li>Provide medical advice, diagnosis, or treatment</li>
-              <li>Replace professional medical care or consultation</li>
-              <li>Recommend changes to medications or insulin doses</li>
-              <li>Substitute for blood glucose monitoring prescribed by your healthcare provider</li>
+              <li>{t('glucose_not_medical_advice')}</li>
+              <li>{t('glucose_not_replace_care')}</li>
+              <li>{t('glucose_not_recommend_changes')}</li>
+              <li>{t('glucose_not_substitute')}</li>
             </ul>
           </div>
 
           <div className={styles.disclaimerSection}>
-            <h2>🏥 Always Consult Your Healthcare Provider</h2>
-            <p>You should ALWAYS:</p>
+            <h2>🏥 {t('glucose_consult_provider')}</h2>
+            <p>{t('glucose_you_should_always')}</p>
             <ul>
-              <li>Follow your healthcare provider's treatment plan</li>
-              <li>Consult your doctor before making any changes to medications</li>
-              <li>Seek immediate medical attention for emergencies</li>
-              <li>Discuss patterns and concerns with your diabetes care team</li>
+              <li>{t('glucose_follow_plan')}</li>
+              <li>{t('glucose_consult_before_changes')}</li>
+              <li>{t('glucose_seek_emergency')}</li>
+              <li>{t('glucose_discuss_patterns')}</li>
             </ul>
           </div>
 
           <div className={styles.disclaimerSection}>
-            <h2>🚨 Emergency Situations</h2>
+            <h2>🚨 {t('glucose_emergency_title')}</h2>
             <p>
-              <strong>Call 911 or seek immediate medical care if you experience:</strong>
+              <strong>{t('glucose_emergency_call')}</strong>
             </p>
             <ul>
-              <li>Very low blood sugar with confusion, unconsciousness, or seizures</li>
-              <li>Very high blood sugar with nausea, vomiting, rapid breathing, or confusion</li>
-              <li>Any symptoms that concern you</li>
+              <li>{t('glucose_emergency_low')}</li>
+              <li>{t('glucose_emergency_high')}</li>
+              <li>{t('glucose_emergency_concern')}</li>
             </ul>
           </div>
 
           <div className={styles.disclaimerSection}>
-            <h2>📊 What This App Does</h2>
-            <p>GlucoGuide helps you:</p>
+            <h2>📊 {t('glucose_what_app_does')}</h2>
+            <p>{t('glucose_app_helps')}</p>
             <ul>
-              <li>Track glucose readings and identify patterns</li>
-              <li>Log meals, activity, and symptoms</li>
-              <li>View educational suggestions based on transparent rules</li>
-              <li>Generate reports to share with your healthcare team</li>
+              <li>{t('glucose_track_readings')}</li>
+              <li>{t('glucose_log_meals')}</li>
+              <li>{t('glucose_view_suggestions')}</li>
+              <li>{t('glucose_generate_reports')}</li>
             </ul>
             <p>
-              <strong>All suggestions are educational and include clear explanations.</strong> We never recommend medication or insulin dose changes.
+              <strong>{t('glucose_suggestions_educational')}</strong>
             </p>
           </div>
 
           <div className={styles.disclaimerSection}>
-            <h2>🔒 Privacy & Data</h2>
-            <p>Your glucose data is:</p>
+            <h2>🔒 {t('glucose_privacy_title')}</h2>
+            <p>{t('glucose_data_secure')}</p>
             <ul>
-              <li>Stored securely and encrypted</li>
-              <li>Only accessible to you (and guardians for dependents)</li>
-              <li>Exportable at any time</li>
-              <li>Deletable at any time from Settings</li>
+              <li>{t('glucose_stored_securely')}</li>
+              <li>{t('glucose_only_accessible')}</li>
+              <li>{t('glucose_exportable')}</li>
+              <li>{t('glucose_deletable')}</li>
             </ul>
           </div>
 
@@ -150,14 +152,12 @@ export function GlucoseOnboardingPage() {
                 checked={disclaimerAccepted}
                 onChange={(e) => setDisclaimerAccepted(e.target.checked)}
               />
-              <span>
-                I have read and understand the above information. I understand this app provides educational information only and does not replace medical advice. I will consult my healthcare provider for all medical decisions.
-              </span>
+              <span>{t('glucose_disclaimer_accept')}</span>
             </label>
 
             {!disclaimerAccepted && (
               <p className={styles.checkboxHint}>
-                ☝️ Please check the box above to continue
+                ☝️ {t('glucose_check_to_continue')}
               </p>
             )}
 
@@ -166,7 +166,7 @@ export function GlucoseOnboardingPage() {
               onClick={handleDisclaimerAccept}
               disabled={!disclaimerAccepted}
             >
-              {disclaimerAccepted ? '✓ Continue to Setup' : 'Continue to Setup (check box above)'}
+              {disclaimerAccepted ? `✓ ${t('glucose_continue_to_setup')}` : t('glucose_continue_check_box')}
             </button>
           </div>
         </div>
@@ -177,13 +177,13 @@ export function GlucoseOnboardingPage() {
   return (
     <div className={styles.container}>
       <div className={styles.setupCard}>
-        <h1 className={styles.title}>🩸 Setup Your Glucose Tracking</h1>
-        <p className={styles.subtitle}>This information helps us provide personalized insights</p>
+        <h1 className={styles.title}>🩸 {t('glucose_setup_title')}</h1>
+        <p className={styles.subtitle}>{t('glucose_setup_subtitle')}</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {/* Diabetes Type */}
           <div className={styles.field}>
-            <label htmlFor="diabetesType">Diabetes Type *</label>
+            <label htmlFor="diabetesType">{t('glucose_diabetes_type')} *</label>
             <select
               id="diabetesType"
               value={formData.diabetesType}
@@ -202,7 +202,7 @@ export function GlucoseOnboardingPage() {
 
           {/* Unit Preference */}
           <div className={styles.field}>
-            <label htmlFor="unitPreference">Glucose Unit *</label>
+            <label htmlFor="unitPreference">{t('glucose_glucose_unit')} *</label>
             <select
               id="unitPreference"
               value={formData.unitPreference}
@@ -216,17 +216,17 @@ export function GlucoseOnboardingPage() {
                 </option>
               ))}
             </select>
-            <small>mg/dL is used in the US; mmol/L is used internationally</small>
+            <small>{t('glucose_unit_help')}</small>
           </div>
 
           {/* Target Ranges */}
           <div className={styles.fieldGroup}>
-            <h3>Target Ranges ({formData.unitPreference})</h3>
-            <p className={styles.hint}>These are typical defaults. You can adjust them in Settings.</p>
+            <h3>{t('glucose_target_ranges')} ({formData.unitPreference})</h3>
+            <p className={styles.hint}>{t('glucose_target_ranges_help')}</p>
 
             <div className={styles.rangeGrid}>
               <div className={styles.rangeField}>
-                <label>Fasting (morning)</label>
+                <label>{t('glucose_fasting')}</label>
                 <div className={styles.rangeInputs}>
                   <input
                     type="number"
@@ -247,7 +247,7 @@ export function GlucoseOnboardingPage() {
                     max="200"
                     required
                   />
-                  <span>to</span>
+                  <span>{t('glucose_to')}</span>
                   <input
                     type="number"
                     value={formData.targetRanges?.fasting.max}
@@ -271,7 +271,7 @@ export function GlucoseOnboardingPage() {
               </div>
 
               <div className={styles.rangeField}>
-                <label>Post-meal (2 hours)</label>
+                <label>{t('glucose_post_meal')}</label>
                 <div className={styles.rangeInputs}>
                   <input
                     type="number"
@@ -292,7 +292,7 @@ export function GlucoseOnboardingPage() {
                     max="200"
                     required
                   />
-                  <span>to</span>
+                  <span>{t('glucose_to')}</span>
                   <input
                     type="number"
                     value={formData.targetRanges?.postMeal.max}
@@ -319,13 +319,13 @@ export function GlucoseOnboardingPage() {
 
           {/* Medications */}
           <div className={styles.fieldGroup}>
-            <h3>Medications (Optional)</h3>
-            <p className={styles.hint}>List your diabetes medications. We do NOT use this to suggest dose changes.</p>
+            <h3>{t('glucose_medications_optional')}</h3>
+            <p className={styles.hint}>{t('glucose_medications_help')}</p>
 
             <div className={styles.medicationInput}>
               <input
                 type="text"
-                placeholder="Medication name"
+                placeholder={t('glucose_medication_name')}
                 value={medicationInput}
                 onChange={(e) => setMedicationInput(e.target.value)}
                 onKeyPress={(e) => {
@@ -341,14 +341,14 @@ export function GlucoseOnboardingPage() {
                   checked={isInsulin}
                   onChange={(e) => setIsInsulin(e.target.checked)}
                 />
-                <span>Insulin</span>
+                <span>{t('glucose_insulin')}</span>
               </label>
               <button
                 type="button"
                 onClick={handleAddMedication}
                 className={styles.addButton}
               >
-                Add
+                {t('glucose_add')}
               </button>
             </div>
 
@@ -357,7 +357,7 @@ export function GlucoseOnboardingPage() {
                 {formData.medications.map((med, index) => (
                   <div key={index} className={styles.medicationItem}>
                     <span>
-                      {med.name} {med.isInsulin && '(Insulin)'}
+                      {med.name} {med.isInsulin && `(${t('glucose_insulin')})`}
                     </span>
                     <button
                       type="button"
@@ -381,14 +381,14 @@ export function GlucoseOnboardingPage() {
               className={styles.cancelButton}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('glucose_cancel')}
             </button>
             <button
               type="submit"
               className={styles.submitButton}
               disabled={isSubmitting || isLoading}
             >
-              {isSubmitting ? 'Setting up...' : 'Start Tracking'}
+              {isSubmitting ? t('glucose_setting_up') : t('glucose_start_tracking')}
             </button>
           </div>
         </form>
