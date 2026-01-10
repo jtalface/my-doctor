@@ -7,11 +7,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBPData } from '../hooks/useBPData';
+import { useTranslate } from '../i18n';
 import { CreateSettingsRequest, MEDICATION_CLASSES, SCHEDULE_OPTIONS } from '../types/bp';
 import styles from './BPOnboardingPage.module.css';
 
 export function BPOnboardingPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { createSettings, isLoading } = useBPData();
 
   const [step, setStep] = useState(1); // 1: Disclaimer, 2: Setup
@@ -71,7 +73,7 @@ export function BPOnboardingPage() {
         navigate('/bp/dashboard', { replace: true });
       }, 100);
     } catch (err: any) {
-      setError(err.message || 'Failed to complete onboarding');
+      setError(err.message || t('bp_failed_save'));
       setIsSubmitting(false);
     }
   };
@@ -80,71 +82,71 @@ export function BPOnboardingPage() {
     return (
       <div className={styles.container}>
         <div className={styles.disclaimerCard}>
-          <h1 className={styles.title}>❤️ PressurePal - Important Safety Information</h1>
+          <h1 className={styles.title}>❤️ {t('bp_onboarding_title')}</h1>
 
           <div className={styles.disclaimerSection}>
-            <h2>⚠️ Medical Disclaimer</h2>
+            <h2>⚠️ {t('bp_disclaimer_medical')}</h2>
             <p>
-              <strong>This application is for tracking and educational purposes only.</strong> It is NOT intended to:
+              <strong>{t('bp_disclaimer_text')}</strong> {t('bp_not_intended')}
             </p>
             <ul>
-              <li>Provide medical advice, diagnosis, or treatment</li>
-              <li>Replace professional medical care or monitoring</li>
-              <li>Recommend changes to blood pressure medications or doses</li>
-              <li>Substitute for medical equipment prescribed by your healthcare provider</li>
+              <li>{t('bp_not_medical_advice')}</li>
+              <li>{t('bp_not_replace_care')}</li>
+              <li>{t('bp_not_recommend_changes')}</li>
+              <li>{t('bp_not_substitute')}</li>
             </ul>
           </div>
 
           <div className={styles.disclaimerSection}>
-            <h2>🏥 Always Consult Your Healthcare Provider</h2>
-            <p>You should ALWAYS:</p>
+            <h2>🏥 {t('bp_consult_provider')}</h2>
+            <p>{t('bp_you_should_always')}</p>
             <ul>
-              <li>Follow your healthcare provider's treatment plan</li>
-              <li>Take medications exactly as prescribed</li>
-              <li>Seek immediate medical attention for emergencies</li>
-              <li>Discuss blood pressure patterns and concerns with your medical team</li>
-              <li>Get approval before changing your diet, exercise, or medication routine</li>
+              <li>{t('bp_follow_plan')}</li>
+              <li>{t('bp_take_meds')}</li>
+              <li>{t('bp_seek_emergency')}</li>
+              <li>{t('bp_discuss_patterns')}</li>
+              <li>{t('bp_get_approval')}</li>
             </ul>
           </div>
 
           <div className={styles.disclaimerSection}>
-            <h2>🚨 When to Call 911</h2>
+            <h2>🚨 {t('bp_emergency_title')}</h2>
             <p>
-              <strong>Call 911 or go to the emergency room immediately if you have high blood pressure WITH:</strong>
+              <strong>{t('bp_emergency_call')}</strong>
             </p>
             <ul>
-              <li>Chest pain or pressure</li>
-              <li>Severe shortness of breath</li>
-              <li>Severe headache</li>
-              <li>Vision changes (blurred, spots, loss of vision)</li>
-              <li>Confusion or difficulty speaking</li>
-              <li>Weakness or numbness (especially on one side)</li>
+              <li>{t('bp_emergency_chest')}</li>
+              <li>{t('bp_emergency_breath')}</li>
+              <li>{t('bp_emergency_headache')}</li>
+              <li>{t('bp_emergency_vision')}</li>
+              <li>{t('bp_emergency_confusion')}</li>
+              <li>{t('bp_emergency_weakness')}</li>
             </ul>
           </div>
 
           <div className={styles.disclaimerSection}>
-            <h2>📊 What This App Does</h2>
-            <p>PressurePal helps you:</p>
+            <h2>📊 {t('bp_what_app_does')}</h2>
+            <p>{t('bp_app_helps')}</p>
             <ul>
-              <li>Track blood pressure readings at home</li>
-              <li>Record measurement quality and context</li>
-              <li>Identify patterns and trends</li>
-              <li>View educational suggestions based on transparent rules</li>
-              <li>Generate reports to share with your healthcare team</li>
+              <li>{t('bp_track_readings')}</li>
+              <li>{t('bp_record_quality')}</li>
+              <li>{t('bp_identify_patterns')}</li>
+              <li>{t('bp_view_suggestions')}</li>
+              <li>{t('bp_generate_reports')}</li>
             </ul>
             <p>
-              <strong>All suggestions are educational and include clear explanations.</strong> We NEVER recommend medication changes.
+              <strong>{t('bp_suggestions_educational')}</strong>
             </p>
           </div>
 
           <div className={styles.disclaimerSection}>
-            <h2>🩺 Proper Measurement Technique</h2>
-            <p>For accurate readings:</p>
+            <h2>🩺 {t('bp_measurement_technique')}</h2>
+            <p>{t('bp_technique_intro')}</p>
             <ul>
-              <li>Use a validated, properly calibrated BP monitor</li>
-              <li>Use the correct cuff size for your arm</li>
-              <li>Follow proper technique (we'll guide you)</li>
-              <li>Take readings at consistent times</li>
+              <li>{t('bp_technique_validated')}</li>
+              <li>{t('bp_technique_cuff')}</li>
+              <li>{t('bp_technique_proper')}</li>
+              <li>{t('bp_technique_consistent')}</li>
             </ul>
           </div>
 
@@ -155,13 +157,11 @@ export function BPOnboardingPage() {
                 checked={disclaimerAccepted}
                 onChange={(e) => setDisclaimerAccepted(e.target.checked)}
               />
-              <span>
-                I have read and understand the above information. I understand this app provides tracking and educational information only and does not replace medical advice. I will consult my healthcare provider for all medical decisions and will seek emergency care if I experience concerning symptoms.
-              </span>
+              <span>{t('bp_disclaimer_accept')}</span>
             </label>
 
             {!disclaimerAccepted && (
-              <p className={styles.checkboxHint}>☝️ Please check the box above to continue</p>
+              <p className={styles.checkboxHint}>☝️ {t('bp_check_to_continue')}</p>
             )}
 
             <button
@@ -170,7 +170,7 @@ export function BPOnboardingPage() {
               disabled={!disclaimerAccepted}
               type="button"
             >
-              {disclaimerAccepted ? '✓ Continue to Setup' : 'Continue to Setup (check box above)'}
+              {disclaimerAccepted ? `✓ ${t('bp_continue_to_setup')}` : t('bp_continue_check_box')}
             </button>
           </div>
         </div>
@@ -181,17 +181,17 @@ export function BPOnboardingPage() {
   return (
     <div className={styles.container}>
       <div className={styles.setupCard}>
-        <h1 className={styles.title}>❤️ Setup Your BP Tracking</h1>
-        <p className={styles.subtitle}>This helps us provide personalized insights</p>
+        <h1 className={styles.title}>❤️ {t('bp_setup_title')}</h1>
+        <p className={styles.subtitle}>{t('bp_setup_subtitle')}</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {/* BP Targets */}
           <div className={styles.section}>
-            <h3>Blood Pressure Targets</h3>
-            <p className={styles.hint}>Default: 130/80 mmHg (discuss with your doctor)</p>
+            <h3>{t('bp_targets_title')}</h3>
+            <p className={styles.hint}>{t('bp_targets_hint')}</p>
             <div className={styles.targetInputs}>
               <div className={styles.targetField}>
-                <label>Systolic (top number)</label>
+                <label>{t('bp_systolic')}</label>
                 <div className={styles.inputWithUnit}>
                   <input
                     type="number"
@@ -211,7 +211,7 @@ export function BPOnboardingPage() {
               </div>
               <span className={styles.slash}>/</span>
               <div className={styles.targetField}>
-                <label>Diastolic (bottom number)</label>
+                <label>{t('bp_diastolic')}</label>
                 <div className={styles.inputWithUnit}>
                   <input
                     type="number"
@@ -234,8 +234,8 @@ export function BPOnboardingPage() {
 
           {/* Measurement Schedule */}
           <div className={styles.section}>
-            <h3>Measurement Schedule</h3>
-            <p className={styles.hint}>When will you check your blood pressure?</p>
+            <h3>{t('bp_measurement_schedule')}</h3>
+            <p className={styles.hint}>{t('bp_schedule_hint')}</p>
             <div className={styles.scheduleOptions}>
               {SCHEDULE_OPTIONS.map((option) => (
                 <label key={option.value} className={styles.checkboxLabel}>
@@ -265,18 +265,18 @@ export function BPOnboardingPage() {
 
           {/* Medications */}
           <div className={styles.section}>
-            <h3>Blood Pressure Medications (Optional)</h3>
-            <p className={styles.hint}>For tracking only. We do NOT use this to suggest dose changes.</p>
+            <h3>{t('bp_medications_title')}</h3>
+            <p className={styles.hint}>{t('bp_medications_hint')}</p>
 
             <div className={styles.medicationInput}>
               <input
                 type="text"
-                placeholder="Medication name (e.g., Lisinopril)"
+                placeholder={t('bp_medication_name')}
                 value={medicationName}
                 onChange={(e) => setMedicationName(e.target.value)}
               />
               <select value={medicationClass} onChange={(e) => setMedicationClass(e.target.value)}>
-                <option value="">Class (optional)</option>
+                <option value="">{t('bp_medication_class')}</option>
                 {MEDICATION_CLASSES.map((cls) => (
                   <option key={cls} value={cls}>
                     {cls}
@@ -284,7 +284,7 @@ export function BPOnboardingPage() {
                 ))}
               </select>
               <button type="button" onClick={handleAddMedication} className={styles.addButton}>
-                Add
+                {t('bp_add')}
               </button>
             </div>
 
@@ -306,8 +306,8 @@ export function BPOnboardingPage() {
 
           {/* Comorbidities */}
           <div className={styles.section}>
-            <h3>Health Conditions (Optional)</h3>
-            <p className={styles.hint}>Select any that apply - this helps us provide relevant information</p>
+            <h3>{t('bp_health_conditions')}</h3>
+            <p className={styles.hint}>{t('bp_conditions_hint')}</p>
             <div className={styles.comorbidityOptions}>
               <label className={styles.checkboxLabel}>
                 <input
@@ -323,7 +323,7 @@ export function BPOnboardingPage() {
                     })
                   }
                 />
-                <span>Diabetes</span>
+                <span>{t('bp_diabetes')}</span>
               </label>
               <label className={styles.checkboxLabel}>
                 <input
@@ -339,7 +339,7 @@ export function BPOnboardingPage() {
                     })
                   }
                 />
-                <span>Chronic Kidney Disease</span>
+                <span>{t('bp_kidney_disease')}</span>
               </label>
               <label className={styles.checkboxLabel}>
                 <input
@@ -355,7 +355,7 @@ export function BPOnboardingPage() {
                     })
                   }
                 />
-                <span>Heart Disease (CAD/MI)</span>
+                <span>{t('bp_heart_disease')}</span>
               </label>
               <label className={styles.checkboxLabel}>
                 <input
@@ -371,7 +371,7 @@ export function BPOnboardingPage() {
                     })
                   }
                 />
-                <span>Stroke/TIA History</span>
+                <span>{t('bp_stroke')}</span>
               </label>
               <label className={styles.checkboxLabel}>
                 <input
@@ -387,7 +387,7 @@ export function BPOnboardingPage() {
                     })
                   }
                 />
-                <span>Currently Pregnant</span>
+                <span>{t('bp_pregnancy')}</span>
               </label>
             </div>
           </div>
@@ -396,10 +396,10 @@ export function BPOnboardingPage() {
 
           <div className={styles.actions}>
             <button type="button" onClick={() => navigate('/')} className={styles.cancelButton} disabled={isSubmitting}>
-              Cancel
+              {t('bp_cancel')}
             </button>
             <button type="submit" className={styles.submitButton} disabled={isSubmitting || isLoading}>
-              {isSubmitting ? 'Setting up...' : 'Start Tracking'}
+              {isSubmitting ? t('bp_setting_up') : t('bp_start_tracking')}
             </button>
           </div>
         </form>

@@ -7,9 +7,11 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBPData } from '../hooks/useBPData';
+import { useTranslate } from '../i18n';
 
 export function BPEntryPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { hasOnboarded, isLoading } = useBPData();
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export function BPEntryPage() {
 
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      Loading...
+      {t('bp_loading')}
     </div>
   );
 }
