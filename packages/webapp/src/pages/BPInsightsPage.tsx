@@ -7,10 +7,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBPData } from '../hooks/useBPData';
+import { useTranslate } from '../i18n';
 import styles from './BPInsightsPage.module.css';
 
 export function BPInsightsPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { sessions, suggestions, analytics } = useBPData();
   const [filter, setFilter] = useState<'all' | 'urgent' | 'warn' | 'info'>('all');
 
@@ -31,18 +33,18 @@ export function BPInsightsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <button onClick={() => navigate('/bp/dashboard')} className={styles.backButton}>
-          ← Back
+          ← {t('bp_back')}
         </button>
-        <h1 className={styles.title}>📊 BP Insights & Patterns</h1>
+        <h1 className={styles.title}>📊 {t('bp_insights_title')}</h1>
       </div>
 
       {/* Analytics Summary */}
       {analytics && (
         <div className={styles.summarySection}>
-          <h2>7-Day Summary</h2>
+          <h2>{t('bp_7day_summary')}</h2>
           <div className={styles.summaryGrid}>
             <div className={styles.statCard}>
-              <div className={styles.statLabel}>Average BP</div>
+              <div className={styles.statLabel}>{t('bp_average_bp')}</div>
               <div className={styles.statValue}>
                 {analytics.summary.avgSystolic}/{analytics.summary.avgDiastolic} mmHg
               </div>
@@ -51,13 +53,13 @@ export function BPInsightsPage() {
               )}
             </div>
             <div className={styles.statCard}>
-              <div className={styles.statLabel}>Total Readings</div>
+              <div className={styles.statLabel}>{t('bp_sessions')}</div>
               <div className={styles.statValue}>{analytics.summary.totalSessions}</div>
             </div>
             <div className={styles.statCard}>
               <div className={styles.statLabel}>Above Target</div>
               <div className={styles.statValue}>{analytics.aboveTarget.percentage}%</div>
-              <div className={styles.statMeta}>{analytics.aboveTarget.count} readings</div>
+              <div className={styles.statMeta}>{t('bp_readings_count', { count: analytics.aboveTarget.count })}</div>
             </div>
             <div className={styles.statCard}>
               <div className={styles.statLabel}>Adherence</div>
