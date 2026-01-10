@@ -87,7 +87,17 @@ export function ActiveProfileProvider({
 }: ActiveProfileProviderProps) {
   const { user, profile, isAuthenticated, updateProfile } = useAuth();
   
-  const [activeProfile, setActiveProfile] = useState<ActiveProfile | null>(null);
+  // If initialProfile provided (test mode), create a mock activeProfile
+  const initialActiveProfile = initialProfile && user ? {
+    id: user.id,
+    name: user.firstName + ' ' + user.lastName,
+    isDependent: false,
+    dateOfBirth: initialProfile.demographics?.dateOfBirth,
+    age: initialProfile.demographics?.age,
+    preferences: { language: user.preferences.language },
+  } : null;
+  
+  const [activeProfile, setActiveProfile] = useState<ActiveProfile | null>(initialActiveProfile);
   const [activePatientProfile, setActivePatientProfile] = useState<PatientProfile | null>(initialProfile);
   const [dependents, setDependents] = useState<Dependent[]>(initialDependents);
   const [isLoadingDependents, setIsLoadingDependents] = useState(false);
@@ -95,6 +105,11 @@ export function ActiveProfileProvider({
 
   // Initialize active profile when user logs in
   useEffect(() => {
+    // Skip if initialProfile provided (test mode)
+    if (initialProfile) {
+      return;
+    }
+    
     if (user && isAuthenticated) {
       // Check if there's a saved active profile
       const savedProfileId = localStorage.getItem(ACTIVE_PROFILE_KEY);
@@ -119,17 +134,27 @@ export function ActiveProfileProvider({
       setDependents([]);
       localStorage.removeItem(ACTIVE_PROFILE_KEY);
     }
-  }, [user, isAuthenticated, profile]);
+  }, [user, isAuthenticated, profile, initialProfile]);
 
   // Load dependents when authenticated
   useEffect(() => {
+    // Skip if initialDependents provided (test mode)
+    if (initialDependents.length > 0 || initialProfile) {
+      return;
+    }
+    
     if (isAuthenticated) {
       refreshDependents();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, initialDependents, initialProfile]);
 
   // Validate saved active profile against loaded dependents
   useEffect(() => {
+    // Skip if initialProfile provided (test mode)
+    if (initialProfile) {
+      return;
+    }
+    
     const savedProfileId = localStorage.getItem(ACTIVE_PROFILE_KEY);
     
     if (savedProfileId && user && savedProfileId !== user.id) {
@@ -143,7 +168,7 @@ export function ActiveProfileProvider({
         switchToSelf();
       }
     }
-  }, [dependents, user]);
+  }, [dependents, user, initialProfile]);
 
   // Switch to account holder's own profile
   const switchToSelf = useCallback(() => {
