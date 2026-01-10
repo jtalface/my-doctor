@@ -182,7 +182,7 @@ export function GlucoseDashboardPage() {
           </div>
           {suggestions.length > 3 && (
             <button onClick={() => navigate('/glucose/insights')} className={styles.viewAllButton}>
-              View all {suggestions.length} suggestions →
+              {t('view_all_suggestions', { count: suggestions.length })} →
             </button>
           )}
         </div>
@@ -191,15 +191,15 @@ export function GlucoseDashboardPage() {
       {/* Recent Readings */}
       <div className={styles.recentSection}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Recent Readings</h2>
+          <h2 className={styles.sectionTitle}>{t('glucose_recent_readings')}</h2>
           <button onClick={() => navigate('/glucose/insights')} className={styles.viewAllLink}>
-            View all →
+            {t('view_all_arrow')}
           </button>
         </div>
 
         {readings.length === 0 ? (
           <div className={styles.emptyState}>
-            <p>No readings yet. Log your first reading to get started!</p>
+            <p>{t('glucose_no_readings_yet')}</p>
           </div>
         ) : (
           <div className={styles.readingsList}>

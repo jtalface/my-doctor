@@ -164,7 +164,7 @@ export function BPDashboardPage() {
           </div>
           {suggestions.length > 3 && (
             <button onClick={() => navigate('/bp/insights')} className={styles.viewAllButton}>
-              View all {suggestions.length} suggestions →
+              {t('view_all_suggestions', { count: suggestions.length })} →
             </button>
           )}
         </div>
@@ -175,7 +175,7 @@ export function BPDashboardPage() {
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>{t('bp_recent_sessions')}</h2>
           <button onClick={() => navigate('/bp/insights')} className={styles.viewAllLink}>
-            View all →
+            {t('view_all_arrow')}
           </button>
         </div>
 

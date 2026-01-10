@@ -1125,6 +1125,11 @@ export const translations = {
     suggestions_none_filtered: 'No {{filter}} suggestions.',
     all_readings: 'All Readings',
     
+    // Navigation links
+    view_all: 'View all',
+    view_all_suggestions: 'View all {{count}} suggestions',
+    view_all_arrow: 'View all →',
+    
     // BP Insights - Additional labels
     bp_classification_distribution: 'Classification Distribution',
     bp_morning_vs_evening: 'Morning vs Evening',
@@ -2244,6 +2249,11 @@ export const translations = {
     suggestions_none: 'Sem sugestões no momento. Continue rastreando!',
     suggestions_none_filtered: 'Sem sugestões de {{filter}}.',
     all_readings: 'Todas as Leituras',
+    
+    // Navigation links
+    view_all: 'Ver todas',
+    view_all_suggestions: 'Ver todas as {{count}} sugestões',
+    view_all_arrow: 'Ver todas →',
     
     // BP Insights - Additional labels
     bp_classification_distribution: 'Distribuição de Classificação',
@@ -3365,6 +3375,11 @@ export const translations = {
     suggestions_none_filtered: 'Aucune suggestion {{filter}}.',
     all_readings: 'Toutes les Lectures',
     
+    // Navigation links
+    view_all: 'Voir tout',
+    view_all_suggestions: 'Voir toutes les {{count}} suggestions',
+    view_all_arrow: 'Voir tout →',
+    
     // BP Insights - Additional labels
     bp_classification_distribution: 'Distribution des Classifications',
     bp_morning_vs_evening: 'Matin vs Soir',
@@ -4484,6 +4499,11 @@ export const translations = {
     suggestions_none: 'Hakuna mapendekezo kwa sasa. Endelea kufuatilia!',
     suggestions_none_filtered: 'Hakuna mapendekezo ya {{filter}}.',
     all_readings: 'Usomaji Wote',
+    
+    // Navigation links
+    view_all: 'Angalia yote',
+    view_all_suggestions: 'Angalia mapendekezo yote {{count}}',
+    view_all_arrow: 'Angalia yote →',
     
     // BP Insights - Additional labels
     bp_classification_distribution: 'Usambazaji wa Uainishaji',
