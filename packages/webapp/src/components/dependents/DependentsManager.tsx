@@ -17,6 +17,7 @@ import styles from './DependentsManager.module.css';
 export function DependentsManager() {
   const { dependents, isLoadingDependents, deleteDependent, refreshDependents } = useActiveProfile();
   const t = useTranslate();
+  const language = t.language;
   
   const [showAddModal, setShowAddModal] = useState(false);
   const [shareDependent, setShareDependent] = useState<Dependent | null>(null);
@@ -91,7 +92,16 @@ export function DependentsManager() {
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, {
+    // Use the language mapping for date formatting
+    const localeMap: Record<string, string> = {
+      'en': 'en-US',
+      'pt': 'pt-BR',
+      'fr': 'fr-FR',
+      'sw': 'sw-KE',
+    };
+    const locale = localeMap[language] || 'en-US';
+    
+    return date.toLocaleDateString(locale, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',

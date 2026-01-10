@@ -30,7 +30,7 @@ export function useTranslate(languageOverride?: LanguageCode) {
   // Use override if provided (for LoginPage), otherwise use user preference
   const language = languageOverride || (user?.preferences?.language as LanguageCode) || DEFAULT_LANGUAGE;
   
-  return (key: TranslationKey, params?: Record<string, string | number>): string => {
+  const translateFn = (key: TranslationKey, params?: Record<string, string | number>): string => {
     // Get translation for user's language, fallback to English
     let translated: string = translations[language]?.[key] || translations[DEFAULT_LANGUAGE][key];
     
@@ -43,4 +43,7 @@ export function useTranslate(languageOverride?: LanguageCode) {
     
     return translated;
   };
+
+  // Return both the translate function and the current language
+  return Object.assign(translateFn, { t: translateFn, language });
 }
