@@ -27,6 +27,25 @@ export function BPSettingsPage() {
     return t('bp_error_unknown');
   };
 
+  // Create translated schedule options
+  const translatedScheduleOptions = SCHEDULE_OPTIONS.map(opt => ({
+    value: opt.value,
+    label: t(`bp_schedule_${opt.value.toLowerCase()}` as any) || opt.label,
+  }));
+
+  // Create translated medication classes
+  const translatedMedicationClasses = MEDICATION_CLASSES.map(cls => {
+    const keyMap: Record<string, string> = {
+      'ACE Inhibitor': 'bp_med_class_ace',
+      'ARB': 'bp_med_class_arb',
+      'Beta Blocker': 'bp_med_class_beta',
+      'Calcium Channel Blocker': 'bp_med_class_calcium',
+      'Diuretic': 'bp_med_class_diuretic',
+      'Other': 'bp_med_class_other',
+    };
+    return t(keyMap[cls] as any) || cls;
+  });
+
   const [formData, setFormData] = useState(settings || null);
   const [medicationName, setMedicationName] = useState('');
   const [medicationClass, setMedicationClass] = useState('');
@@ -94,13 +113,13 @@ export function BPSettingsPage() {
 
   const handleDeleteAllData = async () => {
     const confirmed = window.confirm(
-      'Are you sure you want to delete ALL your blood pressure data? This action cannot be undone.'
+      t('bp_confirm_delete_title')
     );
 
     if (!confirmed) return;
 
     const doubleConfirmed = window.confirm(
-      'This will permanently delete all your BP readings, settings, and history. Type DELETE to confirm.'
+      t('bp_confirm_delete_double')
     );
 
     if (!doubleConfirmed) return;
@@ -176,7 +195,7 @@ export function BPSettingsPage() {
         <div className={styles.section}>
           <h3>{t('bp_measurement_schedule')}</h3>
           <div className={styles.checkboxGroup}>
-            {SCHEDULE_OPTIONS.map((option) => (
+            {translatedScheduleOptions.map((option) => (
               <label key={option.value} className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
@@ -208,20 +227,20 @@ export function BPSettingsPage() {
           <div className={styles.medicationInput}>
             <input
               type="text"
-              placeholder="Medication name"
+              placeholder={t('bp_medication_name')}
               value={medicationName}
               onChange={(e) => setMedicationName(e.target.value)}
             />
             <select value={medicationClass} onChange={(e) => setMedicationClass(e.target.value)}>
-              <option value="">Class (optional)</option>
-              {MEDICATION_CLASSES.map((cls) => (
-                <option key={cls} value={cls}>
+              <option value="">{t('bp_medication_class')}</option>
+              {translatedMedicationClasses.map((cls, index) => (
+                <option key={MEDICATION_CLASSES[index]} value={MEDICATION_CLASSES[index]}>
                   {cls}
                 </option>
               ))}
             </select>
             <button type="button" onClick={handleAddMedication} className={styles.addButton}>
-              Add
+              {t('bp_add')}
             </button>
           </div>
 
@@ -256,7 +275,7 @@ export function BPSettingsPage() {
                   })
                 }
               />
-              <span>Diabetes</span>
+              <span>{t('bp_diabetes')}</span>
             </label>
             <label className={styles.checkboxLabel}>
               <input
@@ -269,7 +288,7 @@ export function BPSettingsPage() {
                   })
                 }
               />
-              <span>Chronic Kidney Disease</span>
+              <span>{t('bp_ckd')}</span>
             </label>
             <label className={styles.checkboxLabel}>
               <input
@@ -282,7 +301,7 @@ export function BPSettingsPage() {
                   })
                 }
               />
-              <span>Heart Disease (CAD/MI)</span>
+              <span>{t('bp_cad')}</span>
             </label>
             <label className={styles.checkboxLabel}>
               <input
@@ -295,7 +314,7 @@ export function BPSettingsPage() {
                   })
                 }
               />
-              <span>Stroke/TIA History</span>
+              <span>{t('bp_stroke_tia')}</span>
             </label>
             <label className={styles.checkboxLabel}>
               <input
@@ -308,7 +327,7 @@ export function BPSettingsPage() {
                   })
                 }
               />
-              <span>Currently Pregnant</span>
+              <span>{t('bp_currently_pregnant')}</span>
             </label>
           </div>
         </div>
@@ -324,9 +343,9 @@ export function BPSettingsPage() {
       {/* Danger Zone */}
       <div className={styles.dangerZone}>
         <h3>⚠️ {t('bp_danger_zone')}</h3>
-        <p>Permanently delete all your blood pressure data. This cannot be undone.</p>
+        <p>{t('bp_danger_description')}</p>
         <button onClick={handleDeleteAllData} disabled={isDeleting} className={styles.deleteButton}>
-          {isDeleting ? 'Deleting...' : 'Delete All Data'}
+          {isDeleting ? t('bp_deleting') : t('bp_delete_all_data')}
         </button>
       </div>
     </div>
