@@ -1124,6 +1124,13 @@ export const translations = {
     suggestions_none: 'No suggestions at this time. Keep tracking!',
     suggestions_none_filtered: 'No {{filter}} suggestions.',
     all_readings: 'All Readings',
+    
+    // BP Insights - Additional labels
+    bp_classification_distribution: 'Classification Distribution',
+    bp_morning_vs_evening: 'Morning vs Evening',
+    bp_morning_average: 'Morning Average',
+    bp_evening_average: 'Evening Average',
+    bp_difference: 'Difference',
   },
   
   // Portuguese
@@ -2237,6 +2244,13 @@ export const translations = {
     suggestions_none: 'Sem sugestões no momento. Continue rastreando!',
     suggestions_none_filtered: 'Sem sugestões de {{filter}}.',
     all_readings: 'Todas as Leituras',
+    
+    // BP Insights - Additional labels
+    bp_classification_distribution: 'Distribuição de Classificação',
+    bp_morning_vs_evening: 'Manhã vs Noite',
+    bp_morning_average: 'Média Matinal',
+    bp_evening_average: 'Média Noturna',
+    bp_difference: 'Diferença',
   },
   
   // French
@@ -3350,6 +3364,13 @@ export const translations = {
     suggestions_none: 'Aucune suggestion pour le moment. Continuez le suivi!',
     suggestions_none_filtered: 'Aucune suggestion {{filter}}.',
     all_readings: 'Toutes les Lectures',
+    
+    // BP Insights - Additional labels
+    bp_classification_distribution: 'Distribution des Classifications',
+    bp_morning_vs_evening: 'Matin vs Soir',
+    bp_morning_average: 'Moyenne du Matin',
+    bp_evening_average: 'Moyenne du Soir',
+    bp_difference: 'Différence',
   },
   
   // Swahili
@@ -4463,6 +4484,13 @@ export const translations = {
     suggestions_none: 'Hakuna mapendekezo kwa sasa. Endelea kufuatilia!',
     suggestions_none_filtered: 'Hakuna mapendekezo ya {{filter}}.',
     all_readings: 'Usomaji Wote',
+    
+    // BP Insights - Additional labels
+    bp_classification_distribution: 'Usambazaji wa Uainishaji',
+    bp_morning_vs_evening: 'Asubuhi vs Jioni',
+    bp_morning_average: 'Wastani wa Asubuhi',
+    bp_evening_average: 'Wastani wa Jioni',
+    bp_difference: 'Tofauti',
   },
 } as const;
 

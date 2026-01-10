@@ -16,6 +16,18 @@ export function BPInsightsPage() {
   const { sessions, suggestions, analytics } = useBPData();
   const [filter, setFilter] = useState<'all' | 'urgent' | 'warn' | 'info'>('all');
 
+  // Helper function to get translated classification name
+  const getClassificationLabel = (classification: string): string => {
+    const classMap: Record<string, string> = {
+      'normal': t('bp_classification_normal'),
+      'elevated': t('bp_classification_elevated'),
+      'stage1': t('bp_classification_stage1'),
+      'stage2': t('bp_classification_stage2'),
+      'crisis': t('bp_classification_crisis'),
+    };
+    return classMap[classification] || classification;
+  };
+
   const filteredSuggestions = suggestions.filter((s) => filter === 'all' || s.severity === filter);
 
   const getClassColor = (classification: string) => {
@@ -72,14 +84,14 @@ export function BPInsightsPage() {
 
           {/* Distribution */}
           <div className={styles.distributionSection}>
-            <h3>Classification Distribution</h3>
+            <h3>{t('bp_classification_distribution')}</h3>
             <div className={styles.distributionBars}>
               {Object.entries(analytics.distribution).map(([key, count]) => {
                 const total = analytics.summary.totalSessions || 1;
                 const percentage = ((count / total) * 100).toFixed(0);
                 return (
                   <div key={key} className={styles.distBar}>
-                    <span className={styles.distLabel}>{key.replace('stage', 'Stage ')}</span>
+                    <span className={styles.distLabel}>{getClassificationLabel(key)}</span>
                     <div className={styles.barContainer}>
                       <div
                         className={styles.barFill}
@@ -96,22 +108,22 @@ export function BPInsightsPage() {
           {/* AM/PM Comparison */}
           {analytics.amPmComparison && (
             <div className={styles.comparisonSection}>
-              <h3>Morning vs Evening</h3>
+              <h3>{t('bp_morning_vs_evening')}</h3>
               <div className={styles.comparisonGrid}>
                 <div className={styles.comparisonCard}>
-                  <div className={styles.comparisonLabel}>Morning Average</div>
+                  <div className={styles.comparisonLabel}>{t('bp_morning_average')}</div>
                   <div className={styles.comparisonValue}>
                     {analytics.amPmComparison.amAvg.systolic}/{analytics.amPmComparison.amAvg.diastolic}
                   </div>
                 </div>
                 <div className={styles.comparisonCard}>
-                  <div className={styles.comparisonLabel}>Evening Average</div>
+                  <div className={styles.comparisonLabel}>{t('bp_evening_average')}</div>
                   <div className={styles.comparisonValue}>
                     {analytics.amPmComparison.pmAvg.systolic}/{analytics.amPmComparison.pmAvg.diastolic}
                   </div>
                 </div>
                 <div className={styles.comparisonCard}>
-                  <div className={styles.comparisonLabel}>Difference</div>
+                  <div className={styles.comparisonLabel}>{t('bp_difference')}</div>
                   <div className={styles.comparisonValue}>
                     {analytics.amPmComparison.difference.systolic > 0 ? '+' : ''}
                     {analytics.amPmComparison.difference.systolic}/
