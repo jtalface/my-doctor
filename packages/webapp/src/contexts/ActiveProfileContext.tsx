@@ -74,14 +74,24 @@ const ActiveProfileContext = createContext<ActiveProfileContextType | null>(null
 // Storage key for persisting active profile selection
 const ACTIVE_PROFILE_KEY = 'zambe_active_profile';
 
-export function ActiveProfileProvider({ children }: { children: ReactNode }) {
+interface ActiveProfileProviderProps {
+  children: ReactNode;
+  initialProfile?: PatientProfile | null;
+  initialDependents?: Dependent[];
+}
+
+export function ActiveProfileProvider({ 
+  children,
+  initialProfile = null,
+  initialDependents = []
+}: ActiveProfileProviderProps) {
   const { user, profile, isAuthenticated, updateProfile } = useAuth();
   
   const [activeProfile, setActiveProfile] = useState<ActiveProfile | null>(null);
-  const [activePatientProfile, setActivePatientProfile] = useState<PatientProfile | null>(null);
-  const [dependents, setDependents] = useState<Dependent[]>([]);
+  const [activePatientProfile, setActivePatientProfile] = useState<PatientProfile | null>(initialProfile);
+  const [dependents, setDependents] = useState<Dependent[]>(initialDependents);
   const [isLoadingDependents, setIsLoadingDependents] = useState(false);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(!initialProfile);
 
   // Initialize active profile when user logs in
   useEffect(() => {

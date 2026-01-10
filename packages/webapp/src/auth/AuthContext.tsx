@@ -73,10 +73,20 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<PatientProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+interface AuthProviderProps {
+  children: ReactNode;
+  initialUser?: User | null;
+  initialProfile?: PatientProfile | null;
+}
+
+export function AuthProvider({ 
+  children, 
+  initialUser = null, 
+  initialProfile = null 
+}: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(initialUser);
+  const [profile, setProfile] = useState<PatientProfile | null>(initialProfile);
+  const [isLoading, setIsLoading] = useState(!initialUser); // If initialUser provided, not loading
   const [isNewUser, setIsNewUser] = useState(false);
 
   // Load user profile
@@ -90,8 +100,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Try to restore session on mount
+  // Try to restore session on mount (skip if initialUser provided for testing)
   useEffect(() => {
+    // If initial user/profile provided (test mode), skip session restore
+    if (initialUser !== null) {
+      setIsLoading(false);
+      return;
+    }
+
     const restoreSession = async () => {
       try {
         const restoredUser = await authService.tryRestoreSession();
@@ -108,7 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     restoreSession();
-  }, [loadProfile]);
+  }, [loadProfile, initialUser]);
 
   // Login
   const login = async (email: string, password: string, rememberMe = false) => {
