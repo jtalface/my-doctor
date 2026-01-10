@@ -53,7 +53,7 @@ export function BPReportsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <button onClick={() => navigate('/bp/dashboard')} className={styles.backButton}>
-          ← {t('common_back')}
+          {t('common_back')}
         </button>
         <h1 className={styles.title}>📄 {t('bp_reports_title')}</h1>
       </div>

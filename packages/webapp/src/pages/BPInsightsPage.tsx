@@ -45,7 +45,7 @@ export function BPInsightsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <button onClick={() => navigate('/bp/dashboard')} className={styles.backButton}>
-          ← {t('bp_back')}
+          {t('bp_back')}
         </button>
         <h1 className={styles.title}>📊 {t('bp_insights_title')}</h1>
       </div>
