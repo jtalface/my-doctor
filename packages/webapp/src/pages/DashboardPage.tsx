@@ -192,8 +192,8 @@ export function DashboardPage() {
             <Card variant="interactive" padding="lg">
               <CardContent>
                 <div className={styles.actionIcon}>🌸</div>
-                <h3 className={styles.actionTitle}>Track Your Cycle</h3>
-                <p className={styles.actionDesc}>Period tracking & predictions</p>
+                <h3 className={styles.actionTitle}>{t('dashboard_cycle_tracker_title')}</h3>
+                <p className={styles.actionDesc}>{t('dashboard_cycle_tracker_desc')}</p>
               </CardContent>
             </Card>
           </Link>
@@ -203,8 +203,8 @@ export function DashboardPage() {
           <Card variant="interactive" padding="lg">
             <CardContent>
               <div className={styles.actionIcon}>🩸</div>
-              <h3 className={styles.actionTitle}>Track Glucose</h3>
-              <p className={styles.actionDesc}>Diabetes management & insights</p>
+              <h3 className={styles.actionTitle}>{t('dashboard_glucose_title')}</h3>
+              <p className={styles.actionDesc}>{t('dashboard_glucose_desc')}</p>
             </CardContent>
           </Card>
         </Link>
@@ -213,8 +213,8 @@ export function DashboardPage() {
           <Card variant="interactive" padding="lg">
             <CardContent>
               <div className={styles.actionIcon}>❤️</div>
-              <h3 className={styles.actionTitle}>Track Blood Pressure</h3>
-              <p className={styles.actionDesc}>BP monitoring & heart health</p>
+              <h3 className={styles.actionTitle}>{t('dashboard_bp_title')}</h3>
+              <p className={styles.actionDesc}>{t('dashboard_bp_desc')}</p>
             </CardContent>
           </Card>
         </Link>

@@ -1076,6 +1076,14 @@ export const translations = {
     bp_share_backups: 'Keep regular backups of your data',
     bp_remember: 'Remember:',
     bp_remember_text: 'Always consult your healthcare provider before making changes to your blood pressure management plan. This app provides data tracking, not medical advice.',
+    
+    // Dashboard - Health Tracking Feature Links
+    dashboard_cycle_tracker_title: 'Track Your Cycle',
+    dashboard_cycle_tracker_desc: 'Period tracking & predictions',
+    dashboard_glucose_title: 'Track Glucose',
+    dashboard_glucose_desc: 'Diabetes management & insights',
+    dashboard_bp_title: 'Track Blood Pressure',
+    dashboard_bp_desc: 'BP monitoring & heart health',
   },
   
   // Portuguese
@@ -2139,6 +2147,14 @@ export const translations = {
     bp_share_backups: 'Mantenha backups regulares de seus dados',
     bp_remember: 'Lembre-se:',
     bp_remember_text: 'Sempre consulte seu médico antes de fazer alterações em seu plano de gerenciamento de pressão arterial. Este aplicativo fornece rastreamento de dados, não conselhos médicos.',
+    
+    // Dashboard - Health Tracking Feature Links
+    dashboard_cycle_tracker_title: 'Rastreie Seu Ciclo',
+    dashboard_cycle_tracker_desc: 'Rastreamento e previsões do período',
+    dashboard_glucose_title: 'Rastreie Glicose',
+    dashboard_glucose_desc: 'Gerenciamento de diabetes e insights',
+    dashboard_bp_title: 'Rastreie Pressão Arterial',
+    dashboard_bp_desc: 'Monitoramento de PA e saúde cardíaca',
   },
   
   // French
@@ -3202,6 +3218,14 @@ export const translations = {
     bp_share_backups: 'Conservez des sauvegardes régulières de vos données',
     bp_remember: 'Rappel:',
     bp_remember_text: 'Consultez toujours votre professionnel de santé avant d\'apporter des modifications à votre plan de gestion de la tension artérielle. Cette application fournit un suivi des données, pas de conseils médicaux.',
+    
+    // Dashboard - Health Tracking Feature Links
+    dashboard_cycle_tracker_title: 'Suivre Votre Cycle',
+    dashboard_cycle_tracker_desc: 'Suivi et prévisions des règles',
+    dashboard_glucose_title: 'Suivre la Glycémie',
+    dashboard_glucose_desc: 'Gestion du diabète et informations',
+    dashboard_bp_title: 'Suivre la Tension Artérielle',
+    dashboard_bp_desc: 'Surveillance de la TA et santé cardiaque',
   },
   
   // Swahili
@@ -4265,6 +4289,14 @@ export const translations = {
     bp_share_backups: 'Weka nakala za kawaida za data yako',
     bp_remember: 'Kumbuka:',
     bp_remember_text: 'Daima shauriana na mtoa huduma wako kabla ya kufanya mabadiliko kwa mpango wako wa usimamizi wa shinikizo la damu. Programu hii inatoa ufuatiliaji wa data, si ushauri wa kimatibabu.',
+    
+    // Dashboard - Health Tracking Feature Links
+    dashboard_cycle_tracker_title: 'Fuatilia Mzunguko Wako',
+    dashboard_cycle_tracker_desc: 'Ufuatiliaji wa hedhi na utabiri',
+    dashboard_glucose_title: 'Fuatilia Glucose',
+    dashboard_glucose_desc: 'Usimamizi wa kisukari na maarifa',
+    dashboard_bp_title: 'Fuatilia Shinikizo la Damu',
+    dashboard_bp_desc: 'Ufuatiliaji wa BP na afya ya moyo',
   },
 } as const;
 
