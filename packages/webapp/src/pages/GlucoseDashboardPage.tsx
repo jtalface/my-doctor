@@ -224,13 +224,13 @@ export function GlucoseDashboardPage() {
       {/* Quick Links */}
       <div className={styles.quickLinks}>
         <button onClick={() => navigate('/glucose/log')} className={styles.linkCard}>
-          📝 Log Reading
+          📝 {t('quick_link_log_reading')}
         </button>
         <button onClick={() => navigate('/glucose/insights')} className={styles.linkCard}>
-          📊 View Insights
+          📊 {t('quick_link_view_insights')}
         </button>
         <button onClick={() => navigate('/glucose/reports')} className={styles.linkCard}>
-          📄 Export Report
+          📄 {t('quick_link_export_report')}
         </button>
       </div>
     </div>

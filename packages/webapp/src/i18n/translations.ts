@@ -1084,6 +1084,11 @@ export const translations = {
     dashboard_glucose_desc: 'Diabetes management & insights',
     dashboard_bp_title: 'Track Blood Pressure',
     dashboard_bp_desc: 'BP monitoring & heart health',
+    
+    // Quick Links (used in Glucose & BP dashboards)
+    quick_link_log_reading: 'Log Reading',
+    quick_link_view_insights: 'View Insights',
+    quick_link_export_report: 'Export Report',
   },
   
   // Portuguese
@@ -2155,6 +2160,11 @@ export const translations = {
     dashboard_glucose_desc: 'Gerenciamento de diabetes e insights',
     dashboard_bp_title: 'Rastreie Pressão Arterial',
     dashboard_bp_desc: 'Monitoramento de PA e saúde cardíaca',
+    
+    // Quick Links (used in Glucose & BP dashboards)
+    quick_link_log_reading: 'Registrar Leitura',
+    quick_link_view_insights: 'Ver Insights',
+    quick_link_export_report: 'Exportar Relatório',
   },
   
   // French
@@ -3226,6 +3236,11 @@ export const translations = {
     dashboard_glucose_desc: 'Gestion du diabète et informations',
     dashboard_bp_title: 'Suivre la Tension Artérielle',
     dashboard_bp_desc: 'Surveillance de la TA et santé cardiaque',
+    
+    // Quick Links (used in Glucose & BP dashboards)
+    quick_link_log_reading: 'Enregistrer une Lecture',
+    quick_link_view_insights: 'Voir les Informations',
+    quick_link_export_report: 'Exporter le Rapport',
   },
   
   // Swahili
@@ -4297,6 +4312,11 @@ export const translations = {
     dashboard_glucose_desc: 'Usimamizi wa kisukari na maarifa',
     dashboard_bp_title: 'Fuatilia Shinikizo la Damu',
     dashboard_bp_desc: 'Ufuatiliaji wa BP na afya ya moyo',
+    
+    // Quick Links (used in Glucose & BP dashboards)
+    quick_link_log_reading: 'Rekodi Usomaji',
+    quick_link_view_insights: 'Angalia Maarifa',
+    quick_link_export_report: 'Hamisha Ripoti',
   },
 } as const;
 

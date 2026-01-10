@@ -216,13 +216,13 @@ export function BPDashboardPage() {
       {/* Quick Links */}
       <div className={styles.quickLinks}>
         <button onClick={() => navigate('/bp/log')} className={styles.linkCard}>
-          📝 Log Reading
+          📝 {t('quick_link_log_reading')}
         </button>
         <button onClick={() => navigate('/bp/insights')} className={styles.linkCard}>
-          📊 View Insights
+          📊 {t('quick_link_view_insights')}
         </button>
         <button onClick={() => navigate('/bp/reports')} className={styles.linkCard}>
-          📄 Export Report
+          📄 {t('quick_link_export_report')}
         </button>
       </div>
     </div>
