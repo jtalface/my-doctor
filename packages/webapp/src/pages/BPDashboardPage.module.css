@@ -80,8 +80,8 @@
 .quickLogButton {
   width: 100%;
   padding: var(--space-4);
-  background: var(--primary-color);
-  color: white;
+  background: var(--primary-color, #3b82f6);
+  color: white !important;
   border: none;
   border-radius: var(--radius-md);
   font-size: 1.125rem;
@@ -89,10 +89,17 @@
   cursor: pointer;
   transition: background 0.2s;
   margin-bottom: var(--space-6);
+  font-family: inherit;
 }
 
 .quickLogButton:hover {
-  background: var(--primary-dark);
+  background: var(--primary-dark, #2563eb);
+}
+
+.quickLogButton:disabled {
+  background: #e5e7eb;
+  color: #9ca3af !important;
+  cursor: not-allowed;
 }
 
 .summaryGrid {
