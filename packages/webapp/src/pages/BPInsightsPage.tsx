@@ -134,32 +134,32 @@ export function BPInsightsPage() {
               className={filter === 'all' ? styles.active : ''}
               onClick={() => setFilter('all')}
             >
-              All ({suggestions.length})
+              {t('filter_all')} ({suggestions.length})
             </button>
             <button
               className={filter === 'urgent' ? styles.active : ''}
               onClick={() => setFilter('urgent')}
             >
-              Urgent ({suggestions.filter(s => s.severity === 'urgent').length})
+              {t('filter_urgent')} ({suggestions.filter(s => s.severity === 'urgent').length})
             </button>
             <button
               className={filter === 'warn' ? styles.active : ''}
               onClick={() => setFilter('warn')}
             >
-              Warnings ({suggestions.filter(s => s.severity === 'warn').length})
+              {t('filter_warnings')} ({suggestions.filter(s => s.severity === 'warn').length})
             </button>
             <button
               className={filter === 'info' ? styles.active : ''}
               onClick={() => setFilter('info')}
             >
-              Info ({suggestions.filter(s => s.severity === 'info').length})
+              {t('filter_info')} ({suggestions.filter(s => s.severity === 'info').length})
             </button>
           </div>
         </div>
 
         {filteredSuggestions.length === 0 ? (
           <div className={styles.emptyState}>
-            {filter === 'all' ? 'No suggestions at this time. Keep tracking!' : `No ${filter} suggestions.`}
+            {filter === 'all' ? t('suggestions_none') : t('suggestions_none_filtered', { filter })}
           </div>
         ) : (
           <div className={styles.suggestionsList}>
@@ -171,11 +171,11 @@ export function BPInsightsPage() {
                 </div>
                 <p className={styles.message}>{suggestion.message}</p>
                 <div className={styles.rationale}>
-                  <strong>Why:</strong> {suggestion.rationale}
+                  <strong>{t('suggestions_why')}</strong> {suggestion.rationale}
                 </div>
                 {suggestion.actions && suggestion.actions.length > 0 && (
                   <div className={styles.actions}>
-                    <strong>Suggested Actions:</strong>
+                    <strong>{t('suggestions_suggested_actions')}</strong>
                     <ul>
                       {suggestion.actions.map((action, idx) => (
                         <li key={idx}>{action}</li>
@@ -185,7 +185,7 @@ export function BPInsightsPage() {
                 )}
                 {suggestion.references && suggestion.references.length > 0 && (
                   <div className={styles.references}>
-                    <strong>References:</strong> {suggestion.references.join(', ')}
+                    <strong>{t('suggestions_references')}</strong> {suggestion.references.join(', ')}
                   </div>
                 )}
                 <div className={styles.disclaimer}>{suggestion.disclaimer}</div>
@@ -197,7 +197,7 @@ export function BPInsightsPage() {
 
       {/* All Sessions */}
       <div className={styles.sessionsSection}>
-        <h2>All Readings ({sessions.length})</h2>
+        <h2>{t('all_readings')} ({sessions.length})</h2>
         <div className={styles.sessionsList}>
           {sessions.map((session) => (
             <div

@@ -1110,6 +1110,20 @@ export const translations = {
     quick_link_log_reading: 'Log Reading',
     quick_link_view_insights: 'View Insights',
     quick_link_export_report: 'Export Report',
+    
+    // Filter buttons (used in Insights pages)
+    filter_all: 'All',
+    filter_urgent: 'Urgent',
+    filter_warnings: 'Warnings',
+    filter_info: 'Info',
+    
+    // Common suggestion labels
+    suggestions_why: 'Why:',
+    suggestions_suggested_actions: 'Suggested Actions:',
+    suggestions_references: 'References:',
+    suggestions_none: 'No suggestions at this time. Keep tracking!',
+    suggestions_none_filtered: 'No {{filter}} suggestions.',
+    all_readings: 'All Readings',
   },
   
   // Portuguese
@@ -2209,6 +2223,20 @@ export const translations = {
     quick_link_log_reading: 'Registrar Leitura',
     quick_link_view_insights: 'Ver Insights',
     quick_link_export_report: 'Exportar Relatório',
+    
+    // Filter buttons (used in Insights pages)
+    filter_all: 'Todos',
+    filter_urgent: 'Urgente',
+    filter_warnings: 'Avisos',
+    filter_info: 'Info',
+    
+    // Common suggestion labels
+    suggestions_why: 'Por quê:',
+    suggestions_suggested_actions: 'Ações Sugeridas:',
+    suggestions_references: 'Referências:',
+    suggestions_none: 'Sem sugestões no momento. Continue rastreando!',
+    suggestions_none_filtered: 'Sem sugestões de {{filter}}.',
+    all_readings: 'Todas as Leituras',
   },
   
   // French
@@ -3308,6 +3336,20 @@ export const translations = {
     quick_link_log_reading: 'Enregistrer une Lecture',
     quick_link_view_insights: 'Voir les Informations',
     quick_link_export_report: 'Exporter le Rapport',
+    
+    // Filter buttons (used in Insights pages)
+    filter_all: 'Tous',
+    filter_urgent: 'Urgent',
+    filter_warnings: 'Avertissements',
+    filter_info: 'Info',
+    
+    // Common suggestion labels
+    suggestions_why: 'Pourquoi:',
+    suggestions_suggested_actions: 'Actions Suggérées:',
+    suggestions_references: 'Références:',
+    suggestions_none: 'Aucune suggestion pour le moment. Continuez le suivi!',
+    suggestions_none_filtered: 'Aucune suggestion {{filter}}.',
+    all_readings: 'Toutes les Lectures',
   },
   
   // Swahili
@@ -4407,6 +4449,20 @@ export const translations = {
     quick_link_log_reading: 'Rekodi Usomaji',
     quick_link_view_insights: 'Angalia Maarifa',
     quick_link_export_report: 'Hamisha Ripoti',
+    
+    // Filter buttons (used in Insights pages)
+    filter_all: 'Yote',
+    filter_urgent: 'Ya Haraka',
+    filter_warnings: 'Maonyo',
+    filter_info: 'Maelezo',
+    
+    // Common suggestion labels
+    suggestions_why: 'Kwa nini:',
+    suggestions_suggested_actions: 'Hatua Zinazopendekezwa:',
+    suggestions_references: 'Marejeleo:',
+    suggestions_none: 'Hakuna mapendekezo kwa sasa. Endelea kufuatilia!',
+    suggestions_none_filtered: 'Hakuna mapendekezo ya {{filter}}.',
+    all_readings: 'Usomaji Wote',
   },
 } as const;
 
