@@ -7,11 +7,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBPData } from '../hooks/useBPData';
+import { useTranslate } from '../i18n';
 import { BPReading, MeasurementQuality, CONTEXT_OPTIONS, SYMPTOM_OPTIONS } from '../types/bp';
 import styles from './BPSessionLogPage.module.css';
 
 export function BPSessionLogPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { createSession, isLoading } = useBPData();
 
   const [readings, setReadings] = useState<BPReading[]>([{ systolic: 0, diastolic: 0, pulse: undefined }]);
@@ -70,23 +72,23 @@ export function BPSessionLogPage() {
     // Validation
     for (const reading of readings) {
       if (!reading.systolic || !reading.diastolic) {
-        setError('Please fill in all systolic and diastolic values');
+        setError(t('bp_validation_fill_all'));
         return;
       }
       if (reading.systolic <= reading.diastolic) {
-        setError('Systolic must be greater than diastolic');
+        setError(t('bp_validation_systolic_greater'));
         return;
       }
       if (reading.systolic < 70 || reading.systolic > 300) {
-        setError('Systolic must be between 70 and 300');
+        setError(t('bp_validation_systolic_range'));
         return;
       }
       if (reading.diastolic < 40 || reading.diastolic > 200) {
-        setError('Diastolic must be between 40 and 200');
+        setError(t('bp_validation_diastolic_range'));
         return;
       }
       if (reading.pulse && (reading.pulse < 30 || reading.pulse > 220)) {
-        setError('Pulse must be between 30 and 220');
+        setError(t('bp_validation_pulse_range'));
         return;
       }
     }
@@ -109,7 +111,7 @@ export function BPSessionLogPage() {
 
       navigate('/bp/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Failed to log session');
+      setError(err.message || t('bp_failed_save'));
       setIsSubmitting(false);
     }
   };
@@ -124,13 +126,13 @@ export function BPSessionLogPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h1 className={styles.title}>📝 Log Blood Pressure</h1>
-        <p className={styles.subtitle}>Take 2-3 readings, 1 minute apart. We'll calculate the average.</p>
+        <h1 className={styles.title}>📝 {t('bp_log_title')}</h1>
+        <p className={styles.subtitle}>{t('bp_log_subtitle')}</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {/* Measurement Quality Checklist */}
           <div className={styles.section}>
-            <h3>1. Measurement Preparation (Required)</h3>
+            <h3>{t('bp_preparation_title')}</h3>
             <div className={styles.qualityChecklist}>
               <label className={styles.checkboxLabel}>
                 <input
@@ -138,7 +140,7 @@ export function BPSessionLogPage() {
                   checked={quality.rested_5_min}
                   onChange={(e) => setQuality({ ...quality, rested_5_min: e.target.checked })}
                 />
-                <span>✅ Rested for 5 minutes before measurement</span>
+                <span>✅ {t('bp_prep_rested')}</span>
               </label>
               <label className={styles.checkboxLabel}>
                 <input
@@ -146,7 +148,7 @@ export function BPSessionLogPage() {
                   checked={quality.feet_flat}
                   onChange={(e) => setQuality({ ...quality, feet_flat: e.target.checked })}
                 />
-                <span>✅ Feet flat on floor (not crossed)</span>
+                <span>✅ {t('bp_prep_feet')}</span>
               </label>
               <label className={styles.checkboxLabel}>
                 <input
@@ -154,7 +156,7 @@ export function BPSessionLogPage() {
                   checked={quality.back_supported}
                   onChange={(e) => setQuality({ ...quality, back_supported: e.target.checked })}
                 />
-                <span>✅ Back supported against chair</span>
+                <span>✅ {t('bp_prep_back')}</span>
               </label>
               <label className={styles.checkboxLabel}>
                 <input
@@ -162,16 +164,16 @@ export function BPSessionLogPage() {
                   checked={quality.arm_supported_heart_level}
                   onChange={(e) => setQuality({ ...quality, arm_supported_heart_level: e.target.checked })}
                 />
-                <span>✅ Arm supported at heart level on a table</span>
+                <span>✅ {t('bp_prep_arm')}</span>
               </label>
             </div>
 
             <div className={styles.qualityScore}>
-              Quality Score: {coreQualityScore}/4 {coreQualityScore === 4 ? '✅' : '⚠️'}
+              {t('bp_prep_score', { score: coreQualityScore })} {coreQualityScore === 4 ? '✅' : '⚠️'}
             </div>
 
             <details className={styles.optionalDetails}>
-              <summary>Optional Checklist Items (recommended)</summary>
+              <summary>{t('bp_optional_factors')}</summary>
               <div className={styles.qualityChecklist}>
                 <label className={styles.checkboxLabel}>
                   <input
@@ -179,7 +181,7 @@ export function BPSessionLogPage() {
                     checked={quality.correct_cuff_size || false}
                     onChange={(e) => setQuality({ ...quality, correct_cuff_size: e.target.checked })}
                   />
-                  <span>Using correct cuff size (covers 80% of arm)</span>
+                  <span>{t('bp_correct_cuff')}</span>
                 </label>
                 <label className={styles.checkboxLabel}>
                   <input
@@ -187,7 +189,7 @@ export function BPSessionLogPage() {
                     checked={quality.no_caffeine_30_min || false}
                     onChange={(e) => setQuality({ ...quality, no_caffeine_30_min: e.target.checked })}
                   />
-                  <span>No caffeine for 30 minutes</span>
+                  <span>{t('bp_no_caffeine')}</span>
                 </label>
                 <label className={styles.checkboxLabel}>
                   <input
@@ -195,7 +197,7 @@ export function BPSessionLogPage() {
                     checked={quality.no_exercise_30_min || false}
                     onChange={(e) => setQuality({ ...quality, no_exercise_30_min: e.target.checked })}
                   />
-                  <span>No exercise for 30 minutes</span>
+                  <span>{t('bp_no_exercise')}</span>
                 </label>
                 <label className={styles.checkboxLabel}>
                   <input
@@ -203,7 +205,7 @@ export function BPSessionLogPage() {
                     checked={quality.no_smoking_30_min || false}
                     onChange={(e) => setQuality({ ...quality, no_smoking_30_min: e.target.checked })}
                   />
-                  <span>No smoking for 30 minutes</span>
+                  <span>{t('bp_no_smoking')}</span>
                 </label>
               </div>
             </details>
@@ -211,7 +213,7 @@ export function BPSessionLogPage() {
 
           {/* Readings */}
           <div className={styles.section}>
-            <h3>2. Blood Pressure Readings</h3>
+            <h3>{t('bp_readings_title')}</h3>
             <p className={styles.hint}>Take 2-3 readings, waiting 1 minute between each</p>
 
             {readings.map((reading, index) => (
@@ -272,7 +274,7 @@ export function BPSessionLogPage() {
 
           {/* Context */}
           <div className={styles.section}>
-            <h3>3. Context</h3>
+            <h3>{t('bp_context_title')}</h3>
             <select
               value={context}
               onChange={(e) => setContext(e.target.value as any)}
@@ -289,7 +291,7 @@ export function BPSessionLogPage() {
 
           {/* Symptoms */}
           <div className={styles.section}>
-            <h3>4. Symptoms (Select all that apply)</h3>
+            <h3>{t('bp_symptoms_title')}</h3>
             <div className={styles.symptomGrid}>
               {SYMPTOM_OPTIONS.map((opt) => (
                 <label
@@ -310,7 +312,7 @@ export function BPSessionLogPage() {
 
           {/* Notes */}
           <div className={styles.section}>
-            <h3>5. Notes (Optional)</h3>
+            <h3>{t('bp_notes_title')}</h3>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -326,10 +328,10 @@ export function BPSessionLogPage() {
 
           <div className={styles.actions}>
             <button type="button" onClick={() => navigate('/bp/dashboard')} className={styles.cancelButton} disabled={isSubmitting}>
-              Cancel
+              {t('bp_cancel')}
             </button>
             <button type="submit" className={styles.submitButton} disabled={isSubmitting || isLoading}>
-              {isSubmitting ? 'Saving...' : 'Save Reading'}
+              {isSubmitting ? t('bp_saving') : t('bp_save_session')}
             </button>
           </div>
         </form>
