@@ -16,6 +16,23 @@ export function BPSessionLogPage() {
   const t = useTranslate();
   const { createSession, isLoading } = useBPData();
 
+  // Create translated context options
+  const translatedContextOptions = CONTEXT_OPTIONS.map(opt => ({
+    value: opt.value,
+    label: t(`bp_context_${opt.value}` as any) || opt.label,
+  }));
+
+  // Create translated symptom options
+  const translatedSymptomOptions = [
+    { value: 'none', label: t('bp_symptom_none'), icon: '✅' },
+    { value: 'chest_pain', label: t('bp_symptom_chest'), icon: '⚠️' },
+    { value: 'shortness_of_breath', label: t('bp_symptom_short_breath'), icon: '⚠️' },
+    { value: 'severe_headache', label: t('bp_symptom_headache'), icon: '⚠️' },
+    { value: 'vision_changes', label: t('bp_symptom_vision'), icon: '⚠️' },
+    { value: 'confusion', label: t('bp_symptom_dizzy'), icon: '⚠️' },
+    { value: 'weakness_numbness', label: t('bp_symptom_nausea'), icon: '⚠️' },
+  ];
+
   const [readings, setReadings] = useState<BPReading[]>([{ systolic: 0, diastolic: 0, pulse: undefined }]);
   const [context, setContext] = useState<'resting' | 'after_exercise' | 'stressed' | 'clinic' | 'other'>('resting');
   const [symptoms, setSymptoms] = useState<string[]>(['none']);
@@ -214,11 +231,11 @@ export function BPSessionLogPage() {
           {/* Readings */}
           <div className={styles.section}>
             <h3>{t('bp_readings_title')}</h3>
-            <p className={styles.hint}>Take 2-3 readings, waiting 1 minute between each</p>
+            <p className={styles.hint}>{t('bp_readings_hint')}</p>
 
             {readings.map((reading, index) => (
               <div key={index} className={styles.readingRow}>
-                <span className={styles.readingLabel}>Reading {index + 1}:</span>
+                <span className={styles.readingLabel}>{t('bp_reading_label')} {index + 1}:</span>
                 <div className={styles.readingInputs}>
                   <div className={styles.inputGroup}>
                     <input
@@ -230,7 +247,7 @@ export function BPSessionLogPage() {
                       max="300"
                       required
                     />
-                    <label>Systolic</label>
+                    <label>{t('bp_systolic_label')}</label>
                   </div>
                   <span className={styles.slash}>/</span>
                   <div className={styles.inputGroup}>
@@ -243,7 +260,7 @@ export function BPSessionLogPage() {
                       max="200"
                       required
                     />
-                    <label>Diastolic</label>
+                    <label>{t('bp_diastolic_label')}</label>
                   </div>
                   <div className={styles.inputGroup}>
                     <input
@@ -254,7 +271,7 @@ export function BPSessionLogPage() {
                       min="30"
                       max="220"
                     />
-                    <label>Pulse (optional)</label>
+                    <label>{t('bp_pulse_label')}</label>
                   </div>
                   {readings.length > 1 && (
                     <button type="button" onClick={() => removeReading(index)} className={styles.removeButton}>
@@ -267,7 +284,7 @@ export function BPSessionLogPage() {
 
             {readings.length < 3 && (
               <button type="button" onClick={addReading} className={styles.addReadingButton}>
-                + Add Another Reading
+                {t('bp_add_another_reading')}
               </button>
             )}
           </div>
@@ -281,7 +298,7 @@ export function BPSessionLogPage() {
               className={styles.select}
               required
             >
-              {CONTEXT_OPTIONS.map((opt) => (
+              {translatedContextOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -293,7 +310,7 @@ export function BPSessionLogPage() {
           <div className={styles.section}>
             <h3>{t('bp_symptoms_title')}</h3>
             <div className={styles.symptomGrid}>
-              {SYMPTOM_OPTIONS.map((opt) => (
+              {translatedSymptomOptions.map((opt) => (
                 <label
                   key={opt.value}
                   className={`${styles.symptomCard} ${symptoms.includes(opt.value) ? styles.selected : ''} ${opt.icon === '⚠️' ? styles.warning : ''}`}
@@ -316,12 +333,12 @@ export function BPSessionLogPage() {
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any additional context (e.g., 'before breakfast', 'felt anxious')..."
+              placeholder={t('bp_notes_placeholder_detailed')}
               className={styles.textarea}
               maxLength={500}
               rows={3}
             />
-            <div className={styles.charCount}>{notes.length}/500</div>
+            <div className={styles.charCount}>{t('bp_char_count', { count: notes.length, max: 500 })}</div>
           </div>
 
           {error && <div className={styles.error}>{error}</div>}
