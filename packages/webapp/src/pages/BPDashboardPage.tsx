@@ -6,10 +6,12 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useBPData } from '../hooks/useBPData';
+import { useTranslate } from '../i18n';
 import styles from './BPDashboardPage.module.css';
 
 export function BPDashboardPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { settings, sessions, suggestions, analytics, isLoading, hasOnboarded } = useBPData();
 
   // Redirect to onboarding if not set up
@@ -21,7 +23,7 @@ export function BPDashboardPage() {
   if (isLoading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Loading BP data...</div>
+        <div className={styles.loading}>{t('bp_entry_loading')}</div>
       </div>
     );
   }
@@ -47,13 +49,13 @@ export function BPDashboardPage() {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>❤️ Blood Pressure Tracking</h1>
+          <h1 className={styles.title}>❤️ {t('bp_dashboard_title')}</h1>
           <p className={styles.subtitle}>
-            Target: <strong>{settings?.targets.systolic}/{settings?.targets.diastolic} mmHg</strong>
+            {t('bp_target')} <strong>{settings?.targets.systolic}/{settings?.targets.diastolic} mmHg</strong>
           </p>
         </div>
         <button onClick={() => navigate('/bp/settings')} className={styles.settingsButton} type="button">
-          ⚙️ Settings
+          ⚙️ {t('bp_settings_button')}
         </button>
       </div>
 
@@ -74,13 +76,13 @@ export function BPDashboardPage() {
 
       {/* Quick Action */}
       <button onClick={() => navigate('/bp/log')} className={styles.quickLogButton}>
-        + Log Blood Pressure
+        {t('bp_quick_log')}
       </button>
 
       {/* Summary Cards */}
       <div className={styles.summaryGrid}>
         <div className={styles.summaryCard}>
-          <div className={styles.cardLabel}>Latest Reading</div>
+          <div className={styles.cardLabel}>{t('bp_latest_reading')}</div>
           {latestSession ? (
             <>
               <div className={styles.cardValue} style={{ color: getClassColor(latestSession.classification) }}>
@@ -96,38 +98,38 @@ export function BPDashboardPage() {
               </div>
             </>
           ) : (
-            <div className={styles.noData}>No readings yet</div>
+            <div className={styles.noData}>{t('bp_no_readings')}</div>
           )}
         </div>
 
         <div className={styles.summaryCard}>
-          <div className={styles.cardLabel}>7-Day Average</div>
+          <div className={styles.cardLabel}>{t('bp_7day_average')}</div>
           <div className={styles.cardValue}>
             {analytics?.summary.avgSystolic || 0}/{analytics?.summary.avgDiastolic || 0}
             <span className={styles.unit}>mmHg</span>
           </div>
-          <div className={styles.cardMeta}>{analytics?.summary.totalSessions || 0} readings</div>
+          <div className={styles.cardMeta}>{t('bp_readings_count', { count: analytics?.summary.totalSessions || 0 })}</div>
         </div>
 
         <div className={styles.summaryCard}>
-          <div className={styles.cardLabel}>Above Target</div>
+          <div className={styles.cardLabel}>{t('bp_above_target')}</div>
           <div className={styles.cardValue}>
             {analytics?.aboveTarget.percentage || 0}
             <span className={styles.unit}>%</span>
           </div>
           <div className={styles.cardMeta}>
-            {analytics?.aboveTarget.count || 0} readings
+            {t('bp_readings_count', { count: analytics?.aboveTarget.count || 0 })}
           </div>
         </div>
 
         <div className={styles.summaryCard}>
-          <div className={styles.cardLabel}>Adherence</div>
+          <div className={styles.cardLabel}>{t('bp_adherence')}</div>
           <div className={styles.cardValue}>
             {analytics?.adherence.adherenceRate || 0}
             <span className={styles.unit}>%</span>
           </div>
           <div className={styles.cardMeta}>
-            {analytics?.adherence.actualReadings || 0} / {analytics?.adherence.expectedReadings || 0} expected
+            {t('bp_expected', { actual: analytics?.adherence.actualReadings || 0, expected: analytics?.adherence.expectedReadings || 0 })}
           </div>
         </div>
       </div>
@@ -135,7 +137,7 @@ export function BPDashboardPage() {
       {/* Warnings/Suggestions */}
       {warnSuggestions.length > 0 && (
         <div className={styles.suggestionsSection}>
-          <h2 className={styles.sectionTitle}>⚠️ Suggestions & Patterns</h2>
+          <h2 className={styles.sectionTitle}>⚠️ {t('bp_patterns_title')}</h2>
           <div className={styles.suggestionsList}>
             {warnSuggestions.slice(0, 3).map((suggestion) => (
               <div key={suggestion.id} className={styles.suggestionCard}>
@@ -148,7 +150,7 @@ export function BPDashboardPage() {
                 <p className={styles.suggestionMessage}>{suggestion.message}</p>
                 {suggestion.actions && suggestion.actions.length > 0 && (
                   <div className={styles.actions}>
-                    <strong>Suggested actions:</strong>
+                    <strong>{t('bp_suggested_actions')}</strong>
                     <ul>
                       {suggestion.actions.slice(0, 3).map((action, idx) => (
                         <li key={idx}>{action}</li>
@@ -171,7 +173,7 @@ export function BPDashboardPage() {
       {/* Recent Sessions */}
       <div className={styles.recentSection}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Recent Readings</h2>
+          <h2 className={styles.sectionTitle}>{t('bp_recent_sessions')}</h2>
           <button onClick={() => navigate('/bp/insights')} className={styles.viewAllLink}>
             View all →
           </button>
@@ -179,7 +181,7 @@ export function BPDashboardPage() {
 
         {sessions.length === 0 ? (
           <div className={styles.emptyState}>
-            <p>No readings yet. Log your first reading to get started!</p>
+            <p>{t('bp_no_sessions_yet')}</p>
           </div>
         ) : (
           <div className={styles.sessionsList}>
