@@ -16,6 +16,16 @@ export function BPSessionLogPage() {
   const t = useTranslate();
   const { createSession, isLoading } = useBPData();
 
+  // Helper to translate backend error messages
+  const translateError = (errorMessage: string): string => {
+    if (errorMessage.includes('Settings already exist')) return t('bp_error_settings_exist');
+    if (errorMessage.includes('Failed to create')) return t('bp_error_failed_create');
+    if (errorMessage.includes('Failed to update')) return t('bp_error_failed_update');
+    if (errorMessage.includes('Failed to delete')) return t('bp_error_failed_delete');
+    if (errorMessage.includes('Server error') || errorMessage.includes('SERVER_ERROR')) return t('bp_error_server');
+    return t('bp_error_unknown');
+  };
+
   // Create translated context options
   const translatedContextOptions = CONTEXT_OPTIONS.map(opt => ({
     value: opt.value,
@@ -128,7 +138,7 @@ export function BPSessionLogPage() {
 
       navigate('/bp/dashboard');
     } catch (err: any) {
-      setError(err.message || t('bp_failed_save'));
+      setError(translateError(err.message || t('bp_failed_save')));
       setIsSubmitting(false);
     }
   };

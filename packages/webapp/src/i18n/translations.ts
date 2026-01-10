@@ -999,6 +999,14 @@ export const translations = {
     bp_save_session: 'Save Session',
     bp_failed_save: 'Failed to log session',
     
+    // Backend error messages
+    bp_error_settings_exist: 'Settings already exist. Please use the settings page to update.',
+    bp_error_failed_create: 'Failed to create settings',
+    bp_error_failed_update: 'Failed to update settings',
+    bp_error_failed_delete: 'Failed to delete data',
+    bp_error_server: 'Server error. Please try again.',
+    bp_error_unknown: 'An unknown error occurred',
+    
     // Insights Page
     bp_insights_title: 'Blood Pressure Insights & Patterns',
     bp_back_to_dashboard: 'Back to Dashboard',
@@ -2134,6 +2142,15 @@ export const translations = {
     bp_saving: 'Salvando...',
     bp_save_session: 'Salvar Sessão',
     bp_failed_save: 'Falha ao registrar sessão',
+    
+    // Backend error messages
+    bp_error_settings_exist: 'As configurações já existem. Use a página de configurações para atualizar.',
+    bp_error_failed_create: 'Falha ao criar configurações',
+    bp_error_failed_update: 'Falha ao atualizar configurações',
+    bp_error_failed_delete: 'Falha ao excluir dados',
+    bp_error_server: 'Erro do servidor. Tente novamente.',
+    bp_error_unknown: 'Ocorreu um erro desconhecido',
+    
     bp_insights_title: 'Insights e Padrões de Pressão Arterial',
     bp_back_to_dashboard: 'Voltar ao Painel',
     bp_loading_insights: 'Carregando insights...',
@@ -3266,6 +3283,15 @@ export const translations = {
     bp_saving: 'Enregistrement...',
     bp_save_session: 'Enregistrer la Session',
     bp_failed_save: 'Échec de l\'enregistrement de la session',
+    
+    // Backend error messages
+    bp_error_settings_exist: 'Les paramètres existent déjà. Veuillez utiliser la page des paramètres pour mettre à jour.',
+    bp_error_failed_create: 'Échec de la création des paramètres',
+    bp_error_failed_update: 'Échec de la mise à jour des paramètres',
+    bp_error_failed_delete: 'Échec de la suppression des données',
+    bp_error_server: 'Erreur du serveur. Veuillez réessayer.',
+    bp_error_unknown: 'Une erreur inconnue s\'est produite',
+    
     bp_insights_title: 'Informations et Tendances de Tension Artérielle',
     bp_back_to_dashboard: 'Retour au Tableau de Bord',
     bp_loading_insights: 'Chargement des informations...',
@@ -4398,6 +4424,15 @@ export const translations = {
     bp_saving: 'Inahifadhi...',
     bp_save_session: 'Hifadhi Kikao',
     bp_failed_save: 'Imeshindwa kuhifadhi kikao',
+    
+    // Backend error messages
+    bp_error_settings_exist: 'Mipangilio tayari ipo. Tafadhali tumia ukurasa wa mipangilio kusasisha.',
+    bp_error_failed_create: 'Imeshindwa kuunda mipangilio',
+    bp_error_failed_update: 'Imeshindwa kusasisha mipangilio',
+    bp_error_failed_delete: 'Imeshindwa kufuta data',
+    bp_error_server: 'Kosa la seva. Tafadhali jaribu tena.',
+    bp_error_unknown: 'Kosa lisilojulikana limetokea',
+    
     bp_insights_title: 'Maarifa na Mifumo ya Shinikizo la Damu',
     bp_back_to_dashboard: 'Rudi kwenye Dashibodi',
     bp_loading_insights: 'Inapakia maarifa...',

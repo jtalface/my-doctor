@@ -17,6 +17,16 @@ export function BPSettingsPage() {
   const t = useTranslate();
   const { settings, updateSettings, refreshData } = useBPData();
 
+  // Helper to translate backend error messages
+  const translateError = (errorMessage: string): string => {
+    if (errorMessage.includes('Settings already exist')) return t('bp_error_settings_exist');
+    if (errorMessage.includes('Failed to create')) return t('bp_error_failed_create');
+    if (errorMessage.includes('Failed to update')) return t('bp_error_failed_update');
+    if (errorMessage.includes('Failed to delete')) return t('bp_error_failed_delete');
+    if (errorMessage.includes('Server error') || errorMessage.includes('SERVER_ERROR')) return t('bp_error_server');
+    return t('bp_error_unknown');
+  };
+
   const [formData, setFormData] = useState(settings || null);
   const [medicationName, setMedicationName] = useState('');
   const [medicationClass, setMedicationClass] = useState('');
@@ -55,7 +65,7 @@ export function BPSettingsPage() {
       setSuccessMessage(t('bp_settings_saved'));
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err: any) {
-      setError(err.message || t('bp_failed_settings'));
+      setError(translateError(err.message || t('bp_failed_settings')));
     } finally {
       setIsSaving(false);
     }
@@ -100,7 +110,7 @@ export function BPSettingsPage() {
       await bpApi.deleteAllData();
       navigate('/bp/onboarding', { replace: true });
     } catch (err: any) {
-      setError(err.message || 'Failed to delete data');
+      setError(translateError(err.message || t('bp_error_failed_delete')));
       setIsDeleting(false);
     }
   };
