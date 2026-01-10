@@ -20,6 +20,14 @@ export const translations = {
     common_skip: 'Skip for now',
     common_complete: 'Complete',
     
+    // Navigation
+    nav_home: 'Home',
+    nav_history: 'History',
+    nav_cycle: 'Cycle',
+    nav_messages: 'Messages',
+    nav_profile: 'Profile',
+    nav_settings: 'Settings',
+    
     // Login Page
     login_title: 'Welcome to Zambe',
     login_subtitle: 'Sign in to your account',
@@ -1183,6 +1191,14 @@ export const translations = {
     common_skip: 'Pular por enquanto',
     common_complete: 'Concluir',
     
+    // Navigation
+    nav_home: 'Início',
+    nav_history: 'Histórico',
+    nav_cycle: 'Ciclo',
+    nav_messages: 'Mensagens',
+    nav_profile: 'Perfil',
+    nav_settings: 'Configurações',
+    
     // Login Page
     login_title: 'Bem-vindo ao Zambe',
     login_subtitle: 'Entre na sua conta',
@@ -2340,6 +2356,14 @@ export const translations = {
     common_skip: 'Passer pour le moment',
     common_complete: 'Terminer',
     
+    // Navigation
+    nav_home: 'Accueil',
+    nav_history: 'Historique',
+    nav_cycle: 'Cycle',
+    nav_messages: 'Messages',
+    nav_profile: 'Profil',
+    nav_settings: 'Paramètres',
+    
     // Login Page
     login_title: 'Bienvenue sur Zambe',
     login_subtitle: 'Connectez-vous à votre compte',
@@ -3496,6 +3520,14 @@ export const translations = {
     common_previous: 'Iliyotangulia',
     common_skip: 'Ruka kwa sasa',
     common_complete: 'Maliza',
+    
+    // Navigation
+    nav_home: 'Nyumbani',
+    nav_history: 'Historia',
+    nav_cycle: 'Mzunguko',
+    nav_messages: 'Ujumbe',
+    nav_profile: 'Wasifu',
+    nav_settings: 'Mipangilio',
     
     // Login Page
     login_title: 'Karibu Zambe',

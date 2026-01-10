@@ -27,27 +27,27 @@ export function Header() {
               to="/dashboard" 
               className={`${styles.navLink} ${location.pathname === '/dashboard' ? styles.active : ''}`}
             >
-              Home
+              {t('nav_home')}
             </Link>
             <Link 
               to="/history" 
               className={`${styles.navLink} ${location.pathname.startsWith('/history') ? styles.active : ''}`}
             >
-              History
+              {t('nav_history')}
             </Link>
             {isEligible && (
               <Link 
                 to="/cycle" 
                 className={`${styles.navLink} ${location.pathname.startsWith('/cycle') ? styles.active : ''}`}
               >
-                Cycle
+                {t('nav_cycle')}
               </Link>
             )}
             <Link 
               to="/messages" 
               className={`${styles.navLink} ${location.pathname.startsWith('/messages') ? styles.active : ''}`}
             >
-              Messages
+              {t('nav_messages')}
             </Link>
           </nav>
           
