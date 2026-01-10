@@ -7,12 +7,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBPData } from '../hooks/useBPData';
+import { useTranslate } from '../i18n';
 import * as bpApi from '../services/bpApi';
 import { MEDICATION_CLASSES, SCHEDULE_OPTIONS } from '../types/bp';
 import styles from './BPSettingsPage.module.css';
 
 export function BPSettingsPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { settings, updateSettings, refreshData } = useBPData();
 
   const [formData, setFormData] = useState(settings || null);
@@ -32,7 +34,7 @@ export function BPSettingsPage() {
   if (!formData) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Loading settings...</div>
+        <div className={styles.loading}>{t('bp_loading_insights')}</div>
       </div>
     );
   }
@@ -50,10 +52,10 @@ export function BPSettingsPage() {
         medications: formData.medications,
         comorbidities: formData.comorbidities,
       });
-      setSuccessMessage('Settings saved successfully!');
+      setSuccessMessage(t('bp_settings_saved'));
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err: any) {
-      setError(err.message || 'Failed to save settings');
+      setError(err.message || t('bp_failed_settings'));
     } finally {
       setIsSaving(false);
     }
@@ -107,19 +109,19 @@ export function BPSettingsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <button onClick={() => navigate('/bp/dashboard')} className={styles.backButton}>
-          ← Back
+          ← {t('bp_back')}
         </button>
-        <h1 className={styles.title}>⚙️ BP Tracking Settings</h1>
+        <h1 className={styles.title}>⚙️ {t('bp_settings_title')}</h1>
       </div>
 
       <form onSubmit={handleSave} className={styles.form}>
         {/* Targets */}
         <div className={styles.section}>
-          <h3>Blood Pressure Targets</h3>
-          <p className={styles.hint}>Set with your healthcare provider</p>
+          <h3>{t('bp_targets_title')}</h3>
+          <p className={styles.hint}>{t('bp_target_ranges_hint')}</p>
           <div className={styles.targetInputs}>
             <div className={styles.inputGroup}>
-              <label>Systolic (top number)</label>
+              <label>{t('bp_systolic')}</label>
               <div className={styles.inputWithUnit}>
                 <input
                   type="number"
@@ -139,7 +141,7 @@ export function BPSettingsPage() {
             </div>
             <span className={styles.slash}>/</span>
             <div className={styles.inputGroup}>
-              <label>Diastolic (bottom number)</label>
+              <label>{t('bp_diastolic')}</label>
               <div className={styles.inputWithUnit}>
                 <input
                   type="number"
@@ -162,7 +164,7 @@ export function BPSettingsPage() {
 
         {/* Schedule */}
         <div className={styles.section}>
-          <h3>Measurement Schedule</h3>
+          <h3>{t('bp_measurement_schedule')}</h3>
           <div className={styles.checkboxGroup}>
             {SCHEDULE_OPTIONS.map((option) => (
               <label key={option.value} className={styles.checkboxLabel}>
@@ -192,7 +194,7 @@ export function BPSettingsPage() {
 
         {/* Medications */}
         <div className={styles.section}>
-          <h3>Medications</h3>
+          <h3>{t('bp_medications')}</h3>
           <div className={styles.medicationInput}>
             <input
               type="text"
@@ -231,7 +233,7 @@ export function BPSettingsPage() {
 
         {/* Comorbidities */}
         <div className={styles.section}>
-          <h3>Health Conditions</h3>
+          <h3>{t('bp_health_conditions_section')}</h3>
           <div className={styles.checkboxGroup}>
             <label className={styles.checkboxLabel}>
               <input
@@ -305,13 +307,13 @@ export function BPSettingsPage() {
         {successMessage && <div className={styles.success}>{successMessage}</div>}
 
         <button type="submit" className={styles.saveButton} disabled={isSaving}>
-          {isSaving ? 'Saving...' : 'Save Settings'}
+          {isSaving ? t('bp_saving') : t('bp_save_settings')}
         </button>
       </form>
 
       {/* Danger Zone */}
       <div className={styles.dangerZone}>
-        <h3>⚠️ Danger Zone</h3>
+        <h3>⚠️ {t('bp_danger_zone')}</h3>
         <p>Permanently delete all your blood pressure data. This cannot be undone.</p>
         <button onClick={handleDeleteAllData} disabled={isDeleting} className={styles.deleteButton}>
           {isDeleting ? 'Deleting...' : 'Delete All Data'}

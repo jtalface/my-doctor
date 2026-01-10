@@ -7,11 +7,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBPData } from '../hooks/useBPData';
+import { useTranslate } from '../i18n';
 import * as bpApi from '../services/bpApi';
 import styles from './BPReportsPage.module.css';
 
 export function BPReportsPage() {
   const navigate = useNavigate();
+  const t = useTranslate();
   const { settings, sessions, analytics } = useBPData();
   const [isExporting, setIsExporting] = useState(false);
 
@@ -51,9 +53,9 @@ export function BPReportsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <button onClick={() => navigate('/bp/dashboard')} className={styles.backButton}>
-          ← Back
+          ← {t('bp_back')}
         </button>
-        <h1 className={styles.title}>📄 Blood Pressure Report</h1>
+        <h1 className={styles.title}>📄 {t('bp_reports_title')}</h1>
       </div>
 
       <div className={styles.actions}>
@@ -61,7 +63,7 @@ export function BPReportsPage() {
           🖨️ Print Report
         </button>
         <button onClick={handleExport} disabled={isExporting} className={styles.actionButton}>
-          {isExporting ? 'Exporting...' : '💾 Export Data (JSON)'}
+          {isExporting ? t('bp_exporting') : `💾 ${t('bp_download_json')}`}
         </button>
       </div>
 
@@ -86,22 +88,22 @@ export function BPReportsPage() {
         {/* Summary */}
         {analytics && (
           <div className={styles.section}>
-            <h3>7-Day Summary</h3>
+            <h3>{t('bp_7day_summary')}</h3>
             <div className={styles.summaryGrid}>
               <div>
-                <div className={styles.label}>Average BP</div>
+                <div className={styles.label}>{t('bp_average_bp')}</div>
                 <div className={styles.value}>{analytics.summary.avgSystolic}/{analytics.summary.avgDiastolic} mmHg</div>
               </div>
               <div>
-                <div className={styles.label}>Total Readings</div>
+                <div className={styles.label}>{t('bp_sessions')}</div>
                 <div className={styles.value}>{analytics.summary.totalSessions}</div>
               </div>
               <div>
-                <div className={styles.label}>Above Target</div>
+                <div className={styles.label}>{t('bp_above_target')}</div>
                 <div className={styles.value}>{analytics.aboveTarget.percentage}%</div>
               </div>
               <div>
-                <div className={styles.label}>Adherence Rate</div>
+                <div className={styles.label}>{t('bp_adherence')}</div>
                 <div className={styles.value}>{analytics.adherence.adherenceRate}%</div>
               </div>
             </div>
