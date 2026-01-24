@@ -1,0 +1,15 @@
+{
+  "name": "fit-for-duty",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "seed": "pnpm --filter @ffd/api seed"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
