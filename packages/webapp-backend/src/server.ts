@@ -10,6 +10,7 @@ import callRoutes from './api/call.routes.js';
 import { authRoutes, authenticate, apiRateLimiter, authErrorHandler } from './auth/index.js';
 import { llmManager } from './services/llm/manager.js';
 import { stateLoader } from './core/state-loader.js';
+import { paymentRoutes, webhookRoutes, startReconciliationScheduler, parseCronInterval } from './payments/index.js';
 
 const app = express();
 
@@ -56,6 +57,9 @@ app.use('/api/health', healthRoutes);
 // Auth routes (login, register, etc.)
 app.use('/api/auth', authRoutes);
 
+// Webhook routes (public, no auth - providers call these)
+app.use('/api/webhooks', webhookRoutes);
+
 // Root endpoint (public)
 app.get('/', (_req, res) => {
   res.json({
@@ -74,6 +78,8 @@ app.get('/', (_req, res) => {
       cycle: '/api/cycle (authenticated)',
       glucose: '/api/glucose (authenticated)',
       bp: '/api/bp (authenticated)',
+      payments: '/api/payments (authenticated)',
+      webhooks: '/api/webhooks (public - provider callbacks)',
     },
   });
 });
@@ -92,6 +98,7 @@ app.use('/api/glucose', apiRateLimiter, authenticate, glucoseRoutes);
 app.use('/api/bp', apiRateLimiter, authenticate, bpRoutes);
 app.use('/api/messages', apiRateLimiter, messageRoutes); // Auth middleware is applied inside
 app.use('/api/calls', apiRateLimiter, callRoutes); // WebRTC call signaling
+app.use('/api/payments', apiRateLimiter, authenticate, paymentRoutes); // Payment routes
 
 // ============================================
 // ERROR HANDLERS
@@ -127,6 +134,12 @@ async function start() {
     const machine = stateLoader.load();
     console.log(`[Server] State machine loaded: ${machine.metadata.name} v${machine.metadata.version}`);
 
+    // Start payment reconciliation scheduler
+    const reconcileCron = process.env.RECONCILE_CRON || '*/15 * * * *';
+    const reconcileInterval = parseCronInterval(reconcileCron);
+    startReconciliationScheduler(reconcileInterval);
+    console.log(`[Server] Payment reconciliation scheduled (every ${reconcileInterval / 60000} minutes)`);
+
     // Start Express server
     app.listen(config.port, '0.0.0.0', () => {
       console.log('');
@@ -135,6 +148,7 @@ async function start() {
       console.log(`  Port: ${config.port}`);
       console.log(`  Environment: ${config.nodeEnv}`);
       console.log(`  Debug: ${config.debugMode}`);
+      console.log(`  Payments: MZ (eMola), AO (Multicaixa)`);
       console.log('='.repeat(50));
       console.log('');
     });

@@ -47,6 +47,9 @@ const BPReportsPage = lazy(() => import('@pages/BPReportsPage').then(m => ({ def
 const BPSettingsPage = lazy(() => import('@pages/BPSettingsPage').then(m => ({ default: m.BPSettingsPage })));
 const BPOnboardingPage = lazy(() => import('@pages/BPOnboardingPage').then(m => ({ default: m.BPOnboardingPage })));
 
+// Checkout/Payments - Lazy loaded
+const CheckoutPage = lazy(() => import('@pages/CheckoutPage').then(m => ({ default: m.CheckoutPage })));
+
 // Loading component for lazy-loaded routes
 function PageLoader() {
   return (
@@ -278,6 +281,15 @@ function App() {
                 <ProtectedRoute>
                   <Suspense fallback={<PageLoader />}>
                     <BPOnboardingPage />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+
+              {/* Checkout/Payments - Code-split for performance */}
+              <Route path="/checkout" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageLoader />}>
+                    <CheckoutPage />
                   </Suspense>
                 </ProtectedRoute>
               } />

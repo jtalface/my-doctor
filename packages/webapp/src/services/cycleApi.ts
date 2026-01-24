@@ -60,7 +60,13 @@ export async function getSettings(userId?: string): Promise<CycleSettings | null
   try {
     return await authFetch<CycleSettings>(buildUrl('/api/cycle/settings', userId));
   } catch (error: any) {
-    if (error.message?.includes('404') || error.statusCode === 404) {
+    // Handle "not found" responses - settings don't exist yet (user needs to onboard)
+    const message = error.message?.toLowerCase() || '';
+    if (
+      message.includes('404') || 
+      message.includes('not found') ||
+      error.statusCode === 404
+    ) {
       return null;
     }
     throw error;

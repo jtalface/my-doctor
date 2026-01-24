@@ -90,7 +90,7 @@ export function useCycleData(options: UseCycleDataOptions = {}): UseCycleDataRet
   
   // ==================== SETTINGS ====================
   
-  const loadSettings = useCallback(async () => {
+  const loadSettings = useCallback(async (): Promise<CycleSettings | null> => {
     setIsLoadingSettings(true);
     setError(null);
     
@@ -98,9 +98,12 @@ export function useCycleData(options: UseCycleDataOptions = {}): UseCycleDataRet
       const api = await getCycleApi();
       const data = await api.getSettings(userId);
       setSettings(data);
+      return data;
     } catch (err) {
+      // Only log unexpected errors, not "settings not found" which is expected before onboarding
       console.error('Failed to load cycle settings:', err);
       setError(err instanceof Error ? err.message : 'Failed to load settings');
+      return null;
     } finally {
       setIsLoadingSettings(false);
     }
@@ -247,11 +250,17 @@ export function useCycleData(options: UseCycleDataOptions = {}): UseCycleDataRet
   // ==================== RELOAD ALL ====================
   
   const reload = useCallback(async () => {
-    await Promise.all([
-      loadSettings(),
-      loadCycles(),
-      loadPredictions(),
-    ]);
+    // First, load settings to check if user has completed onboarding
+    const loadedSettings = await loadSettings();
+    
+    // Only load cycles and predictions if settings exist
+    // This avoids 404 errors before onboarding is complete
+    if (loadedSettings) {
+      await Promise.all([
+        loadCycles(),
+        loadPredictions(),
+      ]);
+    }
   }, [loadSettings, loadCycles, loadPredictions]);
   
   // Auto-load on mount

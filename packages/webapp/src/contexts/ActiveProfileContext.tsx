@@ -11,6 +11,7 @@ import {
   useState, 
   useEffect, 
   useCallback, 
+  useRef,
   ReactNode 
 } from 'react';
 import { useAuth, PatientProfile } from '../auth';
@@ -102,6 +103,9 @@ export function ActiveProfileProvider({
   const [dependents, setDependents] = useState<Dependent[]>(initialDependents);
   const [isLoadingDependents, setIsLoadingDependents] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(!initialProfile);
+  
+  // Ref to prevent multiple fetches (React 18 StrictMode double-mount protection)
+  const dependentsFetchedRef = useRef(false);
 
   // Initialize active profile when user logs in
   useEffect(() => {
@@ -126,6 +130,10 @@ export function ActiveProfileProvider({
           preferences: { language: user.preferences.language },
         });
         setActivePatientProfile(profile);
+        // Profile is loaded when we have the profile data from auth
+        if (profile) {
+          setIsLoadingProfile(false);
+        }
       }
     } else {
       // Clear on logout
@@ -133,19 +141,46 @@ export function ActiveProfileProvider({
       setActivePatientProfile(null);
       setDependents([]);
       localStorage.removeItem(ACTIVE_PROFILE_KEY);
+      dependentsFetchedRef.current = false; // Reset fetch flag on logout
     }
   }, [user, isAuthenticated, profile, initialProfile]);
 
-  // Load dependents when authenticated
+  // Load dependents when authenticated (with double-mount protection)
+  // Note: This effect is defined here but refreshDependents is defined later.
+  // We use a ref guard instead of depending on refreshDependents to avoid ordering issues.
   useEffect(() => {
     // Skip if initialDependents provided (test mode)
     if (initialDependents.length > 0 || initialProfile) {
       return;
     }
     
-    if (isAuthenticated) {
-      refreshDependents();
+    // Prevent multiple fetches
+    if (dependentsFetchedRef.current) {
+      return;
     }
+    
+    if (isAuthenticated) {
+      dependentsFetchedRef.current = true;
+      // Inline the fetch logic to avoid dependency ordering issues
+      (async () => {
+        setIsLoadingDependents(true);
+        try {
+          const deps = await api.getDependents();
+          setDependents(deps);
+        } catch (error) {
+          console.error('[ActiveProfile] Failed to load dependents:', error);
+        } finally {
+          setIsLoadingDependents(false);
+        }
+      })();
+    }
+    
+    // Reset ref when user logs out
+    return () => {
+      if (!isAuthenticated) {
+        dependentsFetchedRef.current = false;
+      }
+    };
   }, [isAuthenticated, initialDependents, initialProfile]);
 
   // Validate saved active profile against loaded dependents
@@ -181,6 +216,7 @@ export function ActiveProfileProvider({
       preferences: { language: user.preferences.language },
     });
     setActivePatientProfile(profile);
+    setIsLoadingProfile(false);
     localStorage.setItem(ACTIVE_PROFILE_KEY, user.id);
   }, [user, profile]);
 
