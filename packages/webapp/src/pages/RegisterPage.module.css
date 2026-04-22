@@ -42,13 +42,6 @@
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
-  margin: 0 0 var(--space-2) 0;
-  text-align: center;
-}
-
-.subtitle {
-  font-size: var(--font-size-base);
-  color: var(--text-secondary);
   margin: 0 0 var(--space-6) 0;
   text-align: center;
 }
@@ -272,9 +265,5 @@
   
   .title {
     font-size: var(--font-size-xl);
-  }
-  
-  .subtitle {
-    font-size: var(--font-size-sm);
   }
 }

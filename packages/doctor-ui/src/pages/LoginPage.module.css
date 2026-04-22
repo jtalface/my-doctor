@@ -4,6 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-lg);
+  padding-bottom: calc(var(--space-lg) + 4.5rem + env(safe-area-inset-bottom));
   position: relative;
   overflow: hidden;
 }

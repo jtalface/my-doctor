@@ -121,7 +121,6 @@ export function RegisterPage() {
         <div className={styles.content}>
           <Logo size="lg" variant="icon" className={styles.logo} />
           <h1 className={styles.title}>{t('register_title')}</h1>
-          <p className={styles.subtitle}>{t('register_subtitle')}</p>
           
           {error && <p className={styles.error}>{error}</p>}
           
@@ -283,7 +282,7 @@ export function RegisterPage() {
           </p>
         </div>
       </div>
-      <Footer />
+      <Footer language={language} />
     </>
   );
 }

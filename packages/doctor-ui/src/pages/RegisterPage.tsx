@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { BrandingFooter } from '../components/BrandingFooter';
 import { useAuth } from '../auth';
 import styles from './RegisterPage.module.css';
 
@@ -147,6 +148,7 @@ export default function RegisterPage() {
   };
 
   return (
+    <>
     <div className={styles.page}>
       {/* Background Pattern */}
       <div className={styles.background}>
@@ -351,6 +353,8 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+    <BrandingFooter />
+    </>
   );
 }
 

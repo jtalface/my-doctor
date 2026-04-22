@@ -1,7 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
-import { Footer } from './Footer';
 import styles from './Layout.module.css';
 
 export function Layout() {
@@ -15,7 +14,6 @@ export function Layout() {
         <Outlet />
       </main>
       {!isCheckupFlow && <BottomNav />}
-      <Footer />
     </div>
   );
 }

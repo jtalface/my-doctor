@@ -23,10 +23,10 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: normal;
 }
 
 .footerLogo {
@@ -69,15 +69,12 @@
 }
 
 .footerLink {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
-  background: linear-gradient(135deg, #1F2937 0%, #111827 50%, #374151 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-family);
+  color: var(--text-primary);
   text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color var(--transition-fast), opacity var(--transition-fast);
   position: relative;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .footerLink::after {
@@ -87,13 +84,13 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #1F2937, #111827, #374151);
+  background-color: var(--color-primary-600);
   border-radius: 2px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .footerLink:hover {
-  filter: brightness(1.1);
+  color: var(--color-primary-600);
 }
 
 .footerLink:hover::after {

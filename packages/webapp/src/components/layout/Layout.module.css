@@ -7,14 +7,13 @@
 
 .main {
   flex: 1;
-  /* Account for bottom nav + footer on mobile */
-  padding-bottom: calc(var(--space-16) + 60px + env(safe-area-inset-bottom));
+  /* Space above fixed bottom nav */
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 
 @media (min-width: 1024px) {
   .main {
-    /* Account for footer on desktop (no bottom nav) */
-    padding-bottom: 60px;
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
   }
 }
 

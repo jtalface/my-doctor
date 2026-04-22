@@ -59,7 +59,6 @@ export function LoginPage() {
         <div className={styles.content}>
           <Logo size="lg" variant="icon" className={styles.logo} />
           <h1 className={styles.title}>{t('login_title')}</h1>
-          <p className={styles.subtitle}>{t('login_subtitle')}</p>
           
           {error && <p className={styles.error}>{error}</p>}
           
@@ -146,7 +145,7 @@ export function LoginPage() {
           </Link>
         </div>
       </div>
-      <Footer />
+      <Footer language={language} />
     </>
   );
 }

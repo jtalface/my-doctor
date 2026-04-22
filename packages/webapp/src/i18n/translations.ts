@@ -44,6 +44,7 @@ export const translations = {
     login_error_unknown: 'An unknown error occurred',
     login_show_password: 'Show password',
     login_hide_password: 'Hide password',
+    footer_rights_reserved: '© {{year}} All rights reserved',
     
     // Register Page
     register_title: 'Create Account',
@@ -1258,6 +1259,7 @@ export const translations = {
     login_error_unknown: 'Ocorreu um erro desconhecido',
     login_show_password: 'Mostrar senha',
     login_hide_password: 'Ocultar senha',
+    footer_rights_reserved: '© {{year}} Direitos reservados',
     
     // Register Page
     register_title: 'Criar Conta',
@@ -2466,6 +2468,7 @@ export const translations = {
     login_error_unknown: 'Une erreur inconnue s\'est produite',
     login_show_password: 'Afficher le mot de passe',
     login_hide_password: 'Masquer le mot de passe',
+    footer_rights_reserved: '© {{year}} Tous droits réservés',
     
     // Register Page
     register_title: 'Créer un Compte',
@@ -3674,6 +3677,7 @@ export const translations = {
     login_error_unknown: 'Hitilafu isiyojulikana imetokea',
     login_show_password: 'Onyesha nenosiri',
     login_hide_password: 'Ficha nenosiri',
+    footer_rights_reserved: '© {{year}} Haki zote zimehifadhiwa',
     
     // Register Page
     register_title: 'Unda Akaunti',

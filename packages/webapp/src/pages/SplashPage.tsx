@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Footer } from '@components/layout';
 import { useAuth } from '../auth';
 import { useTranslate } from '../i18n';
 import styles from './SplashPage.module.css';
@@ -45,7 +44,6 @@ export function SplashPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 }

@@ -8,8 +8,7 @@ const Footer: React.FC = () => {
     <footer className={styles.footerContainer}>
       <div className={styles.footerMain}>
         <div className={styles.footerBrand}>
-          <span className={styles.footerLogo}>🎬</span>
-          <span className={styles.footerLink}>Alface Productions</span>
+          <span className={styles.footerLink}>Zeus Technologies</span>
         </div>
         <div className={styles.footerDivider} />
         <span className={styles.footerCopyright}>

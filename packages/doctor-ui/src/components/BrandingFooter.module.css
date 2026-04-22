@@ -1,0 +1,80 @@
+.footerContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.footerMain {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.875rem 2rem;
+  padding-bottom: calc(0.875rem + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.footerBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+.footerDivider {
+  width: 1px;
+  height: 16px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(13, 79, 79, 0.35) 50%,
+    transparent 100%
+  );
+}
+
+.footerCopyright {
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.footerBrandName {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  position: relative;
+  font-weight: 600;
+}
+
+.footerBrandName::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-primary);
+  border-radius: 2px;
+  transition: width 0.35s ease;
+}
+
+.footerBrandName:hover {
+  color: var(--color-primary);
+}
+
+.footerBrandName:hover::after {
+  width: 100%;
+}
