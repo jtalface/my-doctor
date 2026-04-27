@@ -78,6 +78,10 @@
   font-weight: 500;
 }
 
+.navLabelMobile {
+  display: none;
+}
+
 /* Sidebar Footer */
 .sidebarFooter {
   padding: var(--space-lg);
@@ -186,9 +190,10 @@
 
   .navItem {
     width: 100%;
+    flex-direction: column;
     justify-content: center;
-    gap: 0;
-    padding: var(--space-sm) 0;
+    gap: 0.2rem;
+    padding: var(--space-sm) 0.15rem;
     margin: 0;
   }
 
@@ -196,8 +201,45 @@
     display: none;
   }
 
+  .navLabelMobile {
+    display: block;
+    font-size: 0.62rem;
+    line-height: 1;
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+
   .sidebarFooter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-sm) 0.15rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+  }
+
+  .doctorInfo {
+    justify-content: center;
+    margin-bottom: var(--space-xs);
+  }
+
+  .doctorDetails {
     display: none;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .logoutBtn {
+    padding: 0.35rem 0.2rem;
+    font-size: 0.62rem;
+    line-height: 1.15;
+    text-align: center;
   }
 
   .main {

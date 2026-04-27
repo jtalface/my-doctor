@@ -13,8 +13,8 @@ export default function Layout() {
   const location = useLocation();
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: '📊' },
-    { path: '/conversations', label: 'Messages', icon: '💬' },
+    { path: '/', label: 'Dashboard', mobileLabel: 'Home', icon: '📊' },
+    { path: '/conversations', label: 'Messages', mobileLabel: 'Msgs', icon: '💬' },
     { path: '/patients', label: 'Patients', icon: '👥' },
     { path: '/profile', label: 'Profile', icon: '⚙️' },
   ];
@@ -44,6 +44,7 @@ export default function Layout() {
             >
               <span className={styles.navIcon}>{item.icon}</span>
               <span className={styles.navLabel}>{item.label}</span>
+              <span className={styles.navLabelMobile}>{item.mobileLabel || item.label}</span>
             </NavLink>
           ))}
         </nav>
