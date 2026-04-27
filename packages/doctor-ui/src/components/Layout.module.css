@@ -20,19 +20,11 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  justify-content: center;
   padding: var(--space-lg);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.logoIcon {
-  font-size: 1.75rem;
-}
-
-.logoText {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
 }
 
 /* Navigation */
@@ -174,10 +166,6 @@
     border-bottom: none;
     padding: var(--space-sm) 0;
     justify-content: center;
-  }
-
-  .logoText {
-    display: none;
   }
 
   .nav {

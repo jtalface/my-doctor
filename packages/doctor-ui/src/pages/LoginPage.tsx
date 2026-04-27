@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BrandingFooter } from '../components/BrandingFooter';
+import { Logo } from '../components/Logo';
 import { useAuth } from '../auth';
 import styles from './LoginPage.module.css';
 
@@ -43,8 +44,8 @@ export default function LoginPage() {
       <div className={styles.card}>
         <div className={styles.header}>
           <div className={styles.logo}>
-            <span className={styles.logoIcon}>🏥</span>
-            <h1 className={styles.logoText}>MyDoctor</h1>
+            <Logo variant="icon" size="lg" />
+            <h1 className={styles.logoTitle}>Zambe</h1>
           </div>
           <p className={styles.subtitle}>Healthcare Provider Portal</p>
         </div>

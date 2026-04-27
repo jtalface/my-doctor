@@ -4,8 +4,9 @@
  * Main application layout with sidebar and header.
  */
 
-import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth';
+import { Logo } from './Logo';
 import styles from './Layout.module.css';
 
 export default function Layout() {
@@ -27,10 +28,9 @@ export default function Layout() {
     <div className={styles.layout}>
       {/* Sidebar */}
       <aside className={styles.sidebar}>
-        <div className={styles.logo}>
-          <span className={styles.logoIcon}>🏥</span>
-          <span className={styles.logoText}>MyDoctor</span>
-        </div>
+        <Link to="/" className={styles.logo} aria-label="Zambe home">
+          <Logo variant="mark" size="md" />
+        </Link>
 
         <nav className={styles.nav}>
           {navItems.map(item => (

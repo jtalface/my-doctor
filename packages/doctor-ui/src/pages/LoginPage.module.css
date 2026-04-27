@@ -58,21 +58,20 @@
 
 .logo {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
   margin-bottom: var(--space-sm);
 }
 
-.logoIcon {
-  font-size: 2.5rem;
-}
-
-.logoText {
-  font-family: var(--font-display);
-  font-size: 2rem;
-  color: var(--color-primary);
+.logoTitle {
+  font-family: var(--font-ui-sans);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .subtitle {
@@ -186,8 +185,8 @@
     padding: var(--space-lg);
   }
 
-  .logoText {
-    font-size: 1.5rem;
+  .logoTitle {
+    font-size: 1.375rem;
   }
 }
 
