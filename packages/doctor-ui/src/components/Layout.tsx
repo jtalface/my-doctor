@@ -7,18 +7,25 @@
 import { Outlet, NavLink, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { Logo } from './Logo';
+import { useTranslate, type TranslationKey } from '../i18n';
 import styles from './Layout.module.css';
+
+const NAV_ITEMS: {
+  path: string;
+  labelKey: TranslationKey;
+  shortKey?: TranslationKey;
+  icon: string;
+}[] = [
+  { path: '/', labelKey: 'nav_dashboard', shortKey: 'nav_short_home', icon: '📊' },
+  { path: '/conversations', labelKey: 'nav_messages', shortKey: 'nav_short_msgs', icon: '💬' },
+  { path: '/patients', labelKey: 'nav_patients', icon: '👥' },
+  { path: '/profile', labelKey: 'nav_profile', icon: '⚙️' },
+];
 
 export default function Layout() {
   const { doctor, logout } = useAuth();
   const location = useLocation();
-
-  const navItems = [
-    { path: '/', label: 'Dashboard', mobileLabel: 'Home', icon: '📊' },
-    { path: '/conversations', label: 'Messages', mobileLabel: 'Msgs', icon: '💬' },
-    { path: '/patients', label: 'Patients', icon: '👥' },
-    { path: '/profile', label: 'Profile', icon: '⚙️' },
-  ];
+  const t = useTranslate();
 
   const handleLogout = async () => {
     await logout();
@@ -33,7 +40,7 @@ export default function Layout() {
         </Link>
 
         <nav className={styles.nav}>
-          {navItems.map(item => (
+          {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
@@ -43,8 +50,10 @@ export default function Layout() {
               end={item.path === '/'}
             >
               <span className={styles.navIcon}>{item.icon}</span>
-              <span className={styles.navLabel}>{item.label}</span>
-              <span className={styles.navLabelMobile}>{item.mobileLabel || item.label}</span>
+              <span className={styles.navLabel}>{t(item.labelKey)}</span>
+              <span className={styles.navLabelMobile}>
+                {t(item.shortKey ?? item.labelKey)}
+              </span>
             </NavLink>
           ))}
         </nav>
@@ -64,7 +73,7 @@ export default function Layout() {
             </div>
           </div>
           <button className={styles.logoutBtn} onClick={handleLogout}>
-            Logout
+            {t('layout_logout')}
           </button>
         </div>
       </aside>

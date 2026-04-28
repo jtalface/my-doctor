@@ -32,7 +32,7 @@ export const SUPPORTED_LANGUAGES = {
 
 export type LanguageCode = keyof typeof SUPPORTED_LANGUAGES;
 
-export const DEFAULT_LANGUAGE: LanguageCode = 'en';
+export const DEFAULT_LANGUAGE: LanguageCode = 'pt';
 
 /**
  * Validates if a language code is supported

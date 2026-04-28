@@ -76,7 +76,13 @@ router.patch('/', requireAuth, async (req: Request, res: Response) => {
     if (licenseNumber !== undefined) update.licenseNumber = licenseNumber;
     if (languages) update.languages = languages;
     if (workingHours) update.workingHours = workingHours;
-    if (preferences) update.preferences = preferences;
+    if (preferences && typeof preferences === 'object') {
+      const existing = await Provider.findById(providerId).select('preferences').lean();
+      update.preferences = {
+        ...(existing?.preferences ? existing.preferences : {}),
+        ...preferences,
+      };
+    }
 
     const profile = await Provider.findByIdAndUpdate(
       providerId,

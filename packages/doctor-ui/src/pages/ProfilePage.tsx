@@ -7,10 +7,14 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth';
 import * as api from '../services/api';
+import { LanguageSelector } from '../components/LanguageSelector';
+import { useLanguage, useTranslate } from '../i18n';
 import styles from './ProfilePage.module.css';
 
 export default function ProfilePage() {
   const { doctor: _doctor } = useAuth();
+  const { language, setLanguage } = useLanguage();
+  const t = useTranslate();
   const [profile, setProfile] = useState<api.DoctorProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -48,11 +52,11 @@ export default function ProfilePage() {
     try {
       const res = await api.updateProfile({ name, phone, bio });
       setProfile(res.profile);
-      setSuccessMessage('Profile updated successfully!');
+      setSuccessMessage(t('profile_updated'));
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (error) {
       console.error('Failed to save profile:', error);
-      alert('Failed to save profile');
+      alert(t('profile_save_failed'));
     } finally {
       setIsSaving(false);
     }
@@ -79,7 +83,7 @@ export default function ProfilePage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1>Profile Settings</h1>
+        <h1>{t('profile_page_title')}</h1>
       </header>
 
       {/* Profile Card */}
@@ -96,7 +100,7 @@ export default function ProfilePage() {
             <h2>{profile?.name}</h2>
             <p>{profile?.specialty}</p>
             <span className={styles.badge}>
-              {profile?.isVerified ? '✓ Verified' : 'Pending Verification'}
+              {profile?.isVerified ? t('profile_verified') : t('profile_pending')}
             </span>
           </div>
         </div>
@@ -104,22 +108,33 @@ export default function ProfilePage() {
         {/* Availability Toggle */}
         <div className={styles.availabilitySection}>
           <div className={styles.availabilityInfo}>
-            <h3>Availability Status</h3>
-            <p>When available, patients can see you're online and ready to respond.</p>
+            <h3>{t('profile_avail_heading')}</h3>
+            <p>{t('profile_avail_body')}</p>
           </div>
           <button
             className={`${styles.availabilityToggle} ${isAvailable ? styles.available : ''}`}
             onClick={handleAvailabilityToggle}
           >
             <span className={styles.toggleDot}></span>
-            <span>{isAvailable ? 'Available' : 'Unavailable'}</span>
+            <span>{isAvailable ? t('profile_avail_on') : t('profile_avail_off')}</span>
           </button>
         </div>
       </div>
 
       {/* Edit Form */}
       <form className={styles.form} onSubmit={handleSave}>
-        <h2>Edit Profile</h2>
+        <h2>{t('profile_form_heading')}</h2>
+
+        <div className={styles.field}>
+          <label htmlFor="doctor-ui-lang-profile">{t('profile_language_label')}</label>
+          <LanguageSelector
+            id="doctor-ui-lang-profile"
+            value={language}
+            onChange={(lang) => void setLanguage(lang)}
+            aria-label={t('profile_language_label')}
+          />
+          <span className={styles.hint}>{t('profile_language_hint')}</span>
+        </div>
 
         {successMessage && (
           <div className={styles.successMessage}>{successMessage}</div>
@@ -127,7 +142,7 @@ export default function ProfilePage() {
 
         <div className={styles.formGrid}>
           <div className={styles.field}>
-            <label>Full Name</label>
+            <label>{t('profile_full_name')}</label>
             <input
               type="text"
               value={name}
@@ -137,18 +152,18 @@ export default function ProfilePage() {
           </div>
 
           <div className={styles.field}>
-            <label>Email</label>
+            <label>{t('profile_email_label')}</label>
             <input
               type="email"
               value={profile?.email || ''}
               disabled
               className={styles.disabled}
             />
-            <span className={styles.hint}>Email cannot be changed</span>
+            <span className={styles.hint}>{t('profile_email_locked')}</span>
           </div>
 
           <div className={styles.field}>
-            <label>Specialty</label>
+            <label>{t('profile_specialty_label')}</label>
             <input
               type="text"
               value={profile?.specialty || ''}
@@ -158,7 +173,7 @@ export default function ProfilePage() {
           </div>
 
           <div className={styles.field}>
-            <label>License Number</label>
+            <label>{t('profile_license_label')}</label>
             <input
               type="text"
               value={profile?.licenseNumber || ''}
@@ -168,7 +183,7 @@ export default function ProfilePage() {
           </div>
 
           <div className={styles.field}>
-            <label>Phone Number</label>
+            <label>{t('profile_phone_label')}</label>
             <input
               type="tel"
               value={phone}
@@ -179,15 +194,17 @@ export default function ProfilePage() {
         </div>
 
         <div className={styles.field}>
-          <label>Bio</label>
+          <label>{t('profile_bio_label')}</label>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            placeholder="Tell patients about yourself..."
+            placeholder={t('profile_bio_placeholder')}
             rows={4}
             maxLength={500}
           />
-          <span className={styles.hint}>{bio.length}/500 characters</span>
+          <span className={styles.hint}>
+            {t('profile_bio_chars', { count: bio.length })}
+          </span>
         </div>
 
         <div className={styles.formActions}>
@@ -196,37 +213,37 @@ export default function ProfilePage() {
             className={styles.saveBtn}
             disabled={isSaving}
           >
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving ? t('profile_saving') : t('profile_save_changes')}
           </button>
         </div>
       </form>
 
       {/* Account Info */}
       <div className={styles.infoSection}>
-        <h2>Account Information</h2>
+        <h2>{t('profile_account_heading')}</h2>
         <div className={styles.infoGrid}>
           <div className={styles.infoItem}>
-            <span className={styles.infoLabel}>Title</span>
+            <span className={styles.infoLabel}>{t('profile_info_title')}</span>
             <span className={styles.infoValue}>{profile?.title || 'Dr.'}</span>
           </div>
           <div className={styles.infoItem}>
-            <span className={styles.infoLabel}>Languages</span>
+            <span className={styles.infoLabel}>{t('profile_info_languages')}</span>
             <span className={styles.infoValue}>
               {profile?.languages?.join(', ') || 'English'}
             </span>
           </div>
           <div className={styles.infoItem}>
-            <span className={styles.infoLabel}>Working Hours</span>
+            <span className={styles.infoLabel}>{t('profile_info_hours')}</span>
             <span className={styles.infoValue}>
               {profile?.workingHours
                 ? `${profile.workingHours.start} - ${profile.workingHours.end}`
-                : 'Not set'}
+                : t('profile_hours_not_set')}
             </span>
           </div>
           <div className={styles.infoItem}>
-            <span className={styles.infoLabel}>Status</span>
+            <span className={styles.infoLabel}>{t('profile_info_status')}</span>
             <span className={styles.infoValue}>
-              {profile?.isActive ? 'Active' : 'Inactive'}
+              {profile?.isActive ? t('profile_status_active') : t('profile_status_inactive')}
             </span>
           </div>
         </div>

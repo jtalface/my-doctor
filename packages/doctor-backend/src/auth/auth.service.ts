@@ -26,7 +26,8 @@ class AuthService {
     userAgent?: string,
     ipAddress?: string
   ): Promise<AuthResponse & { refreshToken: string; refreshExpiresAt: Date }> {
-    const { email, password, firstName, lastName, specialty, title, licenseNumber, phone } = data;
+    const { email, password, firstName, lastName, specialty, title, licenseNumber, phone, language } = data;
+    const uiLanguage = language === 'en' ? 'en' : 'pt';
 
     // Check if email already exists
     const existingProvider = await Provider.findOne({ email: email.toLowerCase() });
@@ -69,7 +70,7 @@ class AuthService {
       preferences: {
         notifications: true,
         emailAlerts: true,
-        language: 'en',
+        language: uiLanguage,
       },
     });
     await provider.save();

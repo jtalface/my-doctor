@@ -11,6 +11,8 @@ export interface RegisterRequest {
   title?: string;
   licenseNumber?: string;
   phone?: string;
+  /** UI locale: `en` or `pt` (doctor-ui). Defaults to `en` if omitted or invalid. */
+  language?: string;
 }
 
 export interface LoginRequest {

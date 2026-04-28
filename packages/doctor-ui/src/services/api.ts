@@ -82,9 +82,11 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
 }
 
 export async function register(data: RegisterData): Promise<AuthResponse> {
+  const { language, ...rest } = data;
+  const payload = language ? { ...rest, language } : rest;
   const response = await request<AuthResponse>('/auth/register', {
     method: 'POST',
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   setAccessToken(response.accessToken);
   return response;

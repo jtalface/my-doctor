@@ -97,7 +97,7 @@ const ProviderSchema = new Schema<IProvider>(
     preferences: {
       notifications: { type: Boolean, default: true },
       emailAlerts: { type: Boolean, default: true },
-      language: { type: String, default: 'en' },
+      language: { type: String, default: 'pt' },
     },
   },
   { timestamps: true }

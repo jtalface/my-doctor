@@ -13,6 +13,7 @@ interface AuthContextType extends AuthState {
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<boolean>;
+  refreshDoctor: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -20,6 +21,15 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const refreshDoctor = useCallback(async () => {
+    try {
+      const { doctor: doctorData } = await api.getMe();
+      setDoctor(doctorData);
+    } catch {
+      /* not signed in or session expired */
+    }
+  }, []);
 
   const refreshAuth = useCallback(async (): Promise<boolean> => {
     try {
@@ -73,6 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     logout,
     refreshAuth,
+    refreshDoctor,
   };
 
   return (

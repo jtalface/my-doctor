@@ -39,6 +39,8 @@ export interface RegisterData {
   title?: string;
   licenseNumber?: string;
   phone?: string;
+  /** Persisted as `preferences.language` on the provider (en | pt). */
+  language?: string;
 }
 
 export interface AuthResponse {
