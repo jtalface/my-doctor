@@ -11,6 +11,13 @@ export function CycleInsightsPage() {
   const navigate = useNavigate();
   const t = useTranslate();
   const { activeProfile, isViewingDependent } = useActiveProfile();
+  const localeByLanguage: Record<string, string> = {
+    en: 'en-US',
+    pt: 'pt-PT',
+    fr: 'fr-FR',
+    sw: 'sw-TZ',
+  };
+  const locale = localeByLanguage[t.language] || 'en-US';
   
   const {
     cycles,
@@ -40,9 +47,9 @@ export function CycleInsightsPage() {
   }, [cycles]);
   
   const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return 'N/A';
+    if (!dateStr) return t('common_not_set');
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString(locale, {
       month: 'long',
       day: 'numeric',
       year: 'numeric'
@@ -144,9 +151,9 @@ export function CycleInsightsPage() {
               <div className={styles.statValue}>
                 {stats.cycleRegularity === 'regular' ? t('cycle_pattern_regular') : t('cycle_pattern_irregular')}
               </div>
-              <div className={styles.statLabel}>Cycle Pattern</div>
+              <div className={styles.statLabel}>{t('cycle_pattern_label')}</div>
               <div className={styles.statUnit}>
-                ±{stats.cycleLengthStdDev} days
+                ±{stats.cycleLengthStdDev} {t('cycle_stat_days')}
               </div>
             </div>
           </div>
@@ -244,11 +251,11 @@ export function CycleInsightsPage() {
                 </div>
                 <div className={styles.historyDetails}>
                   <span className={styles.historyBadge}>
-                    Period: {cycle.periodLength} days
+                    {t('cycle_history_period')} {cycle.periodLength} {t('cycle_stat_days')}
                   </span>
                   {cycle.cycleLength > 0 && (
                     <span className={styles.historyBadge}>
-                      Cycle: {cycle.cycleLength} days
+                      {t('cycle_history_item')}: {cycle.cycleLength} {t('cycle_stat_days')}
                     </span>
                   )}
                 </div>
@@ -266,16 +273,16 @@ export function CycleInsightsPage() {
         {/* Settings Info */}
         {settings && (
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Prediction Settings</h2>
+            <h2 className={styles.sectionTitle}>{t('cycle_prediction_settings')}</h2>
             <div className={styles.settingsInfo}>
               <div className={styles.settingItem}>
-                <span className={styles.settingLabel}>Cycle Type:</span>
+                <span className={styles.settingLabel}>{t('cycle_prediction_type_label')}</span>
                 <span className={styles.settingValue}>
                   {settings.irregularCycle ? t('cycle_pattern_irregular') : t('cycle_pattern_regular')}
                 </span>
               </div>
               <div className={styles.settingItem}>
-                <span className={styles.settingLabel}>Last Period:</span>
+                <span className={styles.settingLabel}>{t('cycle_prediction_last_period_label')}</span>
                 <span className={styles.settingValue}>
                   {formatDate(settings.lastPeriodStart)}
                 </span>
@@ -285,7 +292,7 @@ export function CycleInsightsPage() {
               className={styles.secondaryButton}
               onClick={() => navigate('/cycle/settings')}
             >
-              Adjust Settings
+              {t('cycle_adjust_settings')}
             </button>
           </section>
         )}

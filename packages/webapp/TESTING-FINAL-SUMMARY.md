@@ -179,7 +179,7 @@ src/
 | **i18n** | ✅ Excellent | All 4 languages |
 | **Cycle Tracker** | 🔸 Partial | Components done, hooks need MSW |
 | **GlucoGuide** | ⚠️ None | Needs MSW or simplified approach |
-| **PressurePal** | ⚠️ None | Needs MSW or simplified approach |
+| **HeartPal** | ⚠️ None | Needs MSW or simplified approach |
 
 ---
 

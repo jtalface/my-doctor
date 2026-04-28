@@ -40,7 +40,7 @@ A comprehensive glucose tracking system for diabetes management with safety-firs
 - Data export for healthcare team
 - Full audit trail for safety compliance
 
-#### ❤️ PressurePal (Blood Pressure Tracker)
+#### ❤️ HeartPal (Blood Pressure Tracker)
 Home blood pressure monitoring with comprehensive safety features. Opt-in for all users.
 - Multi-reading session logging with automatic averaging
 - 8-point measurement quality checklist

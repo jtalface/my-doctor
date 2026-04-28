@@ -1,10 +1,10 @@
-# Clinical Safety Notes - PressurePal (Blood Pressure Tracker)
+# Clinical Safety Notes - HeartPal (Blood Pressure Tracker)
 
 ## ⚕️ Overview
 
-This document details the clinical safety design, rule-based logic, thresholds, and limitations of the **PressurePal** blood pressure tracking feature.
+This document details the clinical safety design, rule-based logic, thresholds, and limitations of the **HeartPal** blood pressure tracking feature.
 
-**Critical Disclaimer**: PressurePal is for **tracking and educational purposes only**. It is NOT a medical device, does NOT provide medical advice, and should NOT replace professional medical care.
+**Critical Disclaimer**: HeartPal is for **tracking and educational purposes only**. It is NOT a medical device, does NOT provide medical advice, and should NOT replace professional medical care.
 
 ---
 

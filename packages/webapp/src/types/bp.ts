@@ -1,7 +1,7 @@
 /**
  * Blood Pressure Tracking Types
  * 
- * Frontend type definitions for PressurePal feature
+ * Frontend type definitions for HeartPal feature
  */
 
 // ==================== ENUMS ====================

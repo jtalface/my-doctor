@@ -302,7 +302,7 @@ Not every component needs tests. Test what matters:
 ### Deliberately Skipped
 - ❌ API-dependent hooks (need MSW)
 - ❌ Complex page components (need context setup)
-- ❌ Feature-specific logic (GlucoGuide, PressurePal)
+- ❌ Feature-specific logic (GlucoGuide, HeartPal)
 - ❌ E2E user flows (need Playwright)
 
 ### Why We Skipped Them

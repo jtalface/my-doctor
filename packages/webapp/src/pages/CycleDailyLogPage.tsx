@@ -21,7 +21,7 @@ export function CycleDailyLogPage() {
     { value: 'breast_tenderness', label: t('cycle_symptom_breast_tenderness'), icon: '💛' },
     { value: 'fatigue', label: t('cycle_symptom_fatigue'), icon: '😴' },
     { value: 'nausea', label: t('cycle_symptom_nausea'), icon: '🤢' },
-    { value: 'back_pain', label: t('cycle_symptom_back_pain'), icon: '🔙' },
+    { value: 'back_pain', label: t('cycle_symptom_back_pain'), icon: '🩹' },
   ];
 
   const MOODS: { value: Mood; label: string; icon: string }[] = [
@@ -163,7 +163,7 @@ export function CycleDailyLogPage() {
         <button className={styles.backButton} onClick={() => navigate('/cycle')}>
           ←
         </button>
-        <h1 className={styles.title}>Daily Log</h1>
+        <h1 className={styles.title}>{t('cycle_daily_log_title')}</h1>
         <div className={styles.headerRight} />
       </header>
       

@@ -30,7 +30,7 @@
   - Suggestions and patterns
   - Reports generation
   
-- **`bpApi.ts`** - PressurePal API
+- **`bpApi.ts`** - HeartPal API
   - Settings, sessions, suggestions
   - Analytics and patterns
   
@@ -85,7 +85,7 @@
 
 ---
 
-### 5. PressurePal - Complete Feature (0% coverage)
+### 5. HeartPal - Complete Feature (0% coverage)
 **Impact**: High - Major feature for hypertension patients
 
 **Pages** (6):
@@ -192,7 +192,7 @@
 | **Auth** | 3 pages + context | 0 | 0% | 🔴 Critical |
 | **Contexts** | 3 | 0 | 0% | 🔴 Critical |
 | **GlucoGuide** | 6 pages + 3 hooks | 0 | 0% | 🟠 High |
-| **PressurePal** | 6 pages + 1 hook | 0 | 0% | 🟠 High |
+| **HeartPal** | 6 pages + 1 hook | 0 | 0% | 🟠 High |
 | **Cycle Tracker** | 5 pages + 3 hooks + 2 components | 2 | 25% | 🟠 Medium |
 | **Core Pages** | 4 pages | 0 | 0% | 🟠 High |
 | **Health Records** | 6 pages | 0 | 0% | 🟡 Medium |
@@ -260,12 +260,12 @@ Test all GlucoGuide pages and hooks.
 
 ---
 
-### Phase 7: Feature-Specific (PressurePal) 🟠
+### Phase 7: Feature-Specific (HeartPal) 🟠
 **Effort**: 4-5 days  
 **Impact**: High (for hypertension users)  
 **Tests**: ~60-70
 
-Test all PressurePal pages and hooks.
+Test all HeartPal pages and hooks.
 
 ---
 
@@ -296,7 +296,7 @@ Test checkup flow and messaging.
 
 ### Medium ROI
 4. **Core Pages** - High visibility
-5. **GlucoGuide/PressurePal** - Complex but isolated
+5. **GlucoGuide/HeartPal** - Complex but isolated
 
 ### Lower ROI
 6. **Individual page components** - Time-consuming, lower coverage value
