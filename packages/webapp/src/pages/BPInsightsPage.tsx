@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBPData } from '../hooks/useBPData';
 import { useTranslate } from '../i18n';
+import type { BPSuggestion } from '../types/bp';
 import styles from './BPInsightsPage.module.css';
 
 export function BPInsightsPage() {
@@ -28,7 +29,140 @@ export function BPInsightsPage() {
     return classMap[classification] || classification;
   };
 
+  const getContextLabel = (context: string): string => {
+    const contextMap: Record<string, string> = {
+      resting: t('bp_context_resting'),
+      after_exercise: t('bp_context_after_exercise'),
+      stressed: t('bp_context_stressed'),
+      clinic: t('bp_context_clinic'),
+      other: t('bp_context_other'),
+    };
+    return contextMap[context] || context.replace('_', ' ');
+  };
+
   const filteredSuggestions = suggestions.filter((s) => filter === 'all' || s.severity === filter);
+
+  const translateSeverity = (severity: BPSuggestion['severity']) => {
+    if (severity === 'urgent') return t('bp_severity_urgent');
+    if (severity === 'warn') return t('bp_severity_warn');
+    return t('bp_severity_info');
+  };
+
+  const getLocalizedSuggestionText = (suggestion: BPSuggestion) => {
+    const base = {
+      title: suggestion.title,
+      message: suggestion.message,
+      rationale: suggestion.rationale,
+      actions: suggestion.actions,
+      disclaimer: suggestion.disclaimer,
+    };
+
+    const map: Record<string, { title: string; message: string; rationale: string; actions?: string[]; disclaimer: string }> = {
+      hypertensive_crisis_symptoms: {
+        title: t('bp_suggestion_hypertensive_crisis_symptoms_title'),
+        message: t('bp_suggestion_hypertensive_crisis_symptoms_message'),
+        rationale: t('bp_suggestion_hypertensive_crisis_symptoms_rationale'),
+        actions: [
+          t('bp_suggestion_hypertensive_crisis_symptoms_action_1'),
+          t('bp_suggestion_hypertensive_crisis_symptoms_action_2'),
+          t('bp_suggestion_hypertensive_crisis_symptoms_action_3'),
+          t('bp_suggestion_hypertensive_crisis_symptoms_action_4'),
+        ],
+        disclaimer: t('bp_suggestion_hypertensive_crisis_symptoms_disclaimer'),
+      },
+      hypertensive_urgency: {
+        title: t('bp_suggestion_hypertensive_urgency_title'),
+        message: t('bp_suggestion_hypertensive_urgency_message'),
+        rationale: t('bp_suggestion_hypertensive_urgency_rationale'),
+        actions: [
+          t('bp_suggestion_hypertensive_urgency_action_1'),
+          t('bp_suggestion_hypertensive_urgency_action_2'),
+          t('bp_suggestion_hypertensive_urgency_action_3'),
+          t('bp_suggestion_hypertensive_urgency_action_4'),
+        ],
+        disclaimer: t('bp_suggestion_hypertensive_urgency_disclaimer'),
+      },
+      persistently_above_target: {
+        title: t('bp_suggestion_persistently_above_target_title'),
+        message: t('bp_suggestion_persistently_above_target_message'),
+        rationale: t('bp_suggestion_persistently_above_target_rationale'),
+        actions: [
+          t('bp_suggestion_persistently_above_target_action_1'),
+          t('bp_suggestion_persistently_above_target_action_2'),
+          t('bp_suggestion_persistently_above_target_action_3'),
+          t('bp_suggestion_persistently_above_target_action_4'),
+          t('bp_suggestion_persistently_above_target_action_5'),
+        ],
+        disclaimer: t('bp_suggestion_persistently_above_target_disclaimer'),
+      },
+      measurement_technique: {
+        title: t('bp_suggestion_measurement_technique_title'),
+        message: t('bp_suggestion_measurement_technique_message'),
+        rationale: t('bp_suggestion_measurement_technique_rationale'),
+        actions: [
+          t('bp_suggestion_measurement_technique_action_1'),
+          t('bp_suggestion_measurement_technique_action_2'),
+          t('bp_suggestion_measurement_technique_action_3'),
+          t('bp_suggestion_measurement_technique_action_4'),
+          t('bp_suggestion_measurement_technique_action_5'),
+          t('bp_suggestion_measurement_technique_action_6'),
+          t('bp_suggestion_measurement_technique_action_7'),
+        ],
+        disclaimer: t('bp_suggestion_measurement_technique_disclaimer'),
+      },
+      context_awareness: {
+        title: t('bp_suggestion_context_awareness_title'),
+        message: t('bp_suggestion_context_awareness_message'),
+        rationale: t('bp_suggestion_context_awareness_rationale'),
+        actions: [
+          t('bp_suggestion_context_awareness_action_1'),
+          t('bp_suggestion_context_awareness_action_2'),
+          t('bp_suggestion_context_awareness_action_3'),
+          t('bp_suggestion_context_awareness_action_4'),
+        ],
+        disclaimer: t('bp_suggestion_context_awareness_disclaimer'),
+      },
+      measurement_adherence: {
+        title: t('bp_suggestion_measurement_adherence_title'),
+        message: t('bp_suggestion_measurement_adherence_message'),
+        rationale: t('bp_suggestion_measurement_adherence_rationale'),
+        actions: [
+          t('bp_suggestion_measurement_adherence_action_1'),
+          t('bp_suggestion_measurement_adherence_action_2'),
+          t('bp_suggestion_measurement_adherence_action_3'),
+          t('bp_suggestion_measurement_adherence_action_4'),
+        ],
+        disclaimer: t('bp_suggestion_measurement_adherence_disclaimer'),
+      },
+      schedule_compliance: {
+        title: t('bp_suggestion_schedule_compliance_title'),
+        message: t('bp_suggestion_schedule_compliance_message'),
+        rationale: t('bp_suggestion_schedule_compliance_rationale'),
+        actions: [
+          t('bp_suggestion_schedule_compliance_action_1'),
+          t('bp_suggestion_schedule_compliance_action_2'),
+          t('bp_suggestion_schedule_compliance_action_3'),
+          t('bp_suggestion_schedule_compliance_action_4'),
+        ],
+        disclaimer: t('bp_suggestion_schedule_compliance_disclaimer'),
+      },
+      blood_pressure_variability: {
+        title: t('bp_suggestion_blood_pressure_variability_title'),
+        message: t('bp_suggestion_blood_pressure_variability_message'),
+        rationale: t('bp_suggestion_blood_pressure_variability_rationale'),
+        actions: [
+          t('bp_suggestion_blood_pressure_variability_action_1'),
+          t('bp_suggestion_blood_pressure_variability_action_2'),
+          t('bp_suggestion_blood_pressure_variability_action_3'),
+          t('bp_suggestion_blood_pressure_variability_action_4'),
+          t('bp_suggestion_blood_pressure_variability_action_5'),
+        ],
+        disclaimer: t('bp_suggestion_blood_pressure_variability_disclaimer'),
+      },
+    };
+
+    return map[suggestion.type] || base;
+  };
 
   const getClassColor = (classification: string) => {
     switch (classification) {
@@ -69,15 +203,18 @@ export function BPInsightsPage() {
               <div className={styles.statValue}>{analytics.summary.totalSessions}</div>
             </div>
             <div className={styles.statCard}>
-              <div className={styles.statLabel}>Above Target</div>
+              <div className={styles.statLabel}>{t('bp_above_target')}</div>
               <div className={styles.statValue}>{analytics.aboveTarget.percentage}%</div>
               <div className={styles.statMeta}>{t('bp_readings_count', { count: analytics.aboveTarget.count })}</div>
             </div>
             <div className={styles.statCard}>
-              <div className={styles.statLabel}>Adherence</div>
+              <div className={styles.statLabel}>{t('bp_adherence')}</div>
               <div className={styles.statValue}>{analytics.adherence.adherenceRate}%</div>
               <div className={styles.statMeta}>
-                {analytics.adherence.actualReadings}/{analytics.adherence.expectedReadings} expected
+                {t('bp_expected', {
+                  actual: analytics.adherence.actualReadings,
+                  expected: analytics.adherence.expectedReadings,
+                })}
               </div>
             </div>
           </div>
@@ -140,7 +277,7 @@ export function BPInsightsPage() {
       {/* Suggestions */}
       <div className={styles.suggestionsSection}>
         <div className={styles.sectionHeader}>
-          <h2>Suggestions & Recommendations</h2>
+          <h2>{t('bp_suggestions_recommendations')}</h2>
           <div className={styles.filterButtons}>
             <button
               className={filter === 'all' ? styles.active : ''}
@@ -175,21 +312,23 @@ export function BPInsightsPage() {
           </div>
         ) : (
           <div className={styles.suggestionsList}>
-            {filteredSuggestions.map((suggestion) => (
+            {filteredSuggestions.map((suggestion) => {
+              const localized = getLocalizedSuggestionText(suggestion);
+              return (
               <div key={suggestion.id} className={`${styles.suggestionCard} ${styles[suggestion.severity]}`}>
                 <div className={styles.suggestionHeader}>
-                  <h3>{suggestion.title}</h3>
-                  <span className={styles.badge}>{suggestion.severity.toUpperCase()}</span>
+                  <h3>{localized.title}</h3>
+                  <span className={styles.badge}>{translateSeverity(suggestion.severity).toUpperCase()}</span>
                 </div>
-                <p className={styles.message}>{suggestion.message}</p>
+                <p className={styles.message}>{localized.message}</p>
                 <div className={styles.rationale}>
-                  <strong>{t('suggestions_why')}</strong> {suggestion.rationale}
+                  <strong>{t('suggestions_why')}</strong> {localized.rationale}
                 </div>
-                {suggestion.actions && suggestion.actions.length > 0 && (
+                {localized.actions && localized.actions.length > 0 && (
                   <div className={styles.actions}>
                     <strong>{t('suggestions_suggested_actions')}</strong>
                     <ul>
-                      {suggestion.actions.map((action, idx) => (
+                      {localized.actions.map((action, idx) => (
                         <li key={idx}>{action}</li>
                       ))}
                     </ul>
@@ -200,9 +339,10 @@ export function BPInsightsPage() {
                     <strong>{t('suggestions_references')}</strong> {suggestion.references.join(', ')}
                   </div>
                 )}
-                <div className={styles.disclaimer}>{suggestion.disclaimer}</div>
+                <div className={styles.disclaimer}>{localized.disclaimer}</div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -222,10 +362,10 @@ export function BPInsightsPage() {
                   {session.averages.systolic}/{session.averages.diastolic} mmHg
                   {session.flagged && <span className={styles.flag}>⚠️</span>}
                 </div>
-                <div className={styles.sessionClass}>{session.classification.replace('stage', 'Stage ')}</div>
+                <div className={styles.sessionClass}>{getClassificationLabel(session.classification)}</div>
               </div>
               <div className={styles.sessionMeta}>
-                {new Date(session.timestamp).toLocaleString()} · {session.context.replace('_', ' ')}
+                {new Date(session.timestamp).toLocaleString()} · {getContextLabel(session.context)}
                 {session.averages.pulse && ` · ${session.averages.pulse} bpm`}
               </div>
               {session.notes && <div className={styles.sessionNotes}>Note: {session.notes}</div>}

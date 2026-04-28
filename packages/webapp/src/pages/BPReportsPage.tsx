@@ -17,6 +17,28 @@ export function BPReportsPage() {
   const { settings, sessions, analytics } = useBPData();
   const [isExporting, setIsExporting] = useState(false);
 
+  const getClassificationLabel = (classification: string): string => {
+    const classMap: Record<string, string> = {
+      normal: t('bp_classification_normal'),
+      elevated: t('bp_classification_elevated'),
+      stage1: t('bp_classification_stage1'),
+      stage2: t('bp_classification_stage2'),
+      crisis: t('bp_classification_crisis'),
+    };
+    return classMap[classification] || classification;
+  };
+
+  const getContextLabel = (context: string): string => {
+    const contextMap: Record<string, string> = {
+      resting: t('bp_context_resting'),
+      after_exercise: t('bp_context_after_exercise'),
+      stressed: t('bp_context_stressed'),
+      clinic: t('bp_context_clinic'),
+      other: t('bp_context_other'),
+    };
+    return contextMap[context] || context.replace('_', ' ');
+  };
+
   const handleExport = async () => {
     setIsExporting(true);
     try {
@@ -131,8 +153,8 @@ export function BPReportsPage() {
                   <td>{session.averages.systolic}</td>
                   <td>{session.averages.diastolic}</td>
                   <td>{session.averages.pulse || '—'}</td>
-                  <td style={{ textTransform: 'capitalize' }}>{session.classification.replace('stage', 'Stage ')}</td>
-                  <td style={{ textTransform: 'capitalize' }}>{session.context.replace('_', ' ')}</td>
+                  <td>{getClassificationLabel(session.classification)}</td>
+                  <td>{getContextLabel(session.context)}</td>
                 </tr>
               ))}
             </tbody>
