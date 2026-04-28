@@ -14,7 +14,7 @@ export function CycleSettingsPage() {
   const {
     settings,
     isLoading: isLoadingSettings,
-    refreshSettings,
+    loadSettings,
   } = useCycleData({
     userId: activeProfile?.id,
     autoLoad: true,
@@ -70,13 +70,13 @@ export function CycleSettingsPage() {
         activeProfile?.id
       );
       
-      await refreshSettings();
-      setSuccessMessage('Settings saved successfully!');
+      await loadSettings();
+      setSuccessMessage(t('cycle_settings_success'));
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: any) {
-      setError(err.message || 'Failed to save settings');
+      setError(err.message || t('cycle_settings_error'));
     } finally {
       setIsSaving(false);
     }
@@ -88,7 +88,7 @@ export function CycleSettingsPage() {
     periodExpectedReminder,
     fertileWindowReminder,
     activeProfile?.id,
-    refreshSettings,
+    loadSettings,
   ]);
   
   const handleExport = useCallback(async () => {
@@ -98,9 +98,9 @@ export function CycleSettingsPage() {
       setShowExportSuccess(true);
       setTimeout(() => setShowExportSuccess(false), 3000);
     } catch (err: any) {
-      setError(err.message || 'Failed to export data');
+      setError(err.message || t('cycle_export_error'));
     }
-  }, [activeProfile?.id]);
+  }, [activeProfile?.id, t]);
   
   const handleImport = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -113,7 +113,7 @@ export function CycleSettingsPage() {
       
       // Confirm import
       const confirmed = window.confirm(
-        'This will replace your current cycle data. Are you sure you want to continue?'
+        t('cycle_import_confirm_replace')
       );
       
       if (!confirmed) {
@@ -126,16 +126,16 @@ export function CycleSettingsPage() {
         activeProfile?.id
       );
       
-      await refreshSettings();
-      setSuccessMessage('Data imported successfully!');
+      await loadSettings();
+      setSuccessMessage(t('cycle_import_success'));
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: any) {
-      setImportError(err.message || 'Failed to import data');
+      setImportError(err.message || t('cycle_import_error'));
     }
     
     // Clear input
     event.target.value = '';
-  }, [activeProfile?.id, refreshSettings]);
+  }, [activeProfile?.id, loadSettings, t]);
   
   const handleDeleteAll = useCallback(async () => {
     setIsDeleting(true);
@@ -148,18 +148,18 @@ export function CycleSettingsPage() {
       // Navigate back to onboarding
       navigate('/cycle/onboarding');
     } catch (err: any) {
-      setError(err.message || 'Failed to delete data');
+      setError(err.message || t('cycle_delete_error'));
     } finally {
       setIsDeleting(false);
     }
-  }, [activeProfile?.id, navigate]);
+  }, [activeProfile?.id, navigate, t]);
   
   if (isLoadingSettings) {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>
           <div className={styles.spinner} />
-          <p>Loading settings...</p>
+            <p>{t('cycle_settings_loading')}</p>
         </div>
       </div>
     );
@@ -170,13 +170,13 @@ export function CycleSettingsPage() {
       <div className={styles.container}>
         <div className={styles.error}>
           <span className={styles.errorIcon}>⚠️</span>
-          <h3>No Settings Found</h3>
-          <p>Please complete the onboarding first.</p>
+          <h3>{t('cycle_settings_not_found_title')}</h3>
+          <p>{t('cycle_settings_not_found_desc')}</p>
           <button
             className={styles.primaryButton}
             onClick={() => navigate('/cycle/onboarding')}
           >
-            Start Setup
+            {t('cycle_settings_start_setup')}
           </button>
         </div>
       </div>
@@ -189,7 +189,7 @@ export function CycleSettingsPage() {
         <button
           className={styles.backButton}
           onClick={() => navigate('/cycle')}
-          aria-label="Back to cycle tracker"
+          aria-label={t('cycle_back_to_tracker')}
         >
           ←
         </button>
@@ -228,7 +228,7 @@ export function CycleSettingsPage() {
                 required
               />
               <p className={styles.hint}>
-                The first day of your most recent period
+                {t('cycle_settings_last_period_hint')}
               </p>
             </div>
             
@@ -247,7 +247,7 @@ export function CycleSettingsPage() {
                 required
               />
               <p className={styles.hint}>
-                From the first day of one period to the first day of the next (21-45 days)
+                {t('cycle_settings_cycle_length_hint')}
               </p>
             </div>
             
@@ -266,7 +266,7 @@ export function CycleSettingsPage() {
                 required
               />
               <p className={styles.hint}>
-                How many days your period typically lasts (2-10 days)
+                {t('cycle_settings_period_length_hint')}
               </p>
             </div>
             
@@ -278,11 +278,9 @@ export function CycleSettingsPage() {
                   onChange={(e) => setIrregularCycle(e.target.checked)}
                   className={styles.checkbox}
                 />
-                <span>My cycle is irregular</span>
+                <span>{t('cycle_settings_irregular')}</span>
               </label>
-              <p className={styles.hint}>
-                Predictions will show ranges (±2 days) if enabled
-              </p>
+              <p className={styles.hint}>{t('cycle_settings_irregular_hint')}</p>
             </div>
           </section>
           
@@ -297,11 +295,9 @@ export function CycleSettingsPage() {
                   onChange={(e) => setPeriodExpectedReminder(e.target.checked)}
                   className={styles.checkbox}
                 />
-                <span>Period expected soon</span>
+                <span>{t('cycle_settings_period_reminder')}</span>
               </label>
-              <p className={styles.hint}>
-                Reminder 2 days before expected period
-              </p>
+              <p className={styles.hint}>{t('cycle_settings_period_reminder_hint')}</p>
             </div>
             
             <div className={styles.field}>
@@ -312,11 +308,9 @@ export function CycleSettingsPage() {
                   onChange={(e) => setFertileWindowReminder(e.target.checked)}
                   className={styles.checkbox}
                 />
-                <span>Fertile window starts</span>
+                <span>{t('cycle_settings_fertile_reminder')}</span>
               </label>
-              <p className={styles.hint}>
-                Reminder when fertile window begins
-              </p>
+              <p className={styles.hint}>{t('cycle_settings_fertile_reminder_hint')}</p>
             </div>
           </section>
           
@@ -325,7 +319,7 @@ export function CycleSettingsPage() {
             className={styles.primaryButton}
             disabled={isSaving}
           >
-            {isSaving ? t('cycle_settings_saving') : t('cycle_save_settings')}
+            {isSaving ? t('cycle_settings_saving') : t('cycle_settings_save')}
           </button>
         </form>
         
@@ -338,11 +332,11 @@ export function CycleSettingsPage() {
               onClick={handleExport}
               className={styles.secondaryButton}
             >
-              📥 Export Data
+              📥 {t('cycle_export_data')}
             </button>
             
             <label className={styles.secondaryButton}>
-              📤 Import Data
+              📤 {t('cycle_import_data')}
               <input
                 type="file"
                 accept=".json"
@@ -353,7 +347,7 @@ export function CycleSettingsPage() {
           </div>
           
           {showExportSuccess && (
-            <p className={styles.successText}>Data exported successfully!</p>
+            <p className={styles.successText}>{t('cycle_export_success')}</p>
           )}
           
           {importError && (
@@ -361,7 +355,7 @@ export function CycleSettingsPage() {
           )}
           
           <p className={styles.hint}>
-            Export your data as a backup or import previously exported data
+            {t('cycle_data_backup_hint')}
           </p>
         </section>
         
@@ -375,16 +369,16 @@ export function CycleSettingsPage() {
                 onClick={() => setShowDeleteConfirm(true)}
                 className={styles.dangerButton}
               >
-                Delete All Data
+                {t('cycle_delete_data')}
               </button>
               <p className={styles.hint}>
-                Permanently delete all cycle tracking data
+                {t('cycle_delete_warning')}
               </p>
             </>
           ) : (
             <div className={styles.deleteConfirm}>
               <p className={styles.warningText}>
-                ⚠️ Are you sure? This will permanently delete all your cycle data including settings, logs, and history. This action cannot be undone.
+                ⚠️ {t('cycle_delete_confirm')}
               </p>
               <div className={styles.confirmActions}>
                 <button
@@ -393,7 +387,7 @@ export function CycleSettingsPage() {
                   className={styles.dangerButton}
                   disabled={isDeleting}
                 >
-                  {isDeleting ? 'Deleting...' : 'Yes, Delete Everything'}
+                  {isDeleting ? t('cycle_deleting') : t('cycle_delete_everything')}
                 </button>
                 <button
                   type="button"
@@ -401,7 +395,7 @@ export function CycleSettingsPage() {
                   className={styles.secondaryButton}
                   disabled={isDeleting}
                 >
-                  Cancel
+                  {t('common_cancel')}
                 </button>
               </div>
             </div>
