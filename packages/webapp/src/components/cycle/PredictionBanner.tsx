@@ -36,7 +36,7 @@ export function PredictionBanner({ predictions }: PredictionBannerProps) {
           <div className={styles.content}>
             <h3 className={styles.title}>
               {daysUntilPeriod > 0 
-                ? t('cycle_prediction_in_days', { days: daysUntilPeriod })
+                ? t('cycle_prediction_in_days', { count: daysUntilPeriod })
                 : t('cycle_prediction_today')
               }
             </h3>
@@ -71,7 +71,7 @@ export function PredictionBanner({ predictions }: PredictionBannerProps) {
         <span className={styles.icon}>🌸</span>
         <div className={styles.content}>
           <h3 className={styles.title}>
-            {t('cycle_prediction_around_days', { days: daysUntilPeriod })}
+            {t('cycle_prediction_around_days', { count: daysUntilPeriod })}
           </h3>
           <p className={styles.subtitle}>
             {formatDate(predictions.nextPeriod.startRange.min)} - {formatDate(predictions.nextPeriod.endRange.max)} {t('cycle_estimated_range')}

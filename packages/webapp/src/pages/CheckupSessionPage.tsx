@@ -16,6 +16,7 @@ export function CheckupSessionPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [llmResponse, setLlmResponse] = useState('');
+  const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
   
   // Current node state
   const [currentNode, setCurrentNode] = useState<SessionNode | null>(null);
@@ -95,13 +96,15 @@ export function CheckupSessionPage() {
     }
   };
 
-  const handleExit = async () => {
-    if (sessionId && window.confirm(t('session_exit_confirm'))) {
-      try {
-        await api.abandonSession(sessionId);
-      } catch (err) {
-        console.error('Failed to abandon session:', err);
-      }
+  const handleExitConfirm = async () => {
+    if (!sessionId) return;
+
+    try {
+      await api.abandonSession(sessionId);
+    } catch (err) {
+      console.error('Failed to abandon session:', err);
+    } finally {
+      setIsExitDialogOpen(false);
       navigate('/dashboard');
     }
   };
@@ -159,7 +162,7 @@ export function CheckupSessionPage() {
       <header className={styles.header}>
         <button 
           className={styles.exitButton}
-          onClick={handleExit}
+          onClick={() => setIsExitDialogOpen(true)}
           aria-label={t('session_exit_label')}
         >
           ✕ {t('session_exit')}
@@ -231,6 +234,26 @@ export function CheckupSessionPage() {
           </Button>
         )}
       </footer>
+
+      {isExitDialogOpen && (
+        <div className={styles.exitOverlay} role="dialog" aria-modal="true" aria-labelledby="exit-dialog-title">
+          <div className={styles.exitBackdrop} onClick={() => setIsExitDialogOpen(false)} />
+          <div className={styles.exitModal}>
+            <h2 id="exit-dialog-title" className={styles.exitTitle}>
+              {t('session_exit')}
+            </h2>
+            <p className={styles.exitMessage}>{t('session_exit_confirm')}</p>
+            <div className={styles.exitActions}>
+              <Button variant="ghost" onClick={() => setIsExitDialogOpen(false)}>
+                {t('common_cancel')}
+              </Button>
+              <Button variant="danger" onClick={handleExitConfirm}>
+                {t('session_exit')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
