@@ -7,16 +7,32 @@ interface PredictionBannerProps {
   predictions: Prediction;
 }
 
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+function parseDateKeyAsLocal(dateKey: string): Date {
+  const [year, month, day] = dateKey.split('-').map(Number);
+  return new Date(year, (month || 1) - 1, day || 1);
+}
+
+function capitalizeFirstLetter(value: string): string {
+  return value.replace(/^(\s*\p{L})/u, (firstLetter) => firstLetter.toUpperCase());
+}
+
+function formatDate(dateStr: string, language: string): string {
+  const localeByLanguage: Record<string, string> = {
+    en: 'en-US',
+    pt: 'pt-PT',
+    fr: 'fr-FR',
+    sw: 'sw-TZ',
+  };
+  const locale = localeByLanguage[language] || 'en-US';
+  const date = parseDateKeyAsLocal(dateStr);
+  return capitalizeFirstLetter(date.toLocaleDateString(locale, { month: 'short', day: 'numeric' }));
 }
 
 function calculateDaysUntil(dateStr: string): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  const targetDate = new Date(dateStr);
+  const targetDate = parseDateKeyAsLocal(dateStr);
   targetDate.setHours(0, 0, 0, 0);
   
   const diffTime = targetDate.getTime() - today.getTime();
@@ -41,7 +57,7 @@ export function PredictionBanner({ predictions }: PredictionBannerProps) {
               }
             </h3>
             <p className={styles.subtitle}>
-              {formatDate(predictions.nextPeriod.start)} - {formatDate(predictions.nextPeriod.end)}
+              {formatDate(predictions.nextPeriod.start, t.language)} - {formatDate(predictions.nextPeriod.end, t.language)}
             </p>
           </div>
         </div>
@@ -50,12 +66,12 @@ export function PredictionBanner({ predictions }: PredictionBannerProps) {
           <div className={styles.infoItem}>
             <span className={styles.label}>{t('cycle_fertile_window')}:</span>
             <span className={styles.value}>
-              {formatDate(predictions.fertileWindow.start)} - {formatDate(predictions.fertileWindow.end)}
+              {formatDate(predictions.fertileWindow.start, t.language)} - {formatDate(predictions.fertileWindow.end, t.language)}
             </span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.label}>{t('cycle_ovulation')}:</span>
-            <span className={styles.value}>{formatDate(predictions.ovulation.date)}</span>
+            <span className={styles.value}>{formatDate(predictions.ovulation.date, t.language)}</span>
           </div>
         </div>
       </div>
@@ -74,7 +90,7 @@ export function PredictionBanner({ predictions }: PredictionBannerProps) {
             {t('cycle_prediction_around_days', { count: daysUntilPeriod })}
           </h3>
           <p className={styles.subtitle}>
-            {formatDate(predictions.nextPeriod.startRange.min)} - {formatDate(predictions.nextPeriod.endRange.max)} {t('cycle_estimated_range')}
+            {formatDate(predictions.nextPeriod.startRange.min, t.language)} - {formatDate(predictions.nextPeriod.endRange.max, t.language)} {t('cycle_estimated_range')}
           </p>
         </div>
       </div>
@@ -83,13 +99,13 @@ export function PredictionBanner({ predictions }: PredictionBannerProps) {
         <div className={styles.infoItem}>
           <span className={styles.label}>{t('cycle_fertile_window_approx')}:</span>
           <span className={styles.value}>
-            {formatDate(predictions.fertileWindow.start)} - {formatDate(predictions.fertileWindow.end)}
+            {formatDate(predictions.fertileWindow.start, t.language)} - {formatDate(predictions.fertileWindow.end, t.language)}
           </span>
         </div>
         <div className={styles.infoItem}>
           <span className={styles.label}>{t('cycle_ovulation_approx')}:</span>
           <span className={styles.value}>
-            {formatDate(predictions.ovulation.dateRange.min)} - {formatDate(predictions.ovulation.dateRange.max)}
+            {formatDate(predictions.ovulation.dateRange.min, t.language)} - {formatDate(predictions.ovulation.dateRange.max, t.language)}
           </span>
         </div>
       </div>

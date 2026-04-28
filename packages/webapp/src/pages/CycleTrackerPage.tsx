@@ -9,6 +9,13 @@ import { MonthNavigation } from '../components/cycle/MonthNavigation';
 import { useTranslate } from '../i18n';
 import styles from './CycleTrackerPage.module.css';
 
+function toLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function CycleTrackerPage() {
   const navigate = useNavigate();
   const t = useTranslate();
@@ -182,7 +189,7 @@ export function CycleTrackerPage() {
           <button
             className={styles.secondaryButton}
             onClick={() => {
-              const today = new Date().toISOString().split('T')[0];
+              const today = toLocalDateKey(new Date());
               navigate(`/cycle/log/${today}`);
             }}
           >

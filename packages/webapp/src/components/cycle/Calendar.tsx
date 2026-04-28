@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { CalendarMonth } from '../../types/cycle';
+import { useTranslate } from '../../i18n';
 import styles from './Calendar.module.css';
 
 interface CalendarProps {
@@ -8,14 +9,45 @@ interface CalendarProps {
   selectedDate?: string;
 }
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+function toLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function parseDateKeyAsLocal(dateKey: string): Date {
+  const [year, month, day] = dateKey.split('-').map(Number);
+  return new Date(year, (month || 1) - 1, day || 1);
+}
+
+function capitalizeFirstLetter(value: string): string {
+  return value.replace(/^(\s*\p{L})/u, (firstLetter) => firstLetter.toUpperCase());
+}
 
 export function Calendar({ calendarMonth, onDayClick, selectedDate }: CalendarProps) {
+  const t = useTranslate();
   const { year, month, days } = calendarMonth;
+  const localeByLanguage: Record<string, string> = {
+    en: 'en-US',
+    pt: 'pt-PT',
+    fr: 'fr-FR',
+    sw: 'sw-TZ',
+  };
+  const locale = localeByLanguage[t.language] || 'en-US';
   
   const monthName = useMemo(() => {
-    return new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  }, [year, month]);
+    const formatted = new Date(year, month).toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+    return capitalizeFirstLetter(formatted);
+  }, [year, month, locale]);
+
+  const weekdays = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+    // 2023-01-01 is Sunday; iterate through a known Sunday-start week.
+    return Array.from({ length: 7 }, (_, i) =>
+      capitalizeFirstLetter(formatter.format(new Date(2023, 0, 1 + i)))
+    );
+  }, [locale]);
   
   return (
     <div className={styles.calendar}>
@@ -24,7 +56,7 @@ export function Calendar({ calendarMonth, onDayClick, selectedDate }: CalendarPr
       </div>
       
       <div className={styles.weekdays}>
-        {WEEKDAYS.map(day => (
+        {weekdays.map(day => (
           <div key={day} className={styles.weekday}>
             {day}
           </div>
@@ -33,10 +65,10 @@ export function Calendar({ calendarMonth, onDayClick, selectedDate }: CalendarPr
       
       <div className={styles.days}>
         {days.map(dayInfo => {
-          const date = new Date(dayInfo.date);
+          const date = parseDateKeyAsLocal(dayInfo.date);
           const dayOfMonth = date.getDate();
           const isCurrentMonth = date.getMonth() === month;
-          const isToday = dayInfo.date === new Date().toISOString().split('T')[0];
+          const isToday = dayInfo.date === toLocalDateKey(new Date());
           const isSelected = dayInfo.date === selectedDate;
           
           const dayClasses = [
@@ -78,19 +110,19 @@ export function Calendar({ calendarMonth, onDayClick, selectedDate }: CalendarPr
       <div className={styles.legend}>
         <div className={styles.legendItem}>
           <span className={`${styles.legendColor} ${styles.periodDay}`}></span>
-          <span>Period</span>
+          <span>{t('cycle_calendar_period')}</span>
         </div>
         <div className={styles.legendItem}>
           <span className={`${styles.legendColor} ${styles.predictedPeriod}`}></span>
-          <span>Predicted</span>
+          <span>{t('cycle_calendar_predicted')}</span>
         </div>
         <div className={styles.legendItem}>
           <span className={`${styles.legendColor} ${styles.fertileWindow}`}></span>
-          <span>Fertile</span>
+          <span>{t('cycle_calendar_fertile')}</span>
         </div>
         <div className={styles.legendItem}>
           <span className={`${styles.legendColor} ${styles.ovulation}`}></span>
-          <span>Ovulation</span>
+          <span>{t('cycle_calendar_ovulation')}</span>
         </div>
       </div>
     </div>

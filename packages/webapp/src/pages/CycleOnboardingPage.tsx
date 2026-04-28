@@ -5,6 +5,13 @@ import { useCycleData } from '../hooks/useCycleData';
 import { useTranslate } from '../i18n';
 import styles from './CycleOnboardingPage.module.css';
 
+function toLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function CycleOnboardingPage() {
   const navigate = useNavigate();
   const t = useTranslate();
@@ -86,7 +93,7 @@ export function CycleOnboardingPage() {
               className={styles.input}
               value={lastPeriodStart}
               onChange={(e) => setLastPeriodStart(e.target.value)}
-              max={new Date().toISOString().split('T')[0]}
+              max={toLocalDateKey(new Date())}
               required
             />
           </div>
