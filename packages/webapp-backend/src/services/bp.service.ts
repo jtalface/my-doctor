@@ -314,7 +314,39 @@ export interface BPExportData {
 export async function exportData(userId: string): Promise<BPExportData> {
   const settings = await getSettings(userId);
   const sessions = await getSessions(userId);
-  const analytics = await getAnalytics(userId, 30);
+  const fallbackDistribution = sessions.reduce(
+    (acc, session) => {
+      acc[session.classification] += 1;
+      return acc;
+    },
+    { normal: 0, elevated: 0, stage1: 0, stage2: 0, crisis: 0 }
+  );
+  const fallbackAvgSystolic =
+    sessions.length > 0
+      ? Math.round(sessions.reduce((sum, s) => sum + s.averages.systolic, 0) / sessions.length)
+      : 0;
+  const fallbackAvgDiastolic =
+    sessions.length > 0
+      ? Math.round(sessions.reduce((sum, s) => sum + s.averages.diastolic, 0) / sessions.length)
+      : 0;
+  const analytics = settings
+    ? analyzeBPPatterns(sessions, settings, 30)
+    : {
+        summary: {
+          totalSessions: sessions.length,
+          avgSystolic: fallbackAvgSystolic,
+          avgDiastolic: fallbackAvgDiastolic,
+        },
+        distribution: fallbackDistribution,
+        aboveTarget: { count: 0, percentage: 0 },
+        adherence: {
+          daysWithReadings: 0,
+          expectedReadings: 0,
+          actualReadings: sessions.length,
+          adherenceRate: 0,
+        },
+        patterns: [],
+      };
 
   await BPActivityAudit.create({
     userId,

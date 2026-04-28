@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useActiveProfile } from '../contexts';
 import { useBPData } from '../hooks/useBPData';
 import { useTranslate } from '../i18n';
 import * as bpApi from '../services/bpApi';
@@ -14,6 +15,7 @@ import styles from './BPReportsPage.module.css';
 export function BPReportsPage() {
   const navigate = useNavigate();
   const t = useTranslate();
+  const { activeProfile } = useActiveProfile();
   const { settings, sessions, analytics } = useBPData();
   const [isExporting, setIsExporting] = useState(false);
 
@@ -42,7 +44,7 @@ export function BPReportsPage() {
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      const data = await bpApi.exportData();
+      const data = await bpApi.exportData(activeProfile?.id);
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -53,7 +55,13 @@ export function BPReportsPage() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error: any) {
-      alert(t('bp_reports_export_failed') + ' ' + error.message);
+      const errorMessage = String(error?.message || '');
+      if (errorMessage.includes('Settings not found')) {
+        alert(t('bp_reports_no_data'));
+      } else {
+        alert(t('bp_reports_export_failed'));
+      }
+      console.error('[BP Reports] Export failed', error);
     } finally {
       setIsExporting(false);
     }
