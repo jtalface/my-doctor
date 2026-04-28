@@ -7,6 +7,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useGlucoseData } from '../hooks/useGlucoseData';
 import { useTranslate } from '../i18n';
+import type { Suggestion } from '../types/glucose';
 import styles from './GlucoseInsightsPage.module.css';
 
 export function GlucoseInsightsPage() {
@@ -30,6 +31,142 @@ export function GlucoseInsightsPage() {
   const urgentSuggestions = suggestions.filter((s) => s.severity === 'urgent');
   const warnSuggestions = suggestions.filter((s) => s.severity === 'warn');
   const infoSuggestions = suggestions.filter((s) => s.severity === 'info');
+
+  const translateSeverity = (severity: Suggestion['severity']) => {
+    if (severity === 'urgent') return t('glucose_severity_urgent');
+    if (severity === 'warn') return t('glucose_severity_warn');
+    return t('glucose_severity_info');
+  };
+
+  const getContextLabel = (context: string): string => {
+    const contextMap: Record<string, string> = {
+      fasting: t('glucose_fasting'),
+      pre_meal: t('glucose_pre_meal'),
+      post_meal: t('glucose_post_meal'),
+      bedtime: t('glucose_bedtime'),
+      overnight: t('glucose_overnight'),
+      other: t('glucose_other'),
+    };
+    return contextMap[context] || context.replace('_', ' ');
+  };
+
+  const getLocalizedSuggestionText = (suggestion: Suggestion) => {
+    const base = {
+      title: suggestion.title,
+      message: suggestion.message,
+      rationale: suggestion.rationale,
+      actions: suggestion.actions,
+      disclaimer: suggestion.disclaimer,
+    };
+
+    const map: Record<string, { title: string; message: string; rationale: string; actions?: string[]; disclaimer: string }> = {
+      severe_hypoglycemia: {
+        title: t('glucose_suggestion_severe_hypoglycemia_title'),
+        message: t('glucose_suggestion_severe_hypoglycemia_message'),
+        rationale: t('glucose_suggestion_severe_hypoglycemia_rationale'),
+        actions: [
+          t('glucose_suggestion_severe_hypoglycemia_action_1'),
+          t('glucose_suggestion_severe_hypoglycemia_action_2'),
+          t('glucose_suggestion_severe_hypoglycemia_action_3'),
+          t('glucose_suggestion_severe_hypoglycemia_action_4'),
+        ],
+        disclaimer: t('glucose_suggestion_severe_hypoglycemia_disclaimer'),
+      },
+      hypoglycemia: {
+        title: t('glucose_suggestion_hypoglycemia_title'),
+        message: t('glucose_suggestion_hypoglycemia_message'),
+        rationale: t('glucose_suggestion_hypoglycemia_rationale'),
+        actions: [
+          t('glucose_suggestion_hypoglycemia_action_1'),
+          t('glucose_suggestion_hypoglycemia_action_2'),
+          t('glucose_suggestion_hypoglycemia_action_3'),
+          t('glucose_suggestion_hypoglycemia_action_4'),
+        ],
+        disclaimer: t('glucose_suggestion_hypoglycemia_disclaimer'),
+      },
+      hyperglycemia_dka_risk: {
+        title: t('glucose_suggestion_hyperglycemia_dka_risk_title'),
+        message: t('glucose_suggestion_hyperglycemia_dka_risk_message'),
+        rationale: t('glucose_suggestion_hyperglycemia_dka_risk_rationale'),
+        actions: [
+          t('glucose_suggestion_hyperglycemia_dka_risk_action_1'),
+          t('glucose_suggestion_hyperglycemia_dka_risk_action_2'),
+          t('glucose_suggestion_hyperglycemia_dka_risk_action_3'),
+          t('glucose_suggestion_hyperglycemia_dka_risk_action_4'),
+        ],
+        disclaimer: t('glucose_suggestion_hyperglycemia_dka_risk_disclaimer'),
+      },
+      persistent_hyperglycemia: {
+        title: t('glucose_suggestion_persistent_hyperglycemia_title'),
+        message: t('glucose_suggestion_persistent_hyperglycemia_message'),
+        rationale: t('glucose_suggestion_persistent_hyperglycemia_rationale'),
+        actions: [
+          t('glucose_suggestion_persistent_hyperglycemia_action_1'),
+          t('glucose_suggestion_persistent_hyperglycemia_action_2'),
+          t('glucose_suggestion_persistent_hyperglycemia_action_3'),
+          t('glucose_suggestion_persistent_hyperglycemia_action_4'),
+        ],
+        disclaimer: t('glucose_suggestion_persistent_hyperglycemia_disclaimer'),
+      },
+      post_meal_pattern: {
+        title: t('glucose_suggestion_post_meal_pattern_title'),
+        message: t('glucose_suggestion_post_meal_pattern_message'),
+        rationale: t('glucose_suggestion_post_meal_pattern_rationale'),
+        actions: [
+          t('glucose_suggestion_post_meal_pattern_action_1'),
+          t('glucose_suggestion_post_meal_pattern_action_2'),
+          t('glucose_suggestion_post_meal_pattern_action_3'),
+        ],
+        disclaimer: t('glucose_suggestion_post_meal_pattern_disclaimer'),
+      },
+      fasting_pattern: {
+        title: t('glucose_suggestion_fasting_pattern_title'),
+        message: t('glucose_suggestion_fasting_pattern_message'),
+        rationale: t('glucose_suggestion_fasting_pattern_rationale'),
+        actions: [
+          t('glucose_suggestion_fasting_pattern_action_1'),
+          t('glucose_suggestion_fasting_pattern_action_2'),
+          t('glucose_suggestion_fasting_pattern_action_3'),
+        ],
+        disclaimer: t('glucose_suggestion_fasting_pattern_disclaimer'),
+      },
+      hypoglycemia_pattern: {
+        title: t('glucose_suggestion_hypoglycemia_pattern_title'),
+        message: t('glucose_suggestion_hypoglycemia_pattern_message'),
+        rationale: t('glucose_suggestion_hypoglycemia_pattern_rationale'),
+        actions: [
+          t('glucose_suggestion_hypoglycemia_pattern_action_1'),
+          t('glucose_suggestion_hypoglycemia_pattern_action_2'),
+          t('glucose_suggestion_hypoglycemia_pattern_action_3'),
+        ],
+        disclaimer: t('glucose_suggestion_hypoglycemia_pattern_disclaimer'),
+      },
+      glucose_variability: {
+        title: t('glucose_suggestion_glucose_variability_title'),
+        message: t('glucose_suggestion_glucose_variability_message'),
+        rationale: t('glucose_suggestion_glucose_variability_rationale'),
+        actions: [
+          t('glucose_suggestion_glucose_variability_action_1'),
+          t('glucose_suggestion_glucose_variability_action_2'),
+          t('glucose_suggestion_glucose_variability_action_3'),
+        ],
+        disclaimer: t('glucose_suggestion_glucose_variability_disclaimer'),
+      },
+      engagement: {
+        title: t('glucose_suggestion_engagement_title'),
+        message: t('glucose_suggestion_engagement_message'),
+        rationale: t('glucose_suggestion_engagement_rationale'),
+        actions: [
+          t('glucose_suggestion_engagement_action_1'),
+          t('glucose_suggestion_engagement_action_2'),
+          t('glucose_suggestion_engagement_action_3'),
+        ],
+        disclaimer: t('glucose_suggestion_engagement_disclaimer'),
+      },
+    };
+
+    return map[suggestion.type] || base;
+  };
 
   return (
     <div className={styles.container}>
@@ -105,7 +242,7 @@ export function GlucoseInsightsPage() {
                 <div className={styles.patternHeader}>
                   <span className={styles.patternType}>{pattern.type.replace('_', ' ')}</span>
                   <span className={`${styles.badge} ${styles[pattern.severity]}`}>
-                    {pattern.severity}
+                    {translateSeverity(pattern.severity)}
                   </span>
                 </div>
                 <p className={styles.patternDescription}>{pattern.description}</p>
@@ -129,17 +266,20 @@ export function GlucoseInsightsPage() {
               <div className={styles.suggestionGroup}>
                 <h3 className={styles.groupTitle}>🚨 {t('glucose_urgent')}</h3>
                 {urgentSuggestions.map((suggestion) => (
+                  (() => {
+                    const localized = getLocalizedSuggestionText(suggestion);
+                    return (
                   <div key={suggestion.id} className={`${styles.suggestionCard} ${styles.urgent}`}>
-                    <h4 className={styles.suggestionTitle}>{suggestion.title}</h4>
-                    <p className={styles.suggestionMessage}>{suggestion.message}</p>
+                    <h4 className={styles.suggestionTitle}>{localized.title}</h4>
+                    <p className={styles.suggestionMessage}>{localized.message}</p>
                     <div className={styles.rationale}>
-                      <strong>{t('glucose_why')}</strong> {suggestion.rationale}
+                      <strong>{t('glucose_why')}</strong> {localized.rationale}
                     </div>
-                    {suggestion.actions && suggestion.actions.length > 0 && (
+                    {localized.actions && localized.actions.length > 0 && (
                       <div className={styles.actions}>
                         <strong>{t('glucose_recommended_actions')}</strong>
                         <ul>
-                          {suggestion.actions.map((action, idx) => (
+                          {localized.actions.map((action, idx) => (
                             <li key={idx}>{action}</li>
                           ))}
                         </ul>
@@ -151,7 +291,7 @@ export function GlucoseInsightsPage() {
                         <div className={styles.readingsList}>
                           {suggestion.supportingData.readings.slice(0, 3).map((reading, idx) => (
                             <span key={idx} className={styles.readingBadge}>
-                              {reading.value} {settings?.unitPreference} ({reading.context})
+                              {reading.value} {settings?.unitPreference} ({getContextLabel(reading.context)})
                             </span>
                           ))}
                         </div>
@@ -162,8 +302,10 @@ export function GlucoseInsightsPage() {
                         <strong>{t('glucose_references')}</strong> {suggestion.references.join(', ')}
                       </div>
                     )}
-                    <div className={styles.disclaimer}>{suggestion.disclaimer}</div>
+                    <div className={styles.disclaimer}>{localized.disclaimer}</div>
                   </div>
+                    );
+                  })()
                 ))}
               </div>
             )}
@@ -172,24 +314,29 @@ export function GlucoseInsightsPage() {
               <div className={styles.suggestionGroup}>
                 <h3 className={styles.groupTitle}>⚠️ {t('glucose_warnings')}</h3>
                 {warnSuggestions.map((suggestion) => (
+                  (() => {
+                    const localized = getLocalizedSuggestionText(suggestion);
+                    return (
                   <div key={suggestion.id} className={`${styles.suggestionCard} ${styles.warn}`}>
-                    <h4 className={styles.suggestionTitle}>{suggestion.title}</h4>
-                    <p className={styles.suggestionMessage}>{suggestion.message}</p>
+                    <h4 className={styles.suggestionTitle}>{localized.title}</h4>
+                    <p className={styles.suggestionMessage}>{localized.message}</p>
                     <div className={styles.rationale}>
-                      <strong>{t('glucose_why')}</strong> {suggestion.rationale}
+                      <strong>{t('glucose_why')}</strong> {localized.rationale}
                     </div>
-                    {suggestion.actions && suggestion.actions.length > 0 && (
+                    {localized.actions && localized.actions.length > 0 && (
                       <div className={styles.actions}>
                         <strong>{t('glucose_suggested_actions')}</strong>
                         <ul>
-                          {suggestion.actions.map((action, idx) => (
+                          {localized.actions.map((action, idx) => (
                             <li key={idx}>{action}</li>
                           ))}
                         </ul>
                       </div>
                     )}
-                    <div className={styles.disclaimer}>{suggestion.disclaimer}</div>
+                    <div className={styles.disclaimer}>{localized.disclaimer}</div>
                   </div>
+                    );
+                  })()
                 ))}
               </div>
             )}
@@ -198,20 +345,26 @@ export function GlucoseInsightsPage() {
               <div className={styles.suggestionGroup}>
                 <h3 className={styles.groupTitle}>ℹ️ {t('glucose_info_tips')}</h3>
                 {infoSuggestions.map((suggestion) => (
+                  (() => {
+                    const localized = getLocalizedSuggestionText(suggestion);
+                    return (
                   <div key={suggestion.id} className={`${styles.suggestionCard} ${styles.info}`}>
-                    <h4 className={styles.suggestionTitle}>{suggestion.title}</h4>
-                    <p className={styles.suggestionMessage}>{suggestion.message}</p>
-                    {suggestion.actions && suggestion.actions.length > 0 && (
+                    <h4 className={styles.suggestionTitle}>{localized.title}</h4>
+                    <p className={styles.suggestionMessage}>{localized.message}</p>
+                    {localized.actions && localized.actions.length > 0 && (
                       <div className={styles.actions}>
                         <strong>{t('glucose_tips')}</strong>
                         <ul>
-                          {suggestion.actions.map((action, idx) => (
+                          {localized.actions.map((action, idx) => (
                             <li key={idx}>{action}</li>
                           ))}
                         </ul>
                       </div>
                     )}
+                    <div className={styles.disclaimer}>{localized.disclaimer}</div>
                   </div>
+                    );
+                  })()
                 ))}
               </div>
             )}
@@ -244,7 +397,7 @@ export function GlucoseInsightsPage() {
                   {reading.glucoseValueRaw} {reading.unit}
                   {reading.flagged && <span className={styles.flagIcon}>⚠️</span>}
                 </span>
-                <span className={styles.context}>{reading.context.replace('_', ' ')}</span>
+                <span className={styles.context}>{getContextLabel(reading.context)}</span>
                 <span className={styles.notes}>{reading.notes || '-'}</span>
               </div>
             ))}

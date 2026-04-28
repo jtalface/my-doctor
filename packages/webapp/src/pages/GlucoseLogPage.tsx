@@ -27,6 +27,22 @@ export function GlucoseLogPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationWarning, setValidationWarning] = useState('');
+  const symptomLabelMap: Record<string, string> = {
+    'Shaky/Trembling': t('glucose_symptom_shaky_trembling'),
+    Sweating: t('glucose_symptom_sweating'),
+    Hungry: t('glucose_symptom_hungry'),
+    'Dizzy/Lightheaded': t('glucose_symptom_dizzy_lightheaded'),
+    Confused: t('glucose_symptom_confused'),
+    'Blurred vision': t('glucose_symptom_blurred_vision'),
+    Headache: t('glucose_symptom_headache'),
+    'Fatigue/Tired': t('glucose_symptom_fatigue_tired'),
+    Thirsty: t('glucose_symptom_thirsty'),
+    'Frequent urination': t('glucose_symptom_frequent_urination'),
+    Nausea: t('glucose_symptom_nausea'),
+    'Rapid breathing': t('glucose_symptom_rapid_breathing'),
+    'Fruity breath odor': t('glucose_symptom_fruity_breath_odor'),
+    'Abdominal pain': t('glucose_symptom_abdominal_pain'),
+  };
 
   // Redirect if not onboarded
   if (!isLoading && !settings) {
@@ -159,11 +175,21 @@ export function GlucoseLogPage() {
               onChange={(e) => setFormData({ ...formData, context: e.target.value as GlucoseContext })}
               required
             >
-              {CONTEXT_OPTIONS.map((option) => (
+              {CONTEXT_OPTIONS.map((option) => {
+                const contextLabelMap: Record<string, string> = {
+                  fasting: t('glucose_fasting'),
+                  pre_meal: t('glucose_pre_meal'),
+                  post_meal: t('glucose_post_meal'),
+                  bedtime: t('glucose_bedtime'),
+                  overnight: t('glucose_overnight'),
+                  other: t('glucose_other'),
+                };
+                return (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {contextLabelMap[option.value] || option.label}
                 </option>
-              ))}
+                );
+              })}
             </select>
             <small>{t('glucose_context_help')}</small>
           </div>
@@ -237,7 +263,7 @@ export function GlucoseLogPage() {
                     checked={formData.symptoms?.includes(symptom)}
                     onChange={() => handleSymptomToggle(symptom)}
                   />
-                  <span>{symptom}</span>
+                  <span>{symptomLabelMap[symptom] || symptom}</span>
                 </label>
               ))}
             </div>
