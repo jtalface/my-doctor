@@ -14,6 +14,7 @@ export function CheckupConsentPage() {
   const [consent2, setConsent2] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPolicyOpen, setIsPolicyOpen] = useState(false);
 
   const handleContinue = async () => {
     if (!activeProfile?.id) {
@@ -57,7 +58,14 @@ export function CheckupConsentPage() {
               <p className={styles.cardText}>
                 {t('consent_privacy_text')}
               </p>
-              <Button variant="ghost" size="sm">{t('consent_read_policy')}</Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={styles.readPolicyButton}
+                onClick={() => setIsPolicyOpen(true)}
+              >
+                {t('consent_read_policy')}
+              </Button>
             </CardContent>
           </Card>
 
@@ -124,6 +132,45 @@ export function CheckupConsentPage() {
           {isLoading ? t('consent_starting') : t('consent_continue')}
         </Button>
       </main>
+
+      {isPolicyOpen && (
+        <div className={styles.policyOverlay} role="dialog" aria-modal="true" aria-labelledby="privacy-policy-title">
+          <div className={styles.policyBackdrop} onClick={() => setIsPolicyOpen(false)} />
+          <div className={styles.policyModal}>
+            <div className={styles.policyHeader}>
+              <h2 id="privacy-policy-title">{t('consent_policy_title')}</h2>
+              <button
+                type="button"
+                className={styles.policyClose}
+                onClick={() => setIsPolicyOpen(false)}
+                aria-label={t('common_close')}
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles.policyContent}>
+              <p>{t('consent_policy_intro')}</p>
+              <h3>{t('consent_policy_data_title')}</h3>
+              <p>{t('consent_policy_data_text')}</p>
+              <h3>{t('consent_policy_use_title')}</h3>
+              <p>{t('consent_policy_use_text')}</p>
+              <h3>{t('consent_policy_share_title')}</h3>
+              <p>{t('consent_policy_share_text')}</p>
+              <h3>{t('consent_policy_security_title')}</h3>
+              <p>{t('consent_policy_security_text')}</p>
+              <h3>{t('consent_policy_rights_title')}</h3>
+              <p>{t('consent_policy_rights_text')}</p>
+              <h3>{t('consent_policy_contact_title')}</h3>
+              <p>{t('consent_policy_contact_text')}</p>
+            </div>
+            <div className={styles.policyFooter}>
+              <Button size="sm" onClick={() => setIsPolicyOpen(false)}>
+                {t('common_close')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

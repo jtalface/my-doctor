@@ -89,6 +89,19 @@
   margin: 0;
 }
 
+.readPolicyButton {
+  margin-top: var(--space-2);
+  border: 1px solid var(--color-primary-300);
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
+}
+
+.readPolicyButton:hover:not(:disabled) {
+  background: var(--color-primary-100);
+  border-color: var(--color-primary-400);
+  color: var(--color-primary-800);
+}
+
 .checkboxes {
   display: flex;
   flex-direction: column;
@@ -144,5 +157,82 @@
   font-size: var(--font-size-sm);
   cursor: pointer;
   text-decoration: underline;
+}
+
+.policyOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+
+.policyBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.policyModal {
+  position: relative;
+  width: min(760px, 100%);
+  max-height: min(86vh, 920px);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+}
+
+.policyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.policyHeader h2 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.policyClose {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.policyContent {
+  padding: var(--space-5);
+  overflow: auto;
+}
+
+.policyContent h3 {
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+}
+
+.policyContent p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  font-size: var(--font-size-sm);
+}
+
+.policyFooter {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
 }
 
