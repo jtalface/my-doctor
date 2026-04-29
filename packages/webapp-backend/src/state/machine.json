@@ -5,7 +5,42 @@
     "description": "AI-powered general health assessment flow"
   },
   "initialState": "welcome",
+  "entryPoints": {
+    "annual-checkup": "annual_intro",
+    "symptom-check": "symptom_intro",
+    "medication-review": "medication_intro"
+  },
   "nodes": {
+    "annual_intro": {
+      "id": "annual_intro",
+      "prompt": "Welcome to your annual health checkup. We'll go through a complete wellness review to help identify preventive care opportunities and overall health trends.",
+      "helpText": "This annual checkup usually takes about 10-15 minutes. Your responses are confidential.",
+      "inputType": "choice",
+      "choices": ["Continue"],
+      "transitions": {
+        "default": "chief_complaint"
+      }
+    },
+    "symptom_intro": {
+      "id": "symptom_intro",
+      "prompt": "Welcome to symptom analysis. We'll focus on what you're feeling right now and quickly check for anything that may need urgent attention.",
+      "helpText": "This symptom-focused flow usually takes about 5-10 minutes.",
+      "inputType": "choice",
+      "choices": ["Continue"],
+      "transitions": {
+        "default": "chief_complaint"
+      }
+    },
+    "medication_intro": {
+      "id": "medication_intro",
+      "prompt": "Welcome to medication review. We'll focus on your current medications, adherence, and any concerns you want to discuss.",
+      "helpText": "This medication review usually takes about 5 minutes.",
+      "inputType": "choice",
+      "choices": ["Continue"],
+      "transitions": {
+        "default": "medications"
+      }
+    },
     "welcome": {
       "id": "welcome",
       "prompt": "Welcome to your health checkup! I'm here to help you understand your health better. Before we begin, I'd like to ask you a few questions about how you're feeling today.",
@@ -64,7 +99,8 @@
         "Difficulty breathing": "emergency_redirect",
         "Sudden severe headache": "emergency_redirect",
         "Numbness or weakness on one side": "emergency_redirect",
-        "None of the above": "general_feeling"
+        "None of the above": "general_feeling",
+        "default": "emergency_redirect"
       }
     },
     "emergency_redirect": {
@@ -74,6 +110,18 @@
       "inputType": "choice",
       "choices": ["I understand", "I need more information"],
       "isTerminal": false,
+      "isRedFlag": true,
+      "transitions": {
+        "I need more information": "emergency_more_info",
+        "default": "summary"
+      }
+    },
+    "emergency_more_info": {
+      "id": "emergency_more_info",
+      "prompt": "Seek emergency care now if symptoms are severe, sudden, or worsening. Do not drive yourself if you feel unstable. Call local emergency services or ask someone to assist you immediately.",
+      "helpText": "This tool cannot provide emergency diagnosis. If you feel in immediate danger, contact emergency services now.",
+      "inputType": "choice",
+      "choices": ["Continue to summary"],
       "isRedFlag": true,
       "transitions": {
         "default": "summary"

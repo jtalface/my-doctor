@@ -4,9 +4,11 @@ import { promptEngineService } from '../services/prompt-engine.service.js';
 import { config } from '../config/index.js';
 import { User } from '../models/user.model.js';
 import { DEFAULT_LANGUAGE } from '../config/languages.js';
+import { ISessionStep } from '../models/session.model.js';
 
 export interface OrchestratorResponse {
   sessionId: string;
+  sessionType: 'annual-checkup' | 'symptom-check' | 'medication-review';
   currentState: string;
   node: {
     id: string;
@@ -41,10 +43,13 @@ export interface ReasoningResult {
 class Orchestrator {
   private reasoning: Map<string, ReasoningResult> = new Map();
 
-  async startSession(userId: string): Promise<OrchestratorResponse> {
+  async startSession(
+    userId: string,
+    sessionType: 'annual-checkup' | 'symptom-check' | 'medication-review' = 'annual-checkup'
+  ): Promise<OrchestratorResponse> {
     // Load state machine
-    const machine = stateLoader.load();
-    const initialState = machine.initialState;
+    stateLoader.load();
+    const initialState = stateLoader.getInitialStateForSessionType(sessionType);
     const initialNode = stateLoader.getNode(initialState);
 
     if (!initialNode) {
@@ -52,7 +57,7 @@ class Orchestrator {
     }
 
     // Create session
-    const sessionData = await sessionMemoryService.create(userId, initialState);
+    const sessionData = await sessionMemoryService.create(userId, initialState, sessionType);
     
     // Initialize reasoning for this session
     this.reasoning.set(sessionData.sessionId, {
@@ -66,7 +71,7 @@ class Orchestrator {
       console.log(`[Orchestrator] Started session ${sessionData.sessionId} at state ${initialState}`);
     }
 
-    return this.buildResponse(sessionData.sessionId, initialNode);
+    return this.buildResponse(sessionData.sessionId, sessionType, initialNode);
   }
 
   async handleInput(sessionId: string, input: any): Promise<OrchestratorResponse> {
@@ -85,17 +90,24 @@ class Orchestrator {
     const user = await User.findById(sessionData.userId);
     const language = user?.preferences?.language || DEFAULT_LANGUAGE;
 
-    // Run reasoning analysis
-    const reasoning = this.analyzeInput(sessionId, currentNode, input);
+    // Rebuild reasoning from persisted steps so results survive
+    // backend restarts and stay consistent after back navigation.
+    const priorReasoning = this.rebuildReasoningFromHistory(sessionData.steps);
+    const reasoning = this.analyzeInput(priorReasoning, currentNode, input);
+    this.reasoning.set(sessionId, reasoning);
 
-    // Generate LLM response
-    const llmResponse = await promptEngineService.generate({
-      nodeId: currentNode.id,
-      prompt: currentNode.prompt,
-      input,
-      reasoning,
-      language,
-    });
+    let llmResponse = '';
+    // Keep per-step LLM generation code behind a feature flag so
+    // we can re-enable streamed guidance later without refactoring.
+    if (config.enableStepLlmResponses) {
+      llmResponse = await promptEngineService.generate({
+        nodeId: currentNode.id,
+        prompt: currentNode.prompt,
+        input,
+        reasoning,
+        language,
+      });
+    }
 
     // Save step to memory
     await sessionMemoryService.append(
@@ -128,24 +140,53 @@ class Orchestrator {
       
       await sessionMemoryService.complete(sessionId, summary);
       
-      return this.buildResponse(sessionId, nextNode, llmResponse, summary);
+      return this.buildResponse(
+        sessionId,
+        sessionData.sessionType,
+        nextNode,
+        llmResponse || undefined,
+        summary
+      );
     }
 
-    return this.buildResponse(sessionId, nextNode, llmResponse);
+    return this.buildResponse(sessionId, sessionData.sessionType, nextNode, llmResponse || undefined);
   }
 
-  private analyzeInput(sessionId: string, node: StateNode, input: any): ReasoningResult {
-    const reasoning = this.reasoning.get(sessionId) || {
+  private createEmptyReasoning(): ReasoningResult {
+    return {
       redFlags: [],
       recommendations: [],
       screenings: [],
       scores: {},
     };
+  }
+
+  private rebuildReasoningFromHistory(steps: ISessionStep[]): ReasoningResult {
+    const reasoning = this.createEmptyReasoning();
+    for (const step of steps) {
+      const node = stateLoader.getNode(step.nodeId);
+      if (!node) continue;
+      this.analyzeInput(reasoning, node, step.input);
+    }
+    return reasoning;
+  }
+
+  private analyzeInput(reasoning: ReasoningResult, node: StateNode, input: any): ReasoningResult {
+    const acknowledgedEmergencyChoice =
+      input === 'I understand' || input === 'I need more information' || input === 'Continue to summary';
 
     // Red flag detection
     if (node.isRedFlagNode || node.isRedFlag) {
-      if (input && input !== 'None of the above') {
-        reasoning.redFlags.push(`${node.id}: ${input}`);
+      if (input && !acknowledgedEmergencyChoice) {
+        const values = String(input)
+          .split(',')
+          .map(value => value.trim())
+          .filter(Boolean)
+          .filter(value => value !== 'None of the above');
+
+        for (const value of values) {
+          reasoning.redFlags.push(`${node.id}: ${value}`);
+        }
       }
     }
 
@@ -199,7 +240,6 @@ class Orchestrator {
         break;
     }
 
-    this.reasoning.set(sessionId, reasoning);
     return reasoning;
   }
 
@@ -220,18 +260,20 @@ class Orchestrator {
       response: h.response,
     }));
 
-    const notes = await promptEngineService.generateSummary(steps, reasoning, language);
+    const finalReasoning = reasoning || this.rebuildReasoningFromHistory(history);
+    const notes = await promptEngineService.generateSummary(steps, finalReasoning, language);
 
     return {
-      redFlags: reasoning?.redFlags || [],
-      recommendations: reasoning?.recommendations || [],
-      screenings: [...new Set(reasoning?.screenings || [])],
+      redFlags: finalReasoning.redFlags || [],
+      recommendations: finalReasoning.recommendations || [],
+      screenings: [...new Set(finalReasoning.screenings || [])],
       notes,
     };
   }
 
   private buildResponse(
     sessionId: string,
+    sessionType: 'annual-checkup' | 'symptom-check' | 'medication-review',
     node: StateNode,
     llmResponse?: string,
     summary?: { redFlags: string[]; recommendations: string[]; screenings: string[]; notes: string }
@@ -242,6 +284,7 @@ class Orchestrator {
     
     return {
       sessionId,
+      sessionType,
       currentState: node.id,
       node: {
         id: node.id,
@@ -286,7 +329,21 @@ class Orchestrator {
       }
     }
 
-    return this.buildResponse(sessionId, node, undefined, summary);
+    return this.buildResponse(sessionId, sessionData.sessionType, node, undefined, summary);
+  }
+
+  async goBack(sessionId: string): Promise<OrchestratorResponse> {
+    const sessionData = await sessionMemoryService.goBack(sessionId);
+    if (!sessionData) {
+      throw new Error(`Session ${sessionId} not found`);
+    }
+
+    const node = stateLoader.getNode(sessionData.currentState);
+    if (!node) {
+      throw new Error(`Node ${sessionData.currentState} not found`);
+    }
+
+    return this.buildResponse(sessionId, sessionData.sessionType, node);
   }
 }
 

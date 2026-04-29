@@ -11,6 +11,7 @@ export interface ISessionStep {
 
 export interface ISession extends Document {
   userId: mongoose.Types.ObjectId;
+  sessionType: 'annual-checkup' | 'symptom-check' | 'medication-review';
   currentState: string;
   status: 'active' | 'completed' | 'abandoned';
   steps: ISessionStep[];
@@ -41,6 +42,12 @@ const SessionStepSchema = new Schema<ISessionStep>(
 const SessionSchema = new Schema<ISession>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    sessionType: {
+      type: String,
+      enum: ['annual-checkup', 'symptom-check', 'medication-review'],
+      default: 'annual-checkup',
+      required: true,
+    },
     currentState: { type: String, required: true },
     status: {
       type: String,

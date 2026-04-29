@@ -4,6 +4,7 @@ import { Card, CardContent, Button } from '@components/common';
 import { useActiveProfile } from '../contexts';
 import { useTranslate } from '../i18n';
 import { api, SessionHistoryItem } from '../services/api';
+import { getCheckupSessionTitle } from '../utils/checkupSessionTitle';
 import styles from './HealthHistoryPage.module.css';
 
 export function HealthHistoryPage() {
@@ -297,7 +298,7 @@ export function HealthHistoryPage() {
                             </span>
                             <div>
                               <h3 className={styles.sessionTitle}>
-                                {t('history_health_checkup')}
+                                {getCheckupSessionTitle(session.sessionType, t)}
                               </h3>
                               <p className={styles.sessionMeta}>
                                 {formatDate(session.startedAt)} • {calculateDuration(session.startedAt, session.completedAt)}
@@ -307,7 +308,10 @@ export function HealthHistoryPage() {
                           <div className={styles.sessionRight}>
                             {flagCount > 0 && isCompleted && (
                               <span className={styles.flagBadge}>
-                                ⚠️ {t('history_flagged_count', { count: flagCount })}
+                                ⚠️ {t('history_flagged_count', {
+                                  count: flagCount,
+                                  plural: flagCount > 1 ? 's' : '',
+                                })}
                               </span>
                             )}
                             {isCompleted && flagCount === 0 && (

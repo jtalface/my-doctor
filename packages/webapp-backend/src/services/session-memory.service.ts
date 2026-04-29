@@ -4,14 +4,20 @@ import mongoose from 'mongoose';
 export interface SessionMemoryData {
   sessionId: string;
   userId: string;
+  sessionType: 'annual-checkup' | 'symptom-check' | 'medication-review';
   currentState: string;
   steps: ISessionStep[];
 }
 
 class SessionMemoryService {
-  async create(userId: string, initialState: string): Promise<SessionMemoryData> {
+  async create(
+    userId: string,
+    initialState: string,
+    sessionType: 'annual-checkup' | 'symptom-check' | 'medication-review'
+  ): Promise<SessionMemoryData> {
     const session = new Session({
       userId: new mongoose.Types.ObjectId(userId),
+      sessionType,
       currentState: initialState,
       status: 'active',
       steps: [],
@@ -23,6 +29,7 @@ class SessionMemoryService {
     return {
       sessionId: session._id.toString(),
       userId,
+      sessionType,
       currentState: initialState,
       steps: [],
     };
@@ -35,6 +42,7 @@ class SessionMemoryService {
     return {
       sessionId: session._id.toString(),
       userId: session.userId.toString(),
+      sessionType: session.sessionType,
       currentState: session.currentState,
       steps: session.steps,
     };
@@ -64,6 +72,47 @@ class SessionMemoryService {
     await Session.findByIdAndUpdate(sessionId, {
       currentState: newState,
     });
+  }
+
+  async goBack(sessionId: string): Promise<SessionMemoryData | null> {
+    const session = await Session.findById(sessionId);
+    if (!session) return null;
+
+    if (session.steps.length === 0) {
+      return {
+        sessionId: session._id.toString(),
+        userId: session.userId.toString(),
+        sessionType: session.sessionType,
+        currentState: session.currentState,
+        steps: session.steps,
+      };
+    }
+
+    const previousStep = session.steps[session.steps.length - 1];
+    if (!previousStep) {
+      return {
+        sessionId: session._id.toString(),
+        userId: session.userId.toString(),
+        sessionType: session.sessionType,
+        currentState: session.currentState,
+        steps: session.steps,
+      };
+    }
+
+    session.steps.pop();
+    session.currentState = previousStep.nodeId;
+    session.status = 'active';
+    session.completedAt = undefined;
+    session.summary = undefined;
+    await session.save();
+
+    return {
+      sessionId: session._id.toString(),
+      userId: session.userId.toString(),
+      sessionType: session.sessionType,
+      currentState: session.currentState,
+      steps: session.steps,
+    };
   }
 
   async complete(
@@ -101,6 +150,7 @@ class SessionMemoryService {
     return sessions.map(s => ({
       sessionId: s._id.toString(),
       userId: s.userId.toString(),
+      sessionType: s.sessionType,
       currentState: s.currentState,
       steps: s.steps,
     }));

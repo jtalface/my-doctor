@@ -7,6 +7,7 @@ import { api, SessionHistoryItem, HealthStatus } from '../services/api';
 import { useActiveProfile } from '../contexts';
 import { useCycleEligibility } from '../hooks/useCycleEligibility';
 import { useTranslate } from '../i18n';
+import { getCheckupSessionTitle } from '../utils/checkupSessionTitle';
 import styles from './DashboardPage.module.css';
 
 function formatDate(dateString: string): string {
@@ -260,7 +261,7 @@ export function DashboardPage() {
                         </span>
                         <div>
                           <h4 className={styles.activityTitle}>
-                            {t('dashboard_health_checkup_title')}
+                            {getCheckupSessionTitle(session.sessionType, t)}
                             {session.summary?.redFlags?.length ? ' ⚠️' : ''}
                           </h4>
                           <p className={styles.activityDate}>

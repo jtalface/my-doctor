@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useTranslate } from '../i18n';
 import { useActiveProfile } from '../contexts';
 import { api } from '../services/api';
+import type { CheckupSessionType } from '../services/api';
 import styles from './CheckupConsentPage.module.css';
 
 export function CheckupConsentPage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const t = useTranslate();
   const { activeProfile } = useActiveProfile();
@@ -15,6 +17,14 @@ export function CheckupConsentPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPolicyOpen, setIsPolicyOpen] = useState(false);
+
+  const selectedSessionType = ((): CheckupSessionType => {
+    const sessionType = (location.state as { sessionType?: string } | null)?.sessionType;
+    if (sessionType === 'symptom-check' || sessionType === 'medication-review') {
+      return sessionType;
+    }
+    return 'annual-checkup';
+  })();
 
   const handleContinue = async () => {
     if (!activeProfile?.id) {
@@ -27,7 +37,7 @@ export function CheckupConsentPage() {
     
     try {
       // Start a new session for the active profile (self or dependent)
-      const result = await api.startSession(activeProfile.id);
+      const result = await api.startSession(activeProfile.id, selectedSessionType);
       
       // Navigate to the session with the real session ID
       navigate(`/checkup/session/${result.sessionId}`);

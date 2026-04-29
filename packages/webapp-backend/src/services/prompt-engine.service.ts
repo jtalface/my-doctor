@@ -126,7 +126,7 @@ RESPONSE FORMAT:
     const provider = llmManager.getActiveProvider();
     
     if (!provider.isAvailable) {
-      return this.getFallbackSummary(reasoning);
+      return this.getFallbackSummary(reasoning, language);
     }
 
     try {
@@ -162,28 +162,59 @@ Keep it concise and educational.`;
       return response.content;
     } catch (error) {
       console.error('[PromptEngine] Error generating summary:', error);
-      return this.getFallbackSummary(reasoning);
+      return this.getFallbackSummary(reasoning, language);
     }
   }
 
-  private getFallbackSummary(reasoning: any): string {
-    let summary = "## Health Checkup Summary\n\n";
-    summary += "Thank you for completing your health checkup.\n\n";
+  private getFallbackSummary(reasoning: any, language?: string): string {
+    const languageCode = getLanguageInfo(language || DEFAULT_LANGUAGE).code as LanguageCode;
+    const copy: Record<LanguageCode, {
+      thankYou: string;
+      connectionIssue: string;
+      redFlagsTitle: string;
+      recommendationsTitle: string;
+    }> = {
+      en: {
+        thankYou: 'Thank you for completing your health checkup.',
+        connectionIssue: 'We could not establish a connection with the Virtual Doctor (AI) due to a connection failure. Please check your internet and try again.',
+        redFlagsTitle: '### Areas to Discuss with Your Doctor',
+        recommendationsTitle: '### Recommendations',
+      },
+      pt: {
+        thankYou: 'Obrigado por concluir a sua consulta de saúde.',
+        connectionIssue: 'Não foi possível estabelecer a ligação com o Médico Virtual (IA) devido a uma falha de conexão. Verifique a sua internet e tente novamente.',
+        redFlagsTitle: '### Pontos a Discutir com o Seu Médico',
+        recommendationsTitle: '### Recomendações',
+      },
+      fr: {
+        thankYou: 'Merci d’avoir terminé votre bilan de santé.',
+        connectionIssue: 'Impossible d’établir la connexion avec le Médecin Virtuel (IA) en raison d’un échec de connexion. Vérifiez votre internet et réessayez.',
+        redFlagsTitle: '### Points à Discuter avec Votre Médecin',
+        recommendationsTitle: '### Recommandations',
+      },
+      sw: {
+        thankYou: 'Asante kwa kukamilisha ukaguzi wako wa afya.',
+        connectionIssue: 'Hatukuweza kuanzisha muunganisho na Daktari wa Mtandaoni (AI) kutokana na hitilafu ya muunganisho. Tafadhali angalia internet yako kisha ujaribu tena.',
+        redFlagsTitle: '### Mambo ya Kujadili na Daktari Wako',
+        recommendationsTitle: '### Mapendekezo',
+      },
+    };
+    const text = copy[languageCode] || copy.en;
+
+    let summary = `${text.thankYou}\n\n`;
+    summary += `${text.connectionIssue}\n\n`;
     
     if (reasoning?.redFlags?.length > 0) {
-      summary += "### Areas to Discuss with Your Doctor\n";
+      summary += `${text.redFlagsTitle}\n`;
       summary += reasoning.redFlags.map((f: string) => `- ${f}`).join('\n');
       summary += "\n\n";
     }
     
     if (reasoning?.recommendations?.length > 0) {
-      summary += "### Recommendations\n";
+      summary += `${text.recommendationsTitle}\n`;
       summary += reasoning.recommendations.map((r: string) => `- ${r}`).join('\n');
       summary += "\n\n";
     }
-    
-    summary += "Remember: This is educational information only. ";
-    summary += "Please consult with a healthcare professional for medical advice.";
     
     return summary;
   }

@@ -9,13 +9,16 @@ const router: RouterType = Router();
 // POST /api/session/start - Start a new session
 router.post('/start', async (req: Request, res: Response) => {
   try {
-    const { userId } = req.body;
+    const { userId, sessionType } = req.body;
 
     if (!userId) {
       return res.status(400).json({ error: 'userId is required' });
     }
 
-    const response = await orchestrator.startSession(userId);
+    const validSessionType = sessionType === 'symptom-check' || sessionType === 'medication-review'
+      ? sessionType
+      : 'annual-checkup';
+    const response = await orchestrator.startSession(userId, validSessionType);
 
     if (config.debugMode) {
       console.log(`[API] Session started: ${response.sessionId}`);
@@ -61,6 +64,26 @@ router.post('/:id/input', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/session/:id/back - Go back one step
+router.post('/:id/back', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Session ID is required' });
+    }
+
+    const response = await orchestrator.goBack(id);
+    res.json(response);
+  } catch (error) {
+    console.error('[API] Error going back in session:', error);
+    res.status(500).json({
+      error: 'Failed to go back in session',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
 // GET /api/session/:id - Get session details
 router.get('/:id', async (req: Request, res: Response) => {
   try {
@@ -94,7 +117,7 @@ router.get('/user/:userId', async (req: Request, res: Response) => {
     const sessions = await Session.find({ userId })
       .sort({ createdAt: -1 })
       .limit(20)
-      .select('_id currentState status startedAt completedAt summary');
+      .select('_id sessionType currentState status startedAt completedAt summary');
 
     res.json(sessions);
   } catch (error) {

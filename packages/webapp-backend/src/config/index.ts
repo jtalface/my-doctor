@@ -43,6 +43,7 @@ export const config = {
 
   // LLM
   defaultLLMProvider: process.env.DEFAULT_LLM_PROVIDER || 'lm-studio',
+  enableStepLlmResponses: process.env.ENABLE_STEP_LLM_RESPONSES === 'true',
 
   // LM Studio
   lmStudio: {

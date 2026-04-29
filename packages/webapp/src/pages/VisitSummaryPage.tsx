@@ -5,6 +5,28 @@ import { useTranslate } from '../i18n';
 import { api, SessionSummary } from '../services/api';
 import styles from './VisitSummaryPage.module.css';
 
+const SCREENING_TRANSLATION_KEYS: Record<string, string> = {
+  'Annual physical exam': 'visit_summary_screening_annual_physical_exam',
+  'Blood pressure check': 'visit_summary_screening_blood_pressure_check',
+  'Basic blood work': 'visit_summary_screening_basic_blood_work',
+  'Mental health screening': 'visit_summary_screening_mental_health',
+};
+const RECOMMENDATION_TRANSLATION_KEYS: Record<string, string> = {
+  'Consider improving sleep hygiene': 'visit_summary_recommendation_sleep_hygiene',
+  'Explore stress management techniques': 'visit_summary_recommendation_stress_management',
+  'Consider speaking with a mental health professional': 'visit_summary_recommendation_mental_health_support',
+  'Gradual increase in physical activity recommended': 'visit_summary_recommendation_physical_activity',
+  'Consider nutrition counseling': 'visit_summary_recommendation_nutrition_counseling',
+};
+const RED_FLAG_VALUE_TRANSLATION_KEYS: Record<string, string> = {
+  'Chest pain or pressure': 'visit_summary_red_flag_value_chest_pain',
+  'Difficulty breathing': 'visit_summary_red_flag_value_difficulty_breathing',
+  'Sudden severe headache': 'visit_summary_red_flag_value_severe_headache',
+  'Numbness or weakness on one side': 'visit_summary_red_flag_value_one_side_weakness',
+  'I understand': 'visit_summary_red_flag_value_i_understand',
+  'I need more information': 'visit_summary_red_flag_value_need_more_information',
+};
+
 function formatDate(dateString?: string): string {
   if (!dateString) return new Date().toLocaleDateString('en-US', {
     month: 'long',
@@ -27,9 +49,92 @@ export function VisitSummaryPage() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pdfNotice, setPdfNotice] = useState<string | null>(null);
   const [summary, setSummary] = useState<SessionSummary | null>(
     (location.state as any)?.summary || null
   );
+  const translate = t as unknown as (key: string, params?: Record<string, string | number>) => string;
+
+  const localizeScreening = (screening: string): string => {
+    const key = SCREENING_TRANSLATION_KEYS[screening];
+    return key ? translate(key) : screening;
+  };
+  const localizeRecommendation = (recommendation: string): string => {
+    const key = RECOMMENDATION_TRANSLATION_KEYS[recommendation];
+    return key ? translate(key) : recommendation;
+  };
+  const localizeRedFlag = (redFlag: string): string => {
+    const separatorIndex = redFlag.indexOf(':');
+    if (separatorIndex === -1) {
+      const directKey = RED_FLAG_VALUE_TRANSLATION_KEYS[redFlag];
+      return directKey ? translate(directKey) : redFlag;
+    }
+
+    const value = redFlag.slice(separatorIndex + 1).trim();
+    const valueKey = RED_FLAG_VALUE_TRANSLATION_KEYS[value];
+
+    if (valueKey) {
+      return translate(valueKey);
+    }
+    return redFlag;
+  };
+  const isMobileDevice = (): boolean => {
+    if (typeof navigator === 'undefined' || typeof window === 'undefined') return false;
+    const ua = navigator.userAgent || '';
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || window.matchMedia('(pointer: coarse)').matches;
+  };
+  const buildShareSummaryText = (): string => {
+    const date = formatDate();
+    const redFlags = summary.redFlags?.map((flag) => `- ${localizeRedFlag(flag)}`).join('\n') || t('visit_summary_none');
+    const recommendations = summary.recommendations
+      ?.map((item) => `- ${localizeRecommendation(item)}`)
+      .join('\n') || t('visit_summary_none');
+    const screenings = summary.screenings
+      ?.map((item) => `- ${localizeScreening(item)}`)
+      .join('\n') || t('visit_summary_none');
+
+    return [
+      t('visit_summary_title'),
+      `${t('visit_summary_date_label')} ${date}`,
+      '',
+      `${t('visit_summary_red_flags_title')}`,
+      redFlags,
+      '',
+      `${t('visit_summary_recommendations_title')}`,
+      recommendations,
+      '',
+      `${t('visit_summary_screenings_title')}`,
+      screenings,
+      '',
+      `${t('visit_summary_ai_summary_title')}`,
+      summary.notes || t('visit_summary_none'),
+    ].join('\n');
+  };
+  const handleDownloadPdf = () => {
+    setPdfNotice(null);
+    const onPrintFallback = () => {
+      window.print();
+      if (isMobileDevice()) {
+        setPdfNotice(t('visit_summary_pdf_mobile_fallback_hint'));
+      }
+    };
+
+    if (isMobileDevice() && typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      navigator.share({
+        title: t('visit_summary_title'),
+        text: buildShareSummaryText(),
+      })
+        .then(() => {
+          setPdfNotice(t('visit_summary_pdf_mobile_share_hint'));
+        })
+        .catch(() => {
+          onPrintFallback();
+        });
+      return;
+    }
+
+    onPrintFallback();
+  };
 
   useEffect(() => {
     // If we have summary from navigation state, use it
@@ -113,7 +218,7 @@ export function VisitSummaryPage() {
               </p>
               <ul className={styles.flagList}>
                 {summary.redFlags.map((flag, i) => (
-                  <li key={i} className={styles.flagItem}>{flag}</li>
+                  <li key={i} className={styles.flagItem}>{localizeRedFlag(flag)}</li>
                 ))}
               </ul>
             </CardContent>
@@ -129,7 +234,7 @@ export function VisitSummaryPage() {
                 {summary.recommendations.map((rec, i) => (
                   <li key={i} className={styles.recommendationItem}>
                     <span className={styles.checkIcon}>→</span>
-                    {rec}
+                    {localizeRecommendation(rec)}
                   </li>
                 ))}
               </ul>
@@ -147,7 +252,7 @@ export function VisitSummaryPage() {
                 {summary.screenings.map((screening, i) => (
                   <li key={i} className={styles.screeningItem}>
                     <span className={styles.checkIcon}>☐</span>
-                    {screening}
+                    {localizeScreening(screening)}
                   </li>
                 ))}
               </ul>
@@ -194,13 +299,14 @@ export function VisitSummaryPage() {
 
         {/* Actions */}
         <div className={styles.actions}>
-          <Button variant="outline" size="md" disabled>
+          <Button variant="outline" size="md" onClick={handleDownloadPdf}>
             {t('visit_summary_download_pdf')}
           </Button>
           <Button variant="outline" size="md" disabled>
             {t('visit_summary_share_summary')}
           </Button>
         </div>
+        {pdfNotice && <p className={styles.pdfNotice}>{pdfNotice}</p>}
 
         <Button fullWidth size="lg" onClick={() => navigate('/dashboard')}>
           {t('common_return_to_dashboard')}

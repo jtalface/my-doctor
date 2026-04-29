@@ -2,6 +2,7 @@
 import { getAccessToken } from '../auth/authService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003';
+export type CheckupSessionType = 'annual-checkup' | 'symptom-check' | 'medication-review';
 
 // Types
 export interface SessionNode {
@@ -29,6 +30,7 @@ export interface SessionSummary {
 
 export interface SessionResponse {
   sessionId: string;
+  sessionType?: CheckupSessionType;
   currentState: string;
   node: SessionNode;
   llmResponse?: string;
@@ -107,6 +109,7 @@ export interface HealthStatus {
 
 export interface SessionHistoryItem {
   _id: string;
+  sessionType?: CheckupSessionType;
   currentState: string;
   status: 'active' | 'completed' | 'abandoned';
   startedAt: string;
@@ -292,6 +295,34 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private async extractErrorMessage(response: Response): Promise<string> {
+    try {
+      const data = await response.json();
+      if (typeof data?.error === 'string' && data.error.trim()) {
+        return data.error;
+      }
+      if (typeof data?.message === 'string' && data.message.trim()) {
+        return data.message;
+      }
+      if (typeof data?.details === 'string' && data.details.trim()) {
+        return data.details;
+      }
+    } catch {
+      // Fall through to text/status fallback.
+    }
+
+    try {
+      const text = await response.text();
+      if (text.trim()) {
+        return text.trim();
+      }
+    } catch {
+      // Fall through to status fallback.
+    }
+
+    return `HTTP ${response.status}`;
+  }
+
   /**
    * Make an unauthenticated request (for public endpoints like /health)
    */
@@ -310,8 +341,8 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(error.error || error.message || `HTTP ${response.status}`);
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
     }
 
     return response.json();
@@ -350,8 +381,8 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(error.error || error.message || `HTTP ${response.status}`);
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
     }
 
     return response.json();
@@ -397,10 +428,10 @@ class ApiClient {
   }
 
   // Session endpoints (PROTECTED - auth required)
-  async startSession(userId: string): Promise<SessionResponse> {
+  async startSession(userId: string, sessionType: CheckupSessionType = 'annual-checkup'): Promise<SessionResponse> {
     return this.authRequest('/api/session/start', {
       method: 'POST',
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ userId, sessionType }),
     });
   }
 
@@ -408,6 +439,12 @@ class ApiClient {
     return this.authRequest(`/api/session/${sessionId}/input`, {
       method: 'POST',
       body: JSON.stringify({ input }),
+    });
+  }
+
+  async backSession(sessionId: string): Promise<SessionResponse> {
+    return this.authRequest(`/api/session/${sessionId}/back`, {
+      method: 'POST',
     });
   }
 

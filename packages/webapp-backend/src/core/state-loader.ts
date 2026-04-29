@@ -20,6 +20,7 @@ export interface StateMachine {
     description: string;
   };
   initialState: string;
+  entryPoints?: Partial<Record<'annual-checkup' | 'symptom-check' | 'medication-review', string>>;
   nodes: Record<string, StateNode>;
 }
 
@@ -98,6 +99,17 @@ class StateLoader {
       this.load();
     }
     return this.machine!.initialState;
+  }
+
+  getInitialStateForSessionType(
+    sessionType: 'annual-checkup' | 'symptom-check' | 'medication-review'
+  ): string {
+    if (!this.machine) {
+      this.load();
+    }
+
+    const entryState = this.machine!.entryPoints?.[sessionType];
+    return entryState && this.machine!.nodes[entryState] ? entryState : this.machine!.initialState;
   }
 
   getNextState(currentNodeId: string, input: string): string {

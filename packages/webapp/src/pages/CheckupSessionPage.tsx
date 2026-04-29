@@ -6,6 +6,29 @@ import { useTranslate } from '../i18n';
 import { api, SessionResponse, SessionNode } from '../services/api';
 import styles from './CheckupSessionPage.module.css';
 
+const MULTI_SELECT_NODE_IDS = new Set(['chronic_conditions', 'red_flag_check']);
+
+function getLocalizedSessionNode(
+  node: SessionNode | null,
+  t: ReturnType<typeof useTranslate>
+): { prompt: string; helpText?: string; choiceLabels?: string[] } {
+  if (!node) {
+    return { prompt: '' };
+  }
+
+  const translate = t as unknown as (key: string, params?: Record<string, string | number>) => string;
+  const prompt = translate(`session_node_${node.id}_prompt`) || node.prompt;
+  const helpText = node.helpText
+    ? (translate(`session_node_${node.id}_help`) || node.helpText)
+    : undefined;
+  const choiceLabels = node.choices?.map((choice, index) => {
+    const localized = translate(`session_node_${node.id}_choice_${index + 1}`);
+    return localized || choice;
+  });
+
+  return { prompt, helpText, choiceLabels };
+}
+
 export function CheckupSessionPage() {
   const { id: sessionId } = useParams();
   const navigate = useNavigate();
@@ -109,10 +132,29 @@ export function CheckupSessionPage() {
     }
   };
 
-  const handleBack = () => {
-    // Note: Back functionality would require session history tracking
-    // For now, just clear the LLM response
-    setLlmResponse('');
+  const handleBack = async () => {
+    if (!sessionId || isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      setError(null);
+      const response = await api.backSession(sessionId);
+
+      setSessionData(response);
+      setCurrentNode(response.node);
+      setProgress(response.progress);
+      setLlmResponse('');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to go back';
+      if (message.includes('HTTP 404') || message.includes('Cannot POST')) {
+        setError('Back action is unavailable right now. Please restart the backend server and try again.');
+      } else {
+        setError(message);
+      }
+      console.error('Failed to go back:', err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Loading state
@@ -156,6 +198,10 @@ export function CheckupSessionPage() {
     );
   }
 
+  const localizedNode = getLocalizedSessionNode(currentNode, t);
+  const allowMultipleChoice =
+    currentNode.inputType === 'choice' && MULTI_SELECT_NODE_IDS.has(currentNode.id);
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -187,8 +233,8 @@ export function CheckupSessionPage() {
 
           {/* Prompt */}
           <PromptPanel
-            title={currentNode.prompt}
-            subtitle={currentNode.helpText}
+            title={localizedNode.prompt}
+            subtitle={localizedNode.helpText}
             isLoading={isProcessing}
             className={styles.prompt}
           />
@@ -198,6 +244,9 @@ export function CheckupSessionPage() {
             <UserInput
               inputType={currentNode.inputType}
               choices={currentNode.choices}
+              choiceLabels={localizedNode.choiceLabels}
+              allowMultipleChoice={allowMultipleChoice}
+              continueLabel={t('common_continue')}
               onSubmit={handleInput}
               isLoading={isProcessing}
               className={styles.input}

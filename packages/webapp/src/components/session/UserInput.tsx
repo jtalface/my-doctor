@@ -6,6 +6,9 @@ import styles from './UserInput.module.css';
 export interface UserInputProps {
   inputType: 'choice' | 'text' | 'structured' | 'none';
   choices?: string[];
+  choiceLabels?: string[];
+  allowMultipleChoice?: boolean;
+  continueLabel?: string;
   placeholder?: string;
   value?: string;
   onChange?: (value: string) => void;
@@ -18,6 +21,9 @@ export interface UserInputProps {
 export function UserInput({
   inputType,
   choices = [],
+  choiceLabels = [],
+  allowMultipleChoice = false,
+  continueLabel = 'Continue',
   placeholder = 'Type your response here...',
   value: controlledValue,
   onChange,
@@ -27,6 +33,7 @@ export function UserInput({
   className,
 }: UserInputProps) {
   const [internalValue, setInternalValue] = useState('');
+  const [selectedChoices, setSelectedChoices] = useState<string[]>([]);
   const value = controlledValue ?? internalValue;
   
   const handleChange = (newValue: string) => {
@@ -47,7 +54,30 @@ export function UserInput({
   };
 
   const handleChoiceSelect = (choice: string) => {
+    if (allowMultipleChoice) {
+      setSelectedChoices((prev) => {
+        const hasChoice = prev.includes(choice);
+        const next = hasChoice ? prev.filter((c) => c !== choice) : [...prev, choice];
+
+        // Keep "none" style options mutually exclusive with any specific condition.
+        const nonePattern = /^(none|nenhum|nenhuma|aucun|hakuna)/i;
+        const selectedIsNone = nonePattern.test(choice);
+        if (selectedIsNone) {
+          return hasChoice ? [] : [choice];
+        }
+
+        return next.filter((c) => !nonePattern.test(c));
+      });
+      return;
+    }
+
     onSubmit(choice);
+  };
+
+  const handleMultiChoiceSubmit = () => {
+    if (selectedChoices.length === 0) return;
+    onSubmit(selectedChoices.join(', '));
+    setSelectedChoices([]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -64,18 +94,38 @@ export function UserInput({
       aria-label="Your response"
     >
       {inputType === 'choice' && choices.length > 0 && (
-        <div className={styles.choiceContainer} role="radiogroup" aria-label="Select an option">
-          {choices.map((choice, index) => (
-            <button
-              key={index}
-              className={styles.choiceButton}
-              onClick={() => handleChoiceSelect(choice)}
-              disabled={disabled || isLoading}
-            >
-              {choice}
-            </button>
-          ))}
-        </div>
+        <>
+          <div
+            className={styles.choiceContainer}
+            role={allowMultipleChoice ? 'group' : 'radiogroup'}
+            aria-label={allowMultipleChoice ? 'Select one or more options' : 'Select an option'}
+          >
+            {choices.map((choice, index) => (
+              <button
+                key={index}
+                className={clsx(styles.choiceButton, allowMultipleChoice && selectedChoices.includes(choice) && styles.choiceButtonSelected)}
+                onClick={() => handleChoiceSelect(choice)}
+                disabled={disabled || isLoading}
+                aria-pressed={allowMultipleChoice ? selectedChoices.includes(choice) : undefined}
+              >
+                {choiceLabels[index] || choice}
+              </button>
+            ))}
+          </div>
+
+          {allowMultipleChoice && (
+            <div className={styles.continueContainer}>
+              <Button
+                onClick={handleMultiChoiceSubmit}
+                disabled={disabled || isLoading || selectedChoices.length === 0}
+                isLoading={isLoading}
+                size="lg"
+              >
+                {continueLabel}
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       {inputType === 'text' && (

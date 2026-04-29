@@ -49,6 +49,12 @@
   cursor: not-allowed;
 }
 
+.choiceButtonSelected {
+  border-color: var(--color-primary-600);
+  background-color: var(--color-primary-100);
+  box-shadow: var(--shadow-sm);
+}
+
 /* Text Input */
 .textContainer {
   display: flex;
@@ -99,6 +105,7 @@
 .continueContainer {
   display: flex;
   justify-content: center;
+  margin-top: var(--space-4);
 }
 
 @media (min-width: 640px) {

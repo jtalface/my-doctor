@@ -1,13 +1,21 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@components/common';
 import { useTranslate } from '../i18n';
+import type { CheckupSessionType } from '../services/api';
 import styles from './CheckupStartPage.module.css';
 
 export function CheckupStartPage() {
   const navigate = useNavigate();
   const t = useTranslate();
 
-  const sessionTypes = [
+  const sessionTypes: Array<{
+    id: CheckupSessionType;
+    icon: string;
+    title: string;
+    description: string;
+    duration: string;
+    featured: boolean;
+  }> = [
     {
       id: 'annual-checkup',
       icon: '🩺',
@@ -34,8 +42,7 @@ export function CheckupStartPage() {
     },
   ];
 
-  const handleStartSession = (type: string) => {
-    // TODO: Create session via API
+  const handleStartSession = (type: CheckupSessionType) => {
     navigate('/checkup/consent', { state: { sessionType: type } });
   };
 
