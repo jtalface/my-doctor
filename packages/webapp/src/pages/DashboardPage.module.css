@@ -183,6 +183,12 @@
   margin: 0;
 }
 
+.activityPatient {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-1) 0;
+}
+
 .activityArrow {
   color: var(--text-muted);
   font-size: var(--font-size-sm);

@@ -3,6 +3,7 @@ import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useTranslate } from '../i18n';
 import { api, CheckupSessionType, SessionSummary } from '../services/api';
+import { useActiveProfile } from '../contexts';
 import { getCheckupSessionTitle } from '../utils/checkupSessionTitle';
 import styles from './VisitSummaryPage.module.css';
 
@@ -47,6 +48,7 @@ export function VisitSummaryPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const t = useTranslate();
+  const { activeProfile } = useActiveProfile();
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +61,7 @@ export function VisitSummaryPage() {
   );
   const translate = t as unknown as (key: string, params?: Record<string, string | number>) => string;
   const sessionTitle = getCheckupSessionTitle(sessionType, t);
+  const patientName = ((location.state as any)?.patientName as string | undefined) || activeProfile?.name;
 
   const localizeScreening = (screening: string): string => {
     const key = SCREENING_TRANSLATION_KEYS[screening];
@@ -128,6 +131,7 @@ export function VisitSummaryPage() {
 
     return [
       sessionTitle,
+      patientName ? `${t('visit_summary_patient_label')} ${patientName}` : '',
       `${t('visit_summary_date_label')} ${date}`,
       '',
       `${t('visit_summary_red_flags_title')}`,
@@ -241,6 +245,7 @@ export function VisitSummaryPage() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>{sessionTitle}</h1>
+        {patientName && <p className={styles.patientName}>{t('visit_summary_patient_label')} {patientName}</p>}
         <p className={styles.date}>{formatDate()}</p>
 
         {/* Red Flags - Warning Section */}

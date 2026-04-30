@@ -264,6 +264,11 @@ export function DashboardPage() {
                             {getCheckupSessionTitle(session.sessionType, t)}
                             {session.summary?.redFlags?.length ? ' ⚠️' : ''}
                           </h4>
+                          {activeProfile?.name && (
+                            <p className={styles.activityPatient}>
+                              {t('dashboard_patient_label')}: {activeProfile.name}
+                            </p>
+                          )}
                           <p className={styles.activityDate}>
                             {formatDate(session.startedAt)}
                             <span className={styles.statusLabel}>

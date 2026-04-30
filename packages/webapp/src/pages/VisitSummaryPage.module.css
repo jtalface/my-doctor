@@ -40,6 +40,13 @@
   margin: 0 0 var(--space-1) 0;
 }
 
+.patientName {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-1) 0;
+}
+
 .date {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
