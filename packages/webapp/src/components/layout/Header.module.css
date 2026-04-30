@@ -4,13 +4,7 @@
   z-index: var(--z-sticky);
   background-color: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  .header {
-    display: block;
-  }
+  display: block;
 }
 
 .container {
@@ -105,5 +99,15 @@
   font-size: var(--font-size-sm);
   color: var(--color-primary-700);
   font-weight: var(--font-weight-medium);
+}
+
+@media (max-width: 1023px) {
+  .container {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .nav {
+    display: none;
+  }
 }
 
