@@ -17,6 +17,7 @@ export function CheckupConsentPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPolicyOpen, setIsPolicyOpen] = useState(false);
+  const selectedPatientId = (location.state as { patientId?: string } | null)?.patientId;
 
   const selectedSessionType = ((): CheckupSessionType => {
     const sessionType = (location.state as { sessionType?: string } | null)?.sessionType;
@@ -27,7 +28,8 @@ export function CheckupConsentPage() {
   })();
 
   const handleContinue = async () => {
-    if (!activeProfile?.id) {
+    const patientId = selectedPatientId || activeProfile?.id;
+    if (!patientId) {
       setError(t('consent_error_user_init'));
       return;
     }
@@ -36,8 +38,8 @@ export function CheckupConsentPage() {
     setError(null);
     
     try {
-      // Start a new session for the active profile (self or dependent)
-      const result = await api.startSession(activeProfile.id, selectedSessionType);
+      // Start a new session for the selected profile (self or dependent)
+      const result = await api.startSession(patientId, selectedSessionType);
       
       // Navigate to the session with the real session ID
       navigate(`/checkup/session/${result.sessionId}`);

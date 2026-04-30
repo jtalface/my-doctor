@@ -36,7 +36,8 @@ export const DependentErrorCode = {
  * Input for creating a new dependent
  */
 export interface CreateDependentInput {
-  name: string;
+  firstName: string;
+  lastName: string;
   dateOfBirth: Date;
   relationship: RelationshipType;
   language?: string;
@@ -64,7 +65,8 @@ export interface AddManagerByEmailInput {
  * Input for updating a dependent
  */
 export interface UpdateDependentInput {
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   dateOfBirth?: Date;
   language?: string;
 }
@@ -164,7 +166,8 @@ class DependentService {
 
     // Create the dependent user (no email, no password)
     const dependent = await User.create({
-      name: input.name,
+      firstName: input.firstName.trim(),
+      lastName: input.lastName.trim(),
       dateOfBirth: input.dateOfBirth,
       isDependent: true,
       isGuest: false,
@@ -396,7 +399,8 @@ class DependentService {
     // (dependents can stay after turning 18)
     const updateData: any = {};
     
-    if (updates.name) updateData.name = updates.name;
+    if (updates.firstName) updateData.firstName = updates.firstName.trim();
+    if (updates.lastName) updateData.lastName = updates.lastName.trim();
     if (updates.dateOfBirth) updateData.dateOfBirth = updates.dateOfBirth;
     if (updates.language) updateData['preferences.language'] = updates.language;
 

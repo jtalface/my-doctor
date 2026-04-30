@@ -51,7 +51,8 @@ interface ActiveProfileContextType {
   // Dependent management
   refreshDependents: () => Promise<void>;
   addDependent: (input: {
-    name: string;
+    firstName: string;
+    lastName: string;
     dateOfBirth: string;
     relationship: Dependent['relationship'];
     language?: string;
@@ -282,7 +283,8 @@ export function ActiveProfileProvider({
 
   // Add a new dependent
   const addDependent = useCallback(async (input: {
-    name: string;
+    firstName: string;
+    lastName: string;
     dateOfBirth: string;
     relationship: Dependent['relationship'];
     language?: string;

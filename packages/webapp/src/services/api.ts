@@ -148,14 +148,16 @@ export interface ManagerInfo {
 }
 
 export interface CreateDependentInput {
-  name: string;
+  firstName: string;
+  lastName: string;
   dateOfBirth: string;
   relationship: RelationshipType;
   language?: string;
 }
 
 export interface UpdateDependentInput {
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   dateOfBirth?: string;
   language?: string;
 }

@@ -22,7 +22,8 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
   const { addDependent } = useActiveProfile();
   const t = useTranslate();
   
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [relationship, setRelationship] = useState<RelationshipType | ''>('');
   const [language, setLanguage] = useState<LanguageCode>(DEFAULT_LANGUAGE);
@@ -48,8 +49,13 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
   const validateForm = (): boolean => {
     setError('');
     
-    if (!name.trim()) {
-      setError(t('add_dependent_error_name_required'));
+    if (!firstName.trim()) {
+      setError(t('add_dependent_error_first_name_required'));
+      return false;
+    }
+
+    if (!lastName.trim()) {
+      setError(t('add_dependent_error_last_name_required'));
       return false;
     }
     
@@ -82,7 +88,8 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
     
     try {
       await addDependent({
-        name: name.trim(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         dateOfBirth,
         relationship: relationship as RelationshipType,
         language,
@@ -130,19 +137,34 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
             )}
             
             <form onSubmit={handleSubmit} className={styles.form}>
-              {/* Name */}
+              {/* First Name */}
               <div className={styles.field}>
-                <label htmlFor="dep-name" className={styles.label}>
-                  {t('add_dependent_name_label')}
+                <label htmlFor="dep-first-name" className={styles.label}>
+                  {t('add_dependent_first_name_label')}
                 </label>
                 <input
-                  id="dep-name"
+                  id="dep-first-name"
                   type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder={t('add_dependent_name_placeholder')}
+                  value={firstName}
+                  onChange={e => setFirstName(e.target.value)}
+                  placeholder={t('add_dependent_first_name_placeholder')}
                   className={styles.input}
                   autoFocus
+                />
+              </div>
+
+              {/* Last Name */}
+              <div className={styles.field}>
+                <label htmlFor="dep-last-name" className={styles.label}>
+                  {t('add_dependent_last_name_label')}
+                </label>
+                <input
+                  id="dep-last-name"
+                  type="text"
+                  value={lastName}
+                  onChange={e => setLastName(e.target.value)}
+                  placeholder={t('add_dependent_last_name_placeholder')}
+                  className={styles.input}
                 />
               </div>
               
@@ -191,13 +213,13 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
                 <label className={styles.label}>
                   {t('add_dependent_language_label')}
                 </label>
-                <LanguageSelector 
-                  value={language} 
+                <LanguageSelector
+                  value={language}
                   onChange={setLanguage}
                   variant="compact"
                 />
               </div>
-              
+
               {/* Actions */}
               <div className={styles.actions}>
                 <Button

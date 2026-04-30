@@ -73,7 +73,8 @@ function handleError(error: unknown, res: Response, defaultMessage: string) {
 
 // Validation schemas
 const createDependentSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
+  firstName: z.string().min(1, 'First name is required').max(50, 'First name too long'),
+  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name too long'),
   dateOfBirth: z.string().refine(
     (date) => !isNaN(Date.parse(date)),
     'Invalid date format'
@@ -91,7 +92,8 @@ const addManagerSchema = z.object({
 });
 
 const updateDependentSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
+  firstName: z.string().min(1).max(50).optional(),
+  lastName: z.string().min(1).max(50).optional(),
   dateOfBirth: z.string().refine(
     (date) => !isNaN(Date.parse(date)),
     'Invalid date format'
