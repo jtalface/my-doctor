@@ -179,10 +179,22 @@ Keep it concise and educational.`;
     }
 
     try {
+      const relevantSteps = steps.filter((step) => {
+        const value = typeof step.input === 'string' ? step.input.trim() : String(step.input ?? '').trim();
+        if (!value) return false;
+        if (step.nodeId === 'medication_intro') return false;
+
+        const normalizedValue = value.toLowerCase();
+        const nonInformativeInputs = new Set(['continue', 'continue to summary']);
+        return !nonInformativeInputs.has(normalizedValue);
+      });
+
+      console.log('[PromptEngine] Medication review relevant steps:', relevantSteps);
+
       const medicationReviewPrompt = `You are generating the final summary for a medication review visit.
 
 Medication Review History (questions and patient answers):
-${steps.map(s => `- ${s.nodeId}: User said "${s.input}"`).join('\n')}
+${relevantSteps.map(s => `- ${s.nodeId}: User said "${s.input}"`).join('\n')}
 
 Derived analysis context:
 ${JSON.stringify(reasoning, null, 2)}
@@ -216,7 +228,7 @@ Medication Profile:
 What Each Medication Is For:
 - ...
 
-Name Verification Notes:
+Name Verification Notes (include only when there are misspellings/unclear medication names):
 - ...
 
 Side Effects Reported:
@@ -336,7 +348,7 @@ Questions to Ask Your Doctor/Pharmacist:
     };
 
     if (text.includes('\n')) {
-      return text
+      const formatted = text
         .split('\n')
         .map((line) => {
           const trimmed = line.trim();
@@ -353,6 +365,8 @@ Questions to Ask Your Doctor/Pharmacist:
           return line;
         })
         .join('\n');
+
+      return this.pruneNameVerificationSection(formatted, headingTranslations, languageCode);
     }
 
     // Fallback: split into short bullets to avoid dense single paragraph output.
@@ -366,6 +380,56 @@ Questions to Ask Your Doctor/Pharmacist:
     }
 
     return `${summaryTitle[languageCode] || 'Summary'}:\n${sentences.map((s) => `- ${s}`).join('\n')}`;
+  }
+
+  private pruneNameVerificationSection(
+    summary: string,
+    headingTranslations: Record<string, Record<LanguageCode, string>>,
+    languageCode: LanguageCode
+  ): string {
+    const heading = headingTranslations['Name Verification Notes']?.[languageCode] || 'Name Verification';
+    const allLines = summary.split('\n');
+    const headingRegex = new RegExp(`^${this.escapeRegExp(heading)}:\\s*$`, 'i');
+    const anyHeadingRegex = /^.+:\s*$/;
+    const noIssueRegex = /^(none|none\ reported|none\ identified|n\/a|na|all (names|medication names) (appear )?(valid|correct|clear)|no spelling issues?|no verification issues?)\.?$/i;
+
+    const result: string[] = [];
+    for (let i = 0; i < allLines.length; i += 1) {
+      const line = allLines[i] ?? '';
+      if (!headingRegex.test(line.trim())) {
+        result.push(line);
+        continue;
+      }
+
+      const sectionLines: string[] = [];
+      let j = i + 1;
+      while (j < allLines.length) {
+        const next = allLines[j] ?? '';
+        const trimmed = next.trim();
+        if (trimmed && anyHeadingRegex.test(trimmed)) break;
+        sectionLines.push(next);
+        j += 1;
+      }
+
+      const bullets = sectionLines
+        .map((l) => l.trim())
+        .filter((l) => l.startsWith('-'))
+        .map((l) => l.replace(/^-+\s*/, '').trim())
+        .filter(Boolean);
+
+      const hasMeaningfulIssue = bullets.some((b) => !noIssueRegex.test(b));
+      if (hasMeaningfulIssue) {
+        result.push(line, ...sectionLines);
+      }
+
+      i = j - 1;
+    }
+
+    return result.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  private escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 }
 

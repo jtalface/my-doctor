@@ -25,7 +25,9 @@ export interface UserInputProps {
   };
   structuredSideEffects?: {
     sideEffectsLabel: string;
+    sideEffectsPlaceholder: string;
     sideEffectsOptions: string[];
+    sideEffectsNoneLabel: string;
     additionalInfoLabel: string;
     additionalInfoPlaceholder: string;
   };
@@ -188,10 +190,9 @@ export function UserInput({
 
   const handleSideEffectsSubmit = () => {
     const note = additionalSideEffectInfo.trim();
-    if (selectedSideEffects.length === 0 && !note) return;
 
     const payload = [
-      `Side effects: ${selectedSideEffects.length > 0 ? selectedSideEffects.join(', ') : 'none reported'}`,
+      `Side effects: ${selectedSideEffects.length > 0 ? selectedSideEffects.join(', ') : structuredSideEffects?.sideEffectsNoneLabel || 'none'}`,
       `Additional notes: ${note || 'none'}`,
     ].join('\n');
 
@@ -369,7 +370,7 @@ export function UserInput({
                 onChange={(e) => handleSideEffectsAdd(e.target.value)}
                 disabled={disabled || isLoading}
               >
-                <option value="">{structuredSideEffects.sideEffectsLabel}</option>
+                <option value="">{structuredSideEffects.sideEffectsPlaceholder}</option>
                 {structuredSideEffects.sideEffectsOptions
                   .filter((option) => !selectedSideEffects.includes(option))
                   .map((option) => (
@@ -412,7 +413,7 @@ export function UserInput({
           <div className={styles.continueContainer}>
             <Button
               onClick={handleSideEffectsSubmit}
-              disabled={disabled || isLoading || (selectedSideEffects.length === 0 && additionalSideEffectInfo.trim().length === 0)}
+              disabled={disabled || isLoading}
               isLoading={isLoading}
               size="lg"
             >

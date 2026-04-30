@@ -225,6 +225,8 @@ export function CheckupSessionPage() {
   const structuredSideEffects = currentNode.id === 'medication_wrapup'
     ? {
         sideEffectsLabel: t('session_medication_side_effects_label'),
+        sideEffectsPlaceholder: t('session_medication_side_effects_placeholder'),
+        sideEffectsNoneLabel: t('session_medication_side_effects_none'),
         sideEffectsOptions: [
           t('session_medication_side_effect_nausea'),
           t('session_medication_side_effect_vomiting'),
