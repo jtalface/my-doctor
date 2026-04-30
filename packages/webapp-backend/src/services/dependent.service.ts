@@ -674,6 +674,30 @@ class DependentService {
   }
 
   /**
+   * Get total session count for a dependent
+   */
+  async getDependentSessionsCount(
+    managerId: string,
+    dependentId: string
+  ): Promise<number> {
+    // Verify manager has access
+    const relationship = await DependentRelationship.findOne({
+      managerId,
+      dependentId,
+    });
+
+    if (!relationship) {
+      throw new DependentError(
+        DependentErrorCode.NOT_A_MANAGER,
+        'You do not have access to this dependent',
+        403
+      );
+    }
+
+    return Session.countDocuments({ userId: dependentId });
+  }
+
+  /**
    * Check if a user is a manager of a dependent
    */
   async isManager(managerId: string, dependentId: string): Promise<boolean> {

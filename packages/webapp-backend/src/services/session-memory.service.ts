@@ -142,10 +142,17 @@ class SessionMemoryService {
     return session?.steps || [];
   }
 
-  async getUserSessions(userId: string): Promise<SessionMemoryData[]> {
+  async getUserSessions(
+    userId: string,
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<SessionMemoryData[]> {
+    const limit = Math.min(options.limit ?? 20, 100);
+    const skip = Math.max(options.skip ?? 0, 0);
+
     const sessions = await Session.find({ userId: new mongoose.Types.ObjectId(userId) })
       .sort({ createdAt: -1 })
-      .limit(20);
+      .skip(skip)
+      .limit(limit);
 
     return sessions.map(s => ({
       sessionId: s._id.toString(),

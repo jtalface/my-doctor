@@ -35,6 +35,7 @@ export function DashboardPage() {
     return t('dashboard_greeting_evening');
   };
   const [sessions, setSessions] = useState<SessionHistoryItem[]>([]);
+  const [totalSessions, setTotalSessions] = useState(0);
   const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [backendAvailable, setBackendAvailable] = useState(true);
@@ -44,6 +45,7 @@ export function DashboardPage() {
     // Reset state when profile changes
     setIsLoading(true);
     setSessions([]);
+    setTotalSessions(0);
     setHealthStatus(null);
     setBackendAvailable(true);
     
@@ -59,14 +61,26 @@ export function DashboardPage() {
         setHealthStatus(health);
         setBackendAvailable(true);
 
-        // Get sessions for the active profile (could be self or dependent)
-        let userSessions: SessionHistoryItem[];
+        // Get sessions + total count for the active profile (self or dependent)
+        let userSessions: SessionHistoryItem[] = [];
+        let totalCount = 0;
         if (profileType === 'dependent') {
-          userSessions = await api.getDependentSessions(profileId);
+          const [sessionsResponse, countResponse] = await Promise.all([
+            api.getDependentSessions(profileId, { limit: 20, skip: 0 }),
+            api.getDependentSessionsCount(profileId),
+          ]);
+          userSessions = sessionsResponse;
+          totalCount = countResponse.total;
         } else {
-          userSessions = await api.getUserSessions(profileId);
+          const [sessionsResponse, countResponse] = await Promise.all([
+            api.getUserSessions(profileId, { limit: 20, skip: 0 }),
+            api.getUserSessionsCount(profileId),
+          ]);
+          userSessions = sessionsResponse;
+          totalCount = countResponse.total;
         }
         setSessions(userSessions);
+        setTotalSessions(totalCount);
       } catch (err) {
         console.error('Failed to load dashboard data:', err);
         setBackendAvailable(false);
@@ -170,24 +184,6 @@ export function DashboardPage() {
           </Card>
         </Link>
 
-        <Link to="/history" className={styles.actionCard}>
-          <Card variant="interactive" padding="lg">
-            <CardContent>
-              <div className={styles.actionIcon}>📊</div>
-              <h3 className={styles.actionTitle}>{t('dashboard_view_health_history')}</h3>
-              <p className={styles.actionDesc}>
-                {sessions.length > 0 
-                  ? t('dashboard_sessions_count', { 
-                      count: sessions.length, 
-                      plural: sessions.length > 1 ? 's' : '' 
-                    })
-                  : t('dashboard_review_past_sessions')
-                }
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
         {showCycleTracker && (
           <Link to="/cycle" className={styles.actionCard}>
             <Card variant="interactive" padding="lg">
@@ -216,6 +212,24 @@ export function DashboardPage() {
               <div className={styles.actionIcon}>❤️</div>
               <h3 className={styles.actionTitle}>{t('dashboard_bp_title')}</h3>
               <p className={styles.actionDesc}>{t('dashboard_bp_desc')}</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link to="/history" className={styles.actionCard}>
+          <Card variant="interactive" padding="lg">
+            <CardContent>
+              <div className={styles.actionIcon}>📊</div>
+              <h3 className={styles.actionTitle}>{t('dashboard_view_health_history')}</h3>
+              <p className={styles.actionDesc}>
+                {totalSessions > 0
+                  ? t('dashboard_sessions_count', {
+                      count: totalSessions,
+                      plural: totalSessions > 1 ? 's' : ''
+                    })
+                  : t('dashboard_review_past_sessions')
+                }
+              </p>
             </CardContent>
           </Card>
         </Link>

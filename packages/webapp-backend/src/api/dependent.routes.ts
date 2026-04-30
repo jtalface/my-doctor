@@ -402,5 +402,20 @@ router.get('/:id/sessions', async (req: Request<DependentParams>, res: Response)
   }
 });
 
+/**
+ * GET /api/dependents/:id/sessions/count
+ * Get dependent's total session count
+ */
+router.get('/:id/sessions/count', async (req: Request<DependentParams>, res: Response) => {
+  try {
+    const managerId = requireAuth(req);
+    const { id: dependentId } = req.params;
+    const total = await dependentService.getDependentSessionsCount(managerId, dependentId);
+    res.json({ total });
+  } catch (error) {
+    handleError(error, res, 'Failed to get session count');
+  }
+});
+
 export default router;
 

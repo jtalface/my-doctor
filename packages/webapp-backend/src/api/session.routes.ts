@@ -113,10 +113,13 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.get('/user/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
+    const limit = Math.min(parseInt(req.query.limit as string, 10) || 20, 100);
+    const skip = Math.max(parseInt(req.query.skip as string, 10) || 0, 0);
     
     const sessions = await Session.find({ userId })
       .sort({ createdAt: -1 })
-      .limit(20)
+      .skip(skip)
+      .limit(limit)
       .select('_id sessionType currentState status startedAt completedAt summary');
 
     res.json(sessions);
@@ -125,6 +128,21 @@ router.get('/user/:userId', async (req: Request, res: Response) => {
     res.status(500).json({ 
       error: 'Failed to get user sessions',
       details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// GET /api/session/user/:userId/count - Get user's total session count
+router.get('/user/:userId/count', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const total = await Session.countDocuments({ userId });
+    res.json({ total });
+  } catch (error) {
+    console.error('[API] Error getting user session count:', error);
+    res.status(500).json({
+      error: 'Failed to get user session count',
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });

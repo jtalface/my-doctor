@@ -22,6 +22,7 @@ export const translations = {
     
     // Navigation
     nav_home: 'Home',
+    nav_virtual_doctor: 'Virtual Doctor',
     nav_history: 'History',
     nav_cycle: 'Cycle',
     nav_messages: 'Messages',
@@ -103,9 +104,9 @@ export const translations = {
     dashboard_health_notes: 'Important Health Notes',
     dashboard_health_notes_message: 'Your recent checkup flagged some items to discuss with your doctor.',
     dashboard_view_details: 'View Details',
-    dashboard_start_new_checkup: 'Start New Checkup',
-    dashboard_quick_wellness: 'Quick wellness assessment',
-    dashboard_view_health_history: 'View Health History',
+    dashboard_start_new_checkup: 'Consult the Virtual Doctor',
+    dashboard_quick_wellness: 'Complete checkup, symptom assessment, and medication review',
+    dashboard_view_health_history: 'Health History',
     dashboard_sessions_count: '{{count}} session{{plural}} recorded',
     dashboard_review_past_sessions: 'Review past sessions & trends',
     dashboard_recent_activity: 'Recent Activity',
@@ -242,6 +243,7 @@ export const translations = {
     history_red_flags_count: 'red flag(s)',
     history_error_title: 'Error Loading History',
     history_try_again: 'Try Again',
+    history_load_more: 'Load more',
     history_filter: 'Filter',
     history_duration_min: '{{minutes}} min',
     history_flagged_count: '{{count}} flagged',
@@ -292,8 +294,6 @@ export const translations = {
     summary_notes_title: 'Summary Notes',
     summary_disclaimer: 'This summary is for educational purposes only and is not a medical diagnosis. Please consult with a healthcare professional for personalized medical advice.',
     summary_actions: 'Next Steps',
-    summary_new_checkup: 'Start New Checkup',
-    summary_view_history: 'View History',
     
     // Common translations (missing keys that pages need)
     common_not_set: 'Not set',
@@ -1551,11 +1551,11 @@ export const translations = {
     bp_remember_text: 'Always consult your healthcare provider before making changes to your blood pressure management plan. This app provides data tracking, not medical advice.',
     
     // Dashboard - Health Tracking Feature Links
-    dashboard_cycle_tracker_title: 'Track Your Cycle',
+    dashboard_cycle_tracker_title: 'Menstrual Cycle',
     dashboard_cycle_tracker_desc: 'Period tracking & predictions',
-    dashboard_glucose_title: 'Track Glucose',
+    dashboard_glucose_title: 'Manage Diabetes',
     dashboard_glucose_desc: 'Diabetes management & insights',
-    dashboard_bp_title: 'Track Blood Pressure',
+    dashboard_bp_title: 'Manage Blood Pressure',
     dashboard_bp_desc: 'BP monitoring & heart health',
     
     // Quick Links (used in Glucose & BP dashboards)
@@ -1650,6 +1650,7 @@ export const translations = {
     
     // Navigation
     nav_home: 'Início',
+    nav_virtual_doctor: 'Médico Virtual',
     nav_history: 'Histórico',
     nav_cycle: 'Ciclo',
     nav_messages: 'Mensagens',
@@ -1731,11 +1732,11 @@ export const translations = {
     dashboard_health_notes: 'Notas de Saúde Importantes',
     dashboard_health_notes_message: 'Sua consulta recente sinalizou alguns itens para discutir com seu médico.',
     dashboard_view_details: 'Ver Detalhes',
-    dashboard_start_new_checkup: 'Iniciar Nova Consulta',
-    dashboard_quick_wellness: 'Avaliação rápida de bem-estar',
-    dashboard_view_health_history: 'Ver Histórico de Saúde',
+    dashboard_start_new_checkup: 'Consultar Médico Virtual',
+    dashboard_quick_wellness: 'Checkup completo, avaliação de sintomas e medicação',
+    dashboard_view_health_history: 'Histórico de Saúde',
     dashboard_sessions_count: '{{count}} sessão{{plural}} registrada{{plural}}',
-    dashboard_review_past_sessions: 'Revisar sessões e tendências passadas',
+    dashboard_review_past_sessions: 'Rever sessões e tendências passadas',
     dashboard_recent_activity: 'Atividade Recente',
     dashboard_loading_sessions: 'Carregando sessões...',
     dashboard_no_sessions_yet: 'Nenhuma sessão ainda',
@@ -1870,6 +1871,7 @@ export const translations = {
     history_red_flags_count: 'sinal(is) de alerta',
     history_error_title: 'Erro ao Carregar Histórico',
     history_try_again: 'Tentar Novamente',
+    history_load_more: 'Carregar mais',
     history_filter: 'Filtrar',
     history_duration_min: '{{minutes}} min',
     history_flagged_count: '{{count}} sinalizado{{plural}}',
@@ -1920,8 +1922,6 @@ export const translations = {
     summary_notes_title: 'Notas do Resumo',
     summary_disclaimer: 'Este resumo é apenas para fins educacionais e não é um diagnóstico médico. Por favor, consulte um profissional de saúde para aconselhamento médico personalizado.',
     summary_actions: 'Próximos Passos',
-    summary_new_checkup: 'Iniciar Nova Consulta',
-    summary_view_history: 'Ver Histórico',
     
     // Common translations
     common_not_set: 'Não definido',
@@ -3175,11 +3175,11 @@ export const translations = {
     bp_remember_text: 'Sempre consulte seu médico antes de fazer alterações em seu plano de gerenciamento de tensão arterial. Este aplicativo fornece rastreamento de dados, não conselhos médicos.',
     
     // Dashboard - Health Tracking Feature Links
-    dashboard_cycle_tracker_title: 'Rastreie Seu Ciclo',
+    dashboard_cycle_tracker_title: 'Ciclo Menstrual',
     dashboard_cycle_tracker_desc: 'Rastreamento e previsões do período',
-    dashboard_glucose_title: 'Rastreie Glicose',
-    dashboard_glucose_desc: 'Gerenciamento de diabetes e insights',
-    dashboard_bp_title: 'Rastreie Tensão Arterial',
+    dashboard_glucose_title: 'Gerir Diabetes',
+    dashboard_glucose_desc: 'Gestão de diabetes e avaliação de tendências',
+    dashboard_bp_title: 'Gerir Tensão Arterial',
     dashboard_bp_desc: 'Monitoramento de TA e saúde cardíaca',
     
     // Quick Links (used in Glucose & BP dashboards)
@@ -3274,6 +3274,7 @@ export const translations = {
     
     // Navigation
     nav_home: 'Accueil',
+    nav_virtual_doctor: 'Médecin Virtuel',
     nav_history: 'Historique',
     nav_cycle: 'Cycle',
     nav_messages: 'Messages',
@@ -3355,9 +3356,9 @@ export const translations = {
     dashboard_health_notes: 'Notes de Santé Importantes',
     dashboard_health_notes_message: 'Votre consultation récente a signalé certains éléments à discuter avec votre médecin.',
     dashboard_view_details: 'Voir les Détails',
-    dashboard_start_new_checkup: 'Commencer une Nouvelle Consultation',
-    dashboard_quick_wellness: 'Évaluation rapide du bien-être',
-    dashboard_view_health_history: 'Voir l\'Historique de Santé',
+    dashboard_start_new_checkup: 'Consulter le Médecin Virtuel',
+    dashboard_quick_wellness: 'Bilan complet, évaluation des symptômes et revue des médicaments',
+    dashboard_view_health_history: 'Historique de Santé',
     dashboard_sessions_count: '{{count}} session{{plural}} enregistrée{{plural}}',
     dashboard_review_past_sessions: 'Consulter les sessions et tendances passées',
     dashboard_recent_activity: 'Activité Récente',
@@ -3494,6 +3495,7 @@ export const translations = {
     history_red_flags_count: 'drapeau(x) rouge(s)',
     history_error_title: 'Erreur de Chargement de l\'Historique',
     history_try_again: 'Réessayer',
+    history_load_more: 'Charger plus',
     history_filter: 'Filtrer',
     history_duration_min: '{{minutes}} min',
     history_flagged_count: '{{count}} signalé{{plural}}',
@@ -3544,8 +3546,6 @@ export const translations = {
     summary_notes_title: 'Notes du Résumé',
     summary_disclaimer: 'Ce résumé est à des fins éducatives uniquement et n\'est pas un diagnostic médical. Veuillez consulter un professionnel de la santé pour des conseils médicaux personnalisés.',
     summary_actions: 'Prochaines Étapes',
-    summary_new_checkup: 'Commencer un Nouveau Bilan',
-    summary_view_history: 'Voir l\'Historique',
     
     // Common translations
     common_not_set: 'Non défini',
@@ -4799,11 +4799,11 @@ export const translations = {
     bp_remember_text: 'Consultez toujours votre professionnel de santé avant d\'apporter des modifications à votre plan de gestion de la tension artérielle. Cette application fournit un suivi des données, pas de conseils médicaux.',
     
     // Dashboard - Health Tracking Feature Links
-    dashboard_cycle_tracker_title: 'Suivre Votre Cycle',
+    dashboard_cycle_tracker_title: 'Cycle Menstruel',
     dashboard_cycle_tracker_desc: 'Suivi et prévisions des règles',
-    dashboard_glucose_title: 'Suivre la Glycémie',
+    dashboard_glucose_title: 'Gérer le Diabète',
     dashboard_glucose_desc: 'Gestion du diabète et informations',
-    dashboard_bp_title: 'Suivre la Tension Artérielle',
+    dashboard_bp_title: 'Gérer la Tension Artérielle',
     dashboard_bp_desc: 'Surveillance de la TA et santé cardiaque',
     
     // Quick Links (used in Glucose & BP dashboards)
@@ -4898,6 +4898,7 @@ export const translations = {
     
     // Navigation
     nav_home: 'Nyumbani',
+    nav_virtual_doctor: 'Daktari wa Mtandaoni',
     nav_history: 'Historia',
     nav_cycle: 'Mzunguko',
     nav_messages: 'Ujumbe',
@@ -4979,9 +4980,9 @@ export const translations = {
     dashboard_health_notes: 'Maelezo Muhimu ya Afya',
     dashboard_health_notes_message: 'Ukaguzi wako wa hivi karibuni uliweka alama baadhi ya vipengele kujadili na daktari wako.',
     dashboard_view_details: 'Tazama Maelezo',
-    dashboard_start_new_checkup: 'Anza Ukaguzi Mpya',
-    dashboard_quick_wellness: 'Tathmini ya haraka ya ustawi',
-    dashboard_view_health_history: 'Tazama Historia ya Afya',
+    dashboard_start_new_checkup: 'Muulize Daktari wa Mtandaoni',
+    dashboard_quick_wellness: 'Ukaguzi kamili, tathmini ya dalili, na mapitio ya dawa',
+    dashboard_view_health_history: 'Historia ya Afya',
     dashboard_sessions_count: 'Kipindi {{count}} kimerekodishwa',
     dashboard_review_past_sessions: 'Kagua vipindi na mienendo iliyopita',
     dashboard_recent_activity: 'Shughuli za Hivi Karibuni',
@@ -5118,6 +5119,7 @@ export const translations = {
     history_red_flags_count: 'alama za hatari',
     history_error_title: 'Hitilafu ya Kupakia Historia',
     history_try_again: 'Jaribu Tena',
+    history_load_more: 'Pakia zaidi',
     history_filter: 'Chuja',
     history_duration_min: 'dakika {{minutes}}',
     history_flagged_count: '{{count}} zimewekwa alama',
@@ -5168,8 +5170,6 @@ export const translations = {
     summary_notes_title: 'Maelezo ya Muhtasari',
     summary_disclaimer: 'Muhtasari huu ni kwa madhumuni ya elimu tu na sio uchunguzi wa kiafya. Tafadhali wasiliana na mtaalamu wa afya kwa ushauri binafsi wa kiafya.',
     summary_actions: 'Hatua Zifuatazo',
-    summary_new_checkup: 'Anza Ukaguzi Mpya',
-    summary_view_history: 'Tazama Historia',
     
     // Common translations
     common_not_set: 'Haijawekwa',
@@ -6423,11 +6423,11 @@ export const translations = {
     bp_remember_text: 'Daima shauriana na mtoa huduma wako kabla ya kufanya mabadiliko kwa mpango wako wa usimamizi wa shinikizo la damu. Programu hii inatoa ufuatiliaji wa data, si ushauri wa kimatibabu.',
     
     // Dashboard - Health Tracking Feature Links
-    dashboard_cycle_tracker_title: 'Fuatilia Mzunguko Wako',
+    dashboard_cycle_tracker_title: 'Mzunguko wa Hedhi',
     dashboard_cycle_tracker_desc: 'Ufuatiliaji wa hedhi na utabiri',
-    dashboard_glucose_title: 'Fuatilia Glucose',
+    dashboard_glucose_title: 'Dhibiti Kisukari',
     dashboard_glucose_desc: 'Usimamizi wa kisukari na maarifa',
-    dashboard_bp_title: 'Fuatilia Shinikizo la Damu',
+    dashboard_bp_title: 'Dhibiti Shinikizo la Damu',
     dashboard_bp_desc: 'Ufuatiliaji wa BP na afya ya moyo',
     
     // Quick Links (used in Glucose & BP dashboards)

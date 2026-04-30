@@ -117,6 +117,12 @@
   margin-bottom: var(--space-6);
 }
 
+.loadMoreWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-2);
+}
+
 .monthTitle {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
@@ -159,6 +165,12 @@
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   margin: 0;
+}
+
+.sessionPatient {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-1) 0;
 }
 
 .sessionRight {

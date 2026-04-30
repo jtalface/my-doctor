@@ -3,14 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { Logo } from '@components/common';
 import { ProfileSwitcher, AddDependentModal } from '@components/dependents';
 import { useActiveProfile } from '../../contexts';
-import { useCycleEligibility } from '../../hooks/useCycleEligibility';
 import { useTranslate } from '../../i18n';
 import styles from './Header.module.css';
 
 export function Header() {
   const location = useLocation();
   const { isViewingDependent, activeProfile } = useActiveProfile();
-  const { isEligible } = useCycleEligibility();
   const t = useTranslate();
   const [showAddDependent, setShowAddDependent] = useState(false);
   
@@ -29,20 +27,12 @@ export function Header() {
             >
               {t('nav_home')}
             </Link>
-            <Link 
-              to="/history" 
-              className={`${styles.navLink} ${location.pathname.startsWith('/history') ? styles.active : ''}`}
+            <Link
+              to="/checkup/start"
+              className={`${styles.navLink} ${location.pathname.startsWith('/checkup') ? styles.active : ''}`}
             >
-              {t('nav_history')}
+              {t('nav_virtual_doctor')}
             </Link>
-            {isEligible && (
-              <Link 
-                to="/cycle" 
-                className={`${styles.navLink} ${location.pathname.startsWith('/cycle') ? styles.active : ''}`}
-              >
-                {t('nav_cycle')}
-              </Link>
-            )}
             <Link 
               to="/messages" 
               className={`${styles.navLink} ${location.pathname.startsWith('/messages') ? styles.active : ''}`}

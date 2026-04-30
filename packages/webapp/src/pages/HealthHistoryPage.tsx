@@ -8,12 +8,16 @@ import { getCheckupSessionTitle } from '../utils/checkupSessionTitle';
 import styles from './HealthHistoryPage.module.css';
 
 export function HealthHistoryPage() {
+  const PAGE_SIZE = 20;
   const { activeProfile, isViewingDependent } = useActiveProfile();
   const t = useTranslate();
   const [sessions, setSessions] = useState<SessionHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [skipCount, setSkipCount] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   
   // Create a stable key from profile ID and type
   const profileId = activeProfile?.id;
@@ -23,10 +27,13 @@ export function HealthHistoryPage() {
   useEffect(() => {
     // Reset state when profile changes
     setIsLoading(true);
+    setIsLoadingMore(false);
     setSessions([]);
     setError(null);
+    setSkipCount(0);
+    setHasMore(true);
     
-    const loadSessions = async () => {
+    const loadSessions = async (skip: number = 0) => {
       if (!profileId) {
         setIsLoading(false);
         return;
@@ -34,13 +41,15 @@ export function HealthHistoryPage() {
 
       try {
         // Fetch sessions for the active profile (self or dependent)
-        let userSessions: SessionHistoryItem[];
+        let userSessions: SessionHistoryItem[] = [];
         if (profileType === 'dependent') {
-          userSessions = await api.getDependentSessions(profileId);
+          userSessions = await api.getDependentSessions(profileId, { limit: PAGE_SIZE, skip });
         } else {
-          userSessions = await api.getUserSessions(profileId);
+          userSessions = await api.getUserSessions(profileId, { limit: PAGE_SIZE, skip });
         }
         setSessions(userSessions);
+        setSkipCount(userSessions.length);
+        setHasMore(userSessions.length === PAGE_SIZE);
       } catch (err) {
         console.error('Failed to load sessions:', err);
         setError('Failed to load sessions');
@@ -49,14 +58,17 @@ export function HealthHistoryPage() {
       }
     };
 
-    loadSessions();
+    loadSessions(0);
   }, [profileId, profileType]);
 
   // Function to reload sessions (for retry button)
   const reloadSessions = () => {
     setIsLoading(true);
+    setIsLoadingMore(false);
     setSessions([]);
     setError(null);
+    setSkipCount(0);
+    setHasMore(true);
     
     const load = async () => {
       if (!profileId) {
@@ -64,13 +76,15 @@ export function HealthHistoryPage() {
         return;
       }
       try {
-        let userSessions: SessionHistoryItem[];
+        let userSessions: SessionHistoryItem[] = [];
         if (profileType === 'dependent') {
-          userSessions = await api.getDependentSessions(profileId);
+          userSessions = await api.getDependentSessions(profileId, { limit: PAGE_SIZE, skip: 0 });
         } else {
-          userSessions = await api.getUserSessions(profileId);
+          userSessions = await api.getUserSessions(profileId, { limit: PAGE_SIZE, skip: 0 });
         }
         setSessions(userSessions);
+        setSkipCount(userSessions.length);
+        setHasMore(userSessions.length === PAGE_SIZE);
       } catch (err) {
         console.error('Failed to load sessions:', err);
         setError('Failed to load sessions');
@@ -79,6 +93,31 @@ export function HealthHistoryPage() {
       }
     };
     load();
+  };
+
+  const loadMoreSessions = async () => {
+    if (!profileId || isLoadingMore || !hasMore) return;
+
+    try {
+      setIsLoadingMore(true);
+      let nextBatch: SessionHistoryItem[] = [];
+      if (profileType === 'dependent') {
+        nextBatch = await api.getDependentSessions(profileId, { limit: PAGE_SIZE, skip: skipCount });
+      } else {
+        nextBatch = await api.getUserSessions(profileId, { limit: PAGE_SIZE, skip: skipCount });
+      }
+
+      if (nextBatch.length > 0) {
+        setSessions((prev) => [...prev, ...nextBatch]);
+      }
+      setSkipCount((prev) => prev + nextBatch.length);
+      setHasMore(nextBatch.length === PAGE_SIZE);
+    } catch (err) {
+      console.error('Failed to load more sessions:', err);
+      setError('Failed to load sessions');
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   // Format date to "Dec 16, 2024"
@@ -274,65 +313,79 @@ export function HealthHistoryPage() {
             </CardContent>
           </Card>
         ) : (
-          months.map((monthYear) => (
-            <section key={monthYear} className={styles.monthSection}>
-              <h2 className={styles.monthTitle}>{monthYear}</h2>
-              
-              {(sessionsByMonth[monthYear] || []).map(session => {
-                const flagCount = session.summary?.redFlags?.length || 0;
-                const isCompleted = session.status === 'completed';
-                const isAbandoned = session.status === 'abandoned';
+          <>
+            {months.map((monthYear) => (
+              <section key={monthYear} className={styles.monthSection}>
+                <h2 className={styles.monthTitle}>{monthYear}</h2>
+                
+                {(sessionsByMonth[monthYear] || []).map(session => {
+                  const flagCount = session.summary?.redFlags?.length || 0;
+                  const isCompleted = session.status === 'completed';
+                  const isAbandoned = session.status === 'abandoned';
 
-                return (
-                  <Link 
-                    to={`/history/${session._id}`} 
-                    key={session._id} 
-                    className={styles.sessionLink}
-                  >
-                    <Card variant="default" padding="md">
-                      <CardContent>
-                        <div className={styles.sessionRow}>
-                          <div className={styles.sessionInfo}>
-                            <span className={styles.sessionIcon}>
-                              {isCompleted ? '✅' : isAbandoned ? '❌' : '📋'}
-                            </span>
-                            <div>
-                              <h3 className={styles.sessionTitle}>
-                                {getCheckupSessionTitle(session.sessionType, t)}
-                              </h3>
-                              <p className={styles.sessionMeta}>
-                                {formatDate(session.startedAt)} • {calculateDuration(session.startedAt, session.completedAt)}
-                              </p>
+                  return (
+                    <Link 
+                      to={`/history/${session._id}`} 
+                      key={session._id} 
+                      className={styles.sessionLink}
+                    >
+                      <Card variant="default" padding="md">
+                        <CardContent>
+                          <div className={styles.sessionRow}>
+                            <div className={styles.sessionInfo}>
+                              <span className={styles.sessionIcon}>
+                                {isCompleted ? '✅' : isAbandoned ? '❌' : '📋'}
+                              </span>
+                              <div>
+                                <h3 className={styles.sessionTitle}>
+                                  {getCheckupSessionTitle(session.sessionType, t)}
+                                </h3>
+                                {activeProfile?.name && (
+                                  <p className={styles.sessionPatient}>
+                                    {t('dashboard_patient_label')}: {activeProfile.name}
+                                  </p>
+                                )}
+                                <p className={styles.sessionMeta}>
+                                  {formatDate(session.startedAt)} • {calculateDuration(session.startedAt, session.completedAt)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className={styles.sessionRight}>
+                              {flagCount > 0 && isCompleted && (
+                                <span className={styles.flagBadge}>
+                                  ⚠️ {t('history_flagged_count', {
+                                    count: flagCount,
+                                    plural: flagCount > 1 ? 's' : '',
+                                  })}
+                                </span>
+                              )}
+                              {isCompleted && flagCount === 0 && (
+                                <span className={styles.completed}>✓ {t('history_status_completed')}</span>
+                              )}
+                              {isAbandoned && (
+                                <span className={styles.abandoned}>{t('history_status_abandoned')}</span>
+                              )}
+                              {!isCompleted && !isAbandoned && (
+                                <span className={styles.inProgress}>⏳ {t('history_status_in_progress')}</span>
+                              )}
+                              <span className={styles.arrow}>▶</span>
                             </div>
                           </div>
-                          <div className={styles.sessionRight}>
-                            {flagCount > 0 && isCompleted && (
-                              <span className={styles.flagBadge}>
-                                ⚠️ {t('history_flagged_count', {
-                                  count: flagCount,
-                                  plural: flagCount > 1 ? 's' : '',
-                                })}
-                              </span>
-                            )}
-                            {isCompleted && flagCount === 0 && (
-                              <span className={styles.completed}>✓ {t('history_status_completed')}</span>
-                            )}
-                            {isAbandoned && (
-                              <span className={styles.abandoned}>{t('history_status_abandoned')}</span>
-                            )}
-                            {!isCompleted && !isAbandoned && (
-                              <span className={styles.inProgress}>⏳ {t('history_status_in_progress')}</span>
-                            )}
-                            <span className={styles.arrow}>▶</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </section>
-          ))
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
+              </section>
+            ))}
+            {hasMore && (
+              <div className={styles.loadMoreWrap}>
+                <Button onClick={loadMoreSessions} isLoading={isLoadingMore}>
+                  {isLoadingMore ? t('common_loading') : t('history_load_more')}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

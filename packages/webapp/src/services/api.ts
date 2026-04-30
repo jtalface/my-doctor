@@ -117,6 +117,10 @@ export interface SessionHistoryItem {
   summary?: SessionSummary;
 }
 
+export interface SessionCountResponse {
+  total: number;
+}
+
 // Dependent types
 export type RelationshipType = 'parent' | 'guardian' | 'spouse' | 'sibling' | 'grandparent' | 'other';
 
@@ -454,8 +458,24 @@ class ApiClient {
     return this.authRequest(`/api/session/${sessionId}`);
   }
 
-  async getUserSessions(userId: string): Promise<SessionHistoryItem[]> {
-    return this.authRequest(`/api/session/user/${userId}`);
+  async getUserSessions(
+    userId: string,
+    options?: { limit?: number; skip?: number }
+  ): Promise<SessionHistoryItem[]> {
+    const params = new URLSearchParams();
+    if (options?.limit) params.set('limit', options.limit.toString());
+    if (options?.skip) params.set('skip', options.skip.toString());
+
+    const queryString = params.toString();
+    const endpoint = queryString
+      ? `/api/session/user/${userId}?${queryString}`
+      : `/api/session/user/${userId}`;
+
+    return this.authRequest(endpoint);
+  }
+
+  async getUserSessionsCount(userId: string): Promise<SessionCountResponse> {
+    return this.authRequest(`/api/session/user/${userId}/count`);
   }
 
   async abandonSession(sessionId: string): Promise<{ success: boolean }> {
@@ -625,6 +645,10 @@ class ApiClient {
       : `/api/dependents/${dependentId}/sessions`;
     
     return this.authRequest(endpoint);
+  }
+
+  async getDependentSessionsCount(dependentId: string): Promise<SessionCountResponse> {
+    return this.authRequest(`/api/dependents/${dependentId}/sessions/count`);
   }
 
   // ==========================================
