@@ -14,7 +14,7 @@ export interface OrchestratorResponse {
     id: string;
     prompt: string;
     helpText?: string;
-    inputType: 'choice' | 'text' | 'none';
+    inputType: 'choice' | 'text' | 'structured' | 'none';
     choices?: string[];
     isTerminal?: boolean;
     isRedFlag?: boolean;
@@ -119,7 +119,13 @@ class Orchestrator {
     );
 
     // Determine next state
-    const nextStateId = stateLoader.getNextState(currentNode.id, input);
+    let nextStateId = stateLoader.getNextState(currentNode.id, input);
+    if (
+      sessionData.sessionType === 'medication-review' &&
+      (currentNode.id === 'family_history' || currentNode.id === 'screening_reminder')
+    ) {
+      nextStateId = 'medication_wrapup';
+    }
     const nextNode = stateLoader.getNode(nextStateId);
 
     if (!nextNode) {
@@ -261,7 +267,9 @@ class Orchestrator {
     }));
 
     const finalReasoning = reasoning || this.rebuildReasoningFromHistory(history);
-    const notes = await promptEngineService.generateSummary(steps, finalReasoning, language);
+    const notes = sessionData?.sessionType === 'medication-review'
+      ? await promptEngineService.generateMedicationReviewSummary(steps, finalReasoning, language)
+      : await promptEngineService.generateSummary(steps, finalReasoning, language);
 
     return {
       redFlags: finalReasoning.redFlags || [],

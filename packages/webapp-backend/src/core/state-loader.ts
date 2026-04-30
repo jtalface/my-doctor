@@ -5,7 +5,7 @@ export interface StateNode {
   id: string;
   prompt: string;
   helpText?: string;
-  inputType: 'choice' | 'text' | 'none';
+  inputType: 'choice' | 'text' | 'structured' | 'none';
   choices?: string[];
   transitions: Record<string, string>;
   isTerminal?: boolean;

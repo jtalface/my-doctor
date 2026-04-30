@@ -6,7 +6,7 @@ import { useTranslate } from '../i18n';
 import { api, SessionResponse, SessionNode } from '../services/api';
 import styles from './CheckupSessionPage.module.css';
 
-const MULTI_SELECT_NODE_IDS = new Set(['chronic_conditions', 'red_flag_check']);
+const MULTI_SELECT_NODE_IDS = new Set(['chronic_conditions', 'red_flag_check', 'family_history']);
 
 function getLocalizedSessionNode(
   node: SessionNode | null,
@@ -96,7 +96,7 @@ export function CheckupSessionPage() {
         // Navigate to summary after a brief delay
         setTimeout(() => {
           navigate(`/checkup/summary/${sessionId}`, { 
-            state: { summary: response.summary } 
+            state: { summary: response.summary, sessionType: response.sessionType } 
           });
         }, 2000);
       } else {
@@ -201,6 +201,56 @@ export function CheckupSessionPage() {
   const localizedNode = getLocalizedSessionNode(currentNode, t);
   const allowMultipleChoice =
     currentNode.inputType === 'choice' && MULTI_SELECT_NODE_IDS.has(currentNode.id);
+  const structuredFields = currentNode.id === 'medication_catalog_all'
+    ? []
+    : [];
+  const structuredMedication = currentNode.id === 'medication_catalog_all'
+    ? {
+        nameLabel: t('session_medication_field_name'),
+        namePlaceholder: t('session_medication_field_name_placeholder'),
+        mgLabel: t('session_medication_field_mg'),
+        mgPlaceholder: t('session_medication_field_mg_placeholder'),
+        dosageLabel: t('session_medication_field_dosage'),
+        dosageOptions: [
+          t('session_medication_dosage_4_day'),
+          t('session_medication_dosage_3_day'),
+          t('session_medication_dosage_2_day'),
+          t('session_medication_dosage_1_day'),
+          t('session_medication_dosage_every_other_day'),
+          t('session_medication_dosage_1_week'),
+        ],
+        addRowLabel: t('session_medication_add_row'),
+      }
+    : undefined;
+  const structuredSideEffects = currentNode.id === 'medication_wrapup'
+    ? {
+        sideEffectsLabel: t('session_medication_side_effects_label'),
+        sideEffectsOptions: [
+          t('session_medication_side_effect_nausea'),
+          t('session_medication_side_effect_vomiting'),
+          t('session_medication_side_effect_diarrhea'),
+          t('session_medication_side_effect_abdominal_pain'),
+          t('session_medication_side_effect_loss_of_appetite'),
+          t('session_medication_side_effect_dizziness'),
+          t('session_medication_side_effect_headache'),
+          t('session_medication_side_effect_drowsiness'),
+          t('session_medication_side_effect_insomnia'),
+          t('session_medication_side_effect_fatigue'),
+          t('session_medication_side_effect_tremors'),
+          t('session_medication_side_effect_palpitations'),
+          t('session_medication_side_effect_shortness_of_breath'),
+          t('session_medication_side_effect_dry_mouth'),
+          t('session_medication_side_effect_blurred_vision'),
+          t('session_medication_side_effect_sweating'),
+          t('session_medication_side_effect_sexual_dysfunction'),
+          t('session_medication_side_effect_rash'),
+          t('session_medication_side_effect_itching'),
+          t('session_medication_side_effect_swelling'),
+        ],
+        additionalInfoLabel: t('session_medication_side_effects_other_label'),
+        additionalInfoPlaceholder: t('session_medication_side_effects_other_placeholder'),
+      }
+    : undefined;
 
   return (
     <div className={styles.container}>
@@ -247,6 +297,9 @@ export function CheckupSessionPage() {
               choiceLabels={localizedNode.choiceLabels}
               allowMultipleChoice={allowMultipleChoice}
               continueLabel={t('common_continue')}
+              structuredFields={structuredFields}
+              structuredMedication={structuredMedication}
+              structuredSideEffects={structuredSideEffects}
               onSubmit={handleInput}
               isLoading={isProcessing}
               className={styles.input}

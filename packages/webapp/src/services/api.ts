@@ -9,7 +9,7 @@ export interface SessionNode {
   id: string;
   prompt: string;
   helpText?: string;
-  inputType: 'choice' | 'text' | 'none';
+  inputType: 'choice' | 'text' | 'structured' | 'none';
   choices?: string[];
   isTerminal?: boolean;
   isRedFlag?: boolean;

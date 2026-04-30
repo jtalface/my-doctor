@@ -38,7 +38,7 @@
       "inputType": "choice",
       "choices": ["Continue"],
       "transitions": {
-        "default": "medications"
+        "default": "medication_catalog_all"
       }
     },
     "welcome": {
@@ -222,6 +222,14 @@
         "default": "allergies"
       }
     },
+    "medication_catalog_all": {
+      "id": "medication_catalog_all",
+      "prompt": "Please list all medications you are currently taking.",
+      "inputType": "structured",
+      "transitions": {
+        "default": "allergies"
+      }
+    },
     "allergies": {
       "id": "allergies",
       "prompt": "Do you have any known allergies?",
@@ -234,7 +242,7 @@
     "family_history": {
       "id": "family_history",
       "prompt": "Is there any significant medical history in your immediate family?",
-      "helpText": "Parents, siblings - select the most relevant",
+      "helpText": "Parents, siblings - select all that apply",
       "inputType": "choice",
       "choices": ["Heart disease", "Diabetes", "Cancer", "Mental health conditions", "No significant history", "Prefer not to say"],
       "transitions": {
@@ -265,6 +273,14 @@
       "id": "additional_details",
       "prompt": "Please share any additional concerns or information:",
       "inputType": "text",
+      "transitions": {
+        "default": "summary"
+      }
+    },
+    "medication_wrapup": {
+      "id": "medication_wrapup",
+      "prompt": "Select any side effects you are feeling and add any other relevant information.",
+      "inputType": "structured",
       "transitions": {
         "default": "summary"
       }

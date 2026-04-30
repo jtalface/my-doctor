@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useTranslate } from '../i18n';
-import { api, SessionSummary } from '../services/api';
+import { api, CheckupSessionType, SessionSummary } from '../services/api';
+import { getCheckupSessionTitle } from '../utils/checkupSessionTitle';
 import styles from './VisitSummaryPage.module.css';
 
 const SCREENING_TRANSLATION_KEYS: Record<string, string> = {
@@ -53,7 +54,11 @@ export function VisitSummaryPage() {
   const [summary, setSummary] = useState<SessionSummary | null>(
     (location.state as any)?.summary || null
   );
+  const [sessionType, setSessionType] = useState<CheckupSessionType | undefined>(
+    (location.state as any)?.sessionType
+  );
   const translate = t as unknown as (key: string, params?: Record<string, string | number>) => string;
+  const sessionTitle = getCheckupSessionTitle(sessionType, t);
 
   const localizeScreening = (screening: string): string => {
     const key = SCREENING_TRANSLATION_KEYS[screening];
@@ -78,6 +83,34 @@ export function VisitSummaryPage() {
     }
     return redFlag;
   };
+  const isSummaryHeadingLine = (line: string): boolean => {
+    const trimmed = line.trim();
+    if (!trimmed) return false;
+    if (trimmed.startsWith('-') || trimmed.startsWith('•')) return false;
+    return /^[^:]{2,80}:$/.test(trimmed);
+  };
+  const localizeSummaryHeadingLine = (line: string): string => {
+    const trimmed = line.trim();
+    if (!trimmed) return line;
+
+    const withoutMarkdown = trimmed.replace(/^#+\s*/, '');
+    const hasColon = withoutMarkdown.endsWith(':');
+    const base = (hasColon ? withoutMarkdown.slice(0, -1) : withoutMarkdown).trim();
+
+    const headingMap: Record<string, string> = {
+      'Medication Profile': t('summary_heading_medication_profile'),
+      'What Each Medication Is For': t('summary_heading_medication_purpose'),
+      'Name Verification Notes': t('summary_heading_name_verification'),
+      'Side Effects Reported': t('summary_heading_side_effects_reported'),
+      'Adherence & Safety Considerations': t('summary_heading_adherence_safety'),
+      'Recommendations to Discuss with Clinician': t('summary_heading_recommendations_clinician'),
+      'Questions to Ask Your Doctor/Pharmacist': t('summary_heading_questions_for_clinician'),
+      Summary: t('summary_heading_summary'),
+    };
+
+    const localized = headingMap[base] || base;
+    return `${localized}:`;
+  };
   const isMobileDevice = (): boolean => {
     if (typeof navigator === 'undefined' || typeof window === 'undefined') return false;
     const ua = navigator.userAgent || '';
@@ -94,7 +127,7 @@ export function VisitSummaryPage() {
       .join('\n') || t('visit_summary_none');
 
     return [
-      t('visit_summary_title'),
+      sessionTitle,
       `${t('visit_summary_date_label')} ${date}`,
       '',
       `${t('visit_summary_red_flags_title')}`,
@@ -153,6 +186,7 @@ export function VisitSummaryPage() {
 
       try {
         const response = await api.getSession(id);
+        setSessionType(response.sessionType);
         if (response.summary) {
           setSummary(response.summary);
         } else {
@@ -196,6 +230,7 @@ export function VisitSummaryPage() {
   const hasRedFlags = summary.redFlags && summary.redFlags.length > 0;
   const hasRecommendations = summary.recommendations && summary.recommendations.length > 0;
   const hasScreenings = summary.screenings && summary.screenings.length > 0;
+  const isMedicationReview = sessionType === 'medication-review';
 
   return (
     <div className={styles.container}>
@@ -205,7 +240,7 @@ export function VisitSummaryPage() {
       </header>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>{t('visit_summary_title')}</h1>
+        <h1 className={styles.title}>{sessionTitle}</h1>
         <p className={styles.date}>{formatDate()}</p>
 
         {/* Red Flags - Warning Section */}
@@ -267,7 +302,9 @@ export function VisitSummaryPage() {
               <h2 className={styles.sectionTitle}>{t('visit_summary_ai_summary_title')}</h2>
               <div className={styles.aiSummary}>
                 {summary.notes.split('\n').map((line, i) => (
-                  <p key={i}>{line}</p>
+                  <p key={i} className={isSummaryHeadingLine(line) ? styles.aiSummaryHeading : styles.aiSummaryLine}>
+                    {isSummaryHeadingLine(line) ? localizeSummaryHeadingLine(line) : line}
+                  </p>
                 ))}
               </div>
             </CardContent>
@@ -275,7 +312,7 @@ export function VisitSummaryPage() {
         )}
 
         {/* No Content State */}
-        {!hasRedFlags && !hasRecommendations && !hasScreenings && !summary.notes && (
+        {!isMedicationReview && !hasRedFlags && !hasRecommendations && !hasScreenings && !summary.notes && (
           <Card variant="default" padding="lg" className={styles.section}>
             <CardContent>
               <div className={styles.emptyState}>
