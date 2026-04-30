@@ -201,15 +201,14 @@ ${JSON.stringify(reasoning, null, 2)}
 
 Please produce the best possible medication review summary for this patient scenario. Use the data above and include:
 1) Current medication profile (what the patient reports taking, including dose/schedule where available)
-2) For each medication name, a brief plain-language explanation of what it is commonly used for and what it does
-3) Medication name quality check:
-   - If a name appears misspelled, infer the closest likely real medication name and state you are assuming that closest match
-   - If no reasonable match can be inferred (gibberish/unclear), explicitly say you could not understand the medication name and ask the patient to verify spelling
+   - If a medication name appears misspelled, show the likely corrected name and include the reported spelling inline in that same bullet (example: Diazepam (reported as "Diazepan"))
+   - If a name is unclear/gibberish, state inline that the name is unclear and ask to verify spelling
    - Do not present uncertain guesses as confirmed facts
-4) Potential adherence or safety concerns (only if supported by patient responses)
-5) Reported side effects and possible practical discussion points for clinician follow-up
-6) Focused, actionable medication-management recommendations the patient can discuss with their clinician
-7) A short "questions to ask your doctor/pharmacist" section tailored to this case
+2) For each medication name, a brief plain-language explanation of what it is commonly used for and what it does
+3) Potential adherence or safety concerns (only if supported by patient responses)
+4) Reported side effects and possible practical discussion points for clinician follow-up
+5) Focused, actionable medication-management recommendations the patient can discuss with their clinician
+6) A short "questions to ask your doctor/pharmacist" section tailored to this case
 
 Be specific to the patient inputs, avoid generic filler, and keep a calm, supportive tone. Prioritize safe wording when medication names are uncertain.
 
@@ -226,9 +225,6 @@ Medication Profile:
 - ...
 
 What Each Medication Is For:
-- ...
-
-Name Verification Notes (include only when there are misspellings/unclear medication names):
 - ...
 
 Side Effects Reported:
@@ -334,7 +330,6 @@ Questions to Ask Your Doctor/Pharmacist:
     const headingTranslations: Record<string, Record<LanguageCode, string>> = {
       'Medication Profile': { en: 'Medication Profile', pt: 'Perfil de Medicação', fr: 'Profil des Médicaments', sw: 'Wasifu wa Dawa' },
       'What Each Medication Is For': { en: 'What Each Medication Is For', pt: 'Para Que Serve Cada Medicação', fr: 'À Quoi Sert Chaque Médicament', sw: 'Kila Dawa Inatumika Kwa Nini' },
-        'Name Verification Notes': { en: 'Name Verification', pt: 'Verificação de Nomes', fr: 'Vérification des Noms', sw: 'Uhakiki wa Majina' },
       'Side Effects Reported': { en: 'Side Effects Reported', pt: 'Efeitos Colaterais Relatados', fr: 'Effets Secondaires Rapportés', sw: 'Madhara ya Dawa Yaliyoripotiwa' },
       'Adherence & Safety Considerations': { en: 'Adherence & Safety Considerations', pt: 'Considerações de Adesão e Segurança', fr: 'Considérations d’Adhérence et de Sécurité', sw: 'Mazingatio ya Ufuasi na Usalama' },
       'Recommendations to Discuss with Clinician': { en: 'Recommendations to Discuss with Clinician', pt: 'Recomendações para Discutir com o Clínico', fr: 'Recommandations à Discuter avec le Clinicien', sw: 'Mapendekezo ya Kujadili na Mtaalamu' },
@@ -347,14 +342,27 @@ Questions to Ask Your Doctor/Pharmacist:
       return headingTranslations[normalized]?.[languageCode] || normalized;
     };
 
+    const reportedAsTranslations: Record<LanguageCode, string> = {
+      en: 'reported as',
+      pt: 'reportado como',
+      fr: 'rapporté comme',
+      sw: 'iliripotiwa kama',
+    };
+
+    const normalizeMedicationInlinePhrases = (line: string): string => {
+      const target = reportedAsTranslations[languageCode] || reportedAsTranslations.en;
+      return line.replace(/\(\s*reported as\s+["“]/gi, `(${target} "`);
+    };
+
     if (text.includes('\n')) {
-      const formatted = text
+      return text
         .split('\n')
         .map((line) => {
-          const trimmed = line.trim();
-          if (!trimmed) return line;
-          if (/^\s*#+\s*/.test(line)) {
-            return `${translateHeading(line)}:`;
+          const normalizedLine = normalizeMedicationInlinePhrases(line);
+          const trimmed = normalizedLine.trim();
+          if (!trimmed) return normalizedLine;
+          if (/^\s*#+\s*/.test(normalizedLine)) {
+            return `${translateHeading(normalizedLine)}:`;
           }
 
           const normalized = trimmed.replace(/:\s*$/, '');
@@ -362,11 +370,9 @@ Questions to Ask Your Doctor/Pharmacist:
             return `${translateHeading(normalized)}:`;
           }
 
-          return line;
+          return normalizedLine;
         })
         .join('\n');
-
-      return this.pruneNameVerificationSection(formatted, headingTranslations, languageCode);
     }
 
     // Fallback: split into short bullets to avoid dense single paragraph output.
@@ -380,56 +386,6 @@ Questions to Ask Your Doctor/Pharmacist:
     }
 
     return `${summaryTitle[languageCode] || 'Summary'}:\n${sentences.map((s) => `- ${s}`).join('\n')}`;
-  }
-
-  private pruneNameVerificationSection(
-    summary: string,
-    headingTranslations: Record<string, Record<LanguageCode, string>>,
-    languageCode: LanguageCode
-  ): string {
-    const heading = headingTranslations['Name Verification Notes']?.[languageCode] || 'Name Verification';
-    const allLines = summary.split('\n');
-    const headingRegex = new RegExp(`^${this.escapeRegExp(heading)}:\\s*$`, 'i');
-    const anyHeadingRegex = /^.+:\s*$/;
-    const noIssueRegex = /^(none|none\ reported|none\ identified|n\/a|na|all (names|medication names) (appear )?(valid|correct|clear)|no spelling issues?|no verification issues?)\.?$/i;
-
-    const result: string[] = [];
-    for (let i = 0; i < allLines.length; i += 1) {
-      const line = allLines[i] ?? '';
-      if (!headingRegex.test(line.trim())) {
-        result.push(line);
-        continue;
-      }
-
-      const sectionLines: string[] = [];
-      let j = i + 1;
-      while (j < allLines.length) {
-        const next = allLines[j] ?? '';
-        const trimmed = next.trim();
-        if (trimmed && anyHeadingRegex.test(trimmed)) break;
-        sectionLines.push(next);
-        j += 1;
-      }
-
-      const bullets = sectionLines
-        .map((l) => l.trim())
-        .filter((l) => l.startsWith('-'))
-        .map((l) => l.replace(/^-+\s*/, '').trim())
-        .filter(Boolean);
-
-      const hasMeaningfulIssue = bullets.some((b) => !noIssueRegex.test(b));
-      if (hasMeaningfulIssue) {
-        result.push(line, ...sectionLines);
-      }
-
-      i = j - 1;
-    }
-
-    return result.join('\n').replace(/\n{3,}/g, '\n\n').trim();
-  }
-
-  private escapeRegExp(value: string): string {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 }
 
