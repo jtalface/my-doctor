@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { api, Conversation } from '../services/api';
 import { useActiveProfile } from '../contexts';
 import { useTranslate } from '../i18n';
@@ -18,6 +18,7 @@ import {
 import styles from './MessagesPage.module.css';
 
 export function MessagesPage() {
+  const navigate = useNavigate();
   const t = useTranslate();
   const { activeProfile, isViewingDependent } = useActiveProfile();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -83,34 +84,21 @@ export function MessagesPage() {
     setSelectedConversation(null);
   };
 
-  // Render header
-  const renderHeader = () => (
-    <header className={styles.header}>
-      <div className={styles.headerLeft}>
-        <Link to="/dashboard" className={styles.backButton}>←</Link>
-        <h1 className={styles.title}>{t('messages_title')}</h1>
-      </div>
-      <div className={styles.headerRight} />
-    </header>
-  );
-
   // Mobile view: show either list or chat
   if (isMobileView) {
     return (
       <div className={styles.container}>
         {!selectedConversation ? (
-          <>
-            {renderHeader()}
-            <main className={styles.main}>
-              <ConversationList
-                conversations={conversations}
-                selectedId={undefined}
-                onSelect={handleSelectConversation}
-                onNewConversation={() => setIsModalOpen(true)}
-                isLoading={isLoading}
-              />
-            </main>
-          </>
+          <main className={styles.main}>
+            <ConversationList
+              conversations={conversations}
+              selectedId={undefined}
+              onSelect={handleSelectConversation}
+              onNewConversation={() => setIsModalOpen(true)}
+              onBack={() => navigate('/dashboard')}
+              isLoading={isLoading}
+            />
+          </main>
         ) : (
           <ChatWindow
             conversation={selectedConversation}
@@ -131,8 +119,6 @@ export function MessagesPage() {
   // Desktop view: split view
   return (
     <div className={styles.container}>
-      {renderHeader()}
-      
       <main className={styles.main}>
         <div className={styles.splitView}>
           <aside className={styles.sidebar}>
@@ -141,6 +127,7 @@ export function MessagesPage() {
               selectedId={selectedConversation?._id}
               onSelect={handleSelectConversation}
               onNewConversation={() => setIsModalOpen(true)}
+              onBack={() => navigate('/dashboard')}
               isLoading={isLoading}
             />
           </aside>

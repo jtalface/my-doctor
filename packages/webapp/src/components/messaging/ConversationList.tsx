@@ -13,6 +13,7 @@ interface ConversationListProps {
   selectedId?: string;
   onSelect: (conversation: Conversation) => void;
   onNewConversation: () => void;
+  onBack?: () => void;
   isLoading?: boolean;
 }
 
@@ -21,6 +22,7 @@ export function ConversationList({
   selectedId,
   onSelect,
   onNewConversation,
+  onBack,
   isLoading,
 }: ConversationListProps) {
   const t = useTranslate();
@@ -46,7 +48,18 @@ export function ConversationList({
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2 className={styles.title}>{t('messages_title')}</h2>
+          <div className={styles.headerLeft}>
+            {onBack && (
+              <button
+                className={styles.backButton}
+                onClick={onBack}
+                aria-label={t('common_back')}
+              >
+                ←
+              </button>
+            )}
+            <h2 className={styles.title}>{t('messages_title')}</h2>
+          </div>
           <button className={styles.newButton} disabled>+</button>
         </div>
         <div className={styles.loadingState}>
@@ -59,7 +72,18 @@ export function ConversationList({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2 className={styles.title}>{t('messages_title')}</h2>
+        <div className={styles.headerLeft}>
+          {onBack && (
+            <button
+              className={styles.backButton}
+              onClick={onBack}
+              aria-label={t('common_back')}
+            >
+              ←
+            </button>
+          )}
+          <h2 className={styles.title}>{t('messages_title')}</h2>
+        </div>
         <button 
           className={styles.newButton} 
           onClick={onNewConversation}

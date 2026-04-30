@@ -1745,7 +1745,7 @@ export const translations = {
     dashboard_patient_label: 'Paciente',
     dashboard_status_completed: 'Concluído',
     dashboard_status_abandoned: 'Abandonado',
-    dashboard_status_in_progress: 'Em Andamento',
+    dashboard_status_in_progress: 'Em Curso',
     
     // Profile Setup
     profile_setup_welcome: 'Bem-vindo',
@@ -1865,7 +1865,7 @@ export const translations = {
     history_empty_desc: 'Seu histórico de consultas de saúde aparecerá aqui',
     history_empty_button: 'Iniciar Sua Primeira Consulta',
     history_status_completed: 'Concluído',
-    history_status_in_progress: 'Em Andamento',
+    history_status_in_progress: 'Em Curso',
     history_status_abandoned: 'Abandonado',
     history_duration: 'Duração',
     history_red_flags_count: 'sinal(is) de alerta',
