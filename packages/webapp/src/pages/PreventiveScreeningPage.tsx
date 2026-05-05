@@ -84,6 +84,7 @@ function ScreeningSection({
   markCompletedLabel,
   learnMoreLabel,
   setReminderLabel,
+  singleColumnCards,
 }: {
   title: string;
   items: PreventiveScheduleItem[];
@@ -92,12 +93,14 @@ function ScreeningSection({
   markCompletedLabel: string;
   learnMoreLabel: string;
   setReminderLabel: string;
+  /** One card per row (e.g. up-to-date list). */
+  singleColumnCards?: boolean;
 }) {
   if (!items.length) return null;
   return (
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>{title}</h2>
-      <div className={styles.cards}>
+      <div className={`${styles.cards} ${singleColumnCards ? styles.cardsSingleColumn : ''}`}>
         {items.map((item) => (
           <article key={item.code} className={styles.card}>
             <h3 className={styles.cardTitle}>{item.name}</h3>
@@ -150,6 +153,8 @@ export function PreventiveScreeningPage() {
   const [familyAddValue, setFamilyAddValue] = useState('');
   const [heightInput, setHeightInput] = useState('');
   const [weightInput, setWeightInput] = useState('');
+  /** After a successful save, the profile form collapses into a compact header; user can expand to edit. */
+  const [profileFormCollapsed, setProfileFormCollapsed] = useState(false);
 
   const t = useMemo(() => (key: Parameters<typeof getPreventiveText>[1]) => getPreventiveText(language, key), [language]);
   const screeningLabelMap = useMemo(
@@ -281,6 +286,7 @@ export function PreventiveScreeningPage() {
       );
       const nextSchedule = await api.getPreventiveSchedule(user.id);
       setSchedule(nextSchedule);
+      setProfileFormCollapsed(true);
     } finally {
       setIsSaving(false);
     }
@@ -320,26 +326,119 @@ export function PreventiveScreeningPage() {
 
       <div className={styles.main}>
         <p className={styles.pageLead}>{t('subtitle')}</p>
-      <form className={styles.form} onSubmit={submitProfile}>
-        <h2>{t('onboardingTitle')}</h2>
+      <section className={styles.onboarding} aria-labelledby="preventive-onboarding-title">
+        <div className={styles.onboardingShell} data-collapsed={profileFormCollapsed ? 'true' : 'false'}>
+          <div className={styles.onboardingHeader}>
+            <h2 id="preventive-onboarding-title" className={styles.onboardingHeading}>
+              {t('onboardingTitle')}
+            </h2>
+            {profileFormCollapsed && (
+              <button
+                type="button"
+                className={styles.onboardingExpandBtn}
+                onClick={() => setProfileFormCollapsed(false)}
+              >
+                {t('editPreventiveProfile')}
+              </button>
+            )}
+          </div>
+          <div
+            className={styles.onboardingPanel}
+            data-collapsed={profileFormCollapsed ? 'true' : 'false'}
+            id="preventive-onboarding-panel"
+            aria-hidden={profileFormCollapsed}
+            inert={profileFormCollapsed ? true : undefined}
+          >
+            <div className={styles.onboardingPanelInner}>
+      <form className={`${styles.form} ${styles.formOnboarding}`} onSubmit={submitProfile}>
         {profile.sexAtBirth === 'female' && (
-          <label>
-            {t('pregnancyStatus')}
-            <select value={profile.pregnancyStatus || 'unknown'} onChange={(e) => setProfile((p) => ({ ...p, pregnancyStatus: e.target.value as PreventiveProfile['pregnancyStatus'] }))}>
-              <option value="unknown">{t('preg_unknown')}</option>
-              <option value="yes">{t('preg_yes')}</option>
-              <option value="no">{t('preg_no')}</option>
-            </select>
-          </label>
+          <div
+            className={styles.ynRow}
+            role="radiogroup"
+            aria-labelledby="preventive-pregnancy-label"
+          >
+            <span id="preventive-pregnancy-label" className={styles.ynQuestion}>
+              {t('pregnancyStatus')}
+            </span>
+            <label className={styles.ynChoice}>
+              <input
+                type="radio"
+                name="preventive-pregnancy"
+                checked={profile.pregnancyStatus === 'yes'}
+                onChange={() => setProfile((p) => ({ ...p, pregnancyStatus: 'yes' }))}
+              />
+              <span className={styles.ynChoiceInner}>
+                <span className={styles.ynChoiceLabel}>{t('answer_yes')}</span>
+                {profile.pregnancyStatus === 'yes' ? (
+                  <span className={styles.ynMark} aria-hidden>
+                    ✓
+                  </span>
+                ) : (
+                  <span className={styles.ynMarkPlaceholder} aria-hidden />
+                )}
+              </span>
+            </label>
+            <label className={styles.ynChoice}>
+              <input
+                type="radio"
+                name="preventive-pregnancy"
+                checked={profile.pregnancyStatus === 'no'}
+                onChange={() => setProfile((p) => ({ ...p, pregnancyStatus: 'no' }))}
+              />
+              <span className={styles.ynChoiceInner}>
+                <span className={styles.ynChoiceLabel}>{t('answer_no')}</span>
+                {profile.pregnancyStatus === 'no' ? (
+                  <span className={styles.ynMark} aria-hidden>
+                    ✓
+                  </span>
+                ) : (
+                  <span className={styles.ynMarkPlaceholder} aria-hidden />
+                )}
+              </span>
+            </label>
+          </div>
         )}
-        <label>
-          {t('smokingStatus')}
-          <select value={profile.smokingStatus || 'never'} onChange={(e) => setProfile((p) => ({ ...p, smokingStatus: e.target.value as PreventiveProfile['smokingStatus'] }))}>
-            <option value="never">{t('smoking_never')}</option>
-            <option value="former">{t('smoking_former')}</option>
-            <option value="current">{t('smoking_current')}</option>
-          </select>
-        </label>
+        <div className={styles.ynRow} role="radiogroup" aria-labelledby="preventive-smoking-label">
+          <span id="preventive-smoking-label" className={styles.ynQuestion}>
+            {t('smokingStatus')}
+          </span>
+          <label className={styles.ynChoice}>
+            <input
+              type="radio"
+              name="preventive-smoking"
+              checked={profile.smokingStatus === 'current'}
+              onChange={() => setProfile((p) => ({ ...p, smokingStatus: 'current' }))}
+            />
+            <span className={styles.ynChoiceInner}>
+              <span className={styles.ynChoiceLabel}>{t('answer_yes')}</span>
+              {profile.smokingStatus === 'current' ? (
+                <span className={styles.ynMark} aria-hidden>
+                  ✓
+                </span>
+              ) : (
+                <span className={styles.ynMarkPlaceholder} aria-hidden />
+              )}
+            </span>
+          </label>
+          <label className={styles.ynChoice}>
+            <input
+              type="radio"
+              name="preventive-smoking"
+              checked={profile.smokingStatus === 'never' || profile.smokingStatus === 'former'}
+              onChange={() => setProfile((p) => ({ ...p, smokingStatus: 'never' }))}
+            />
+            <span className={styles.ynChoiceInner}>
+              <span className={styles.ynChoiceLabel}>{t('answer_no')}</span>
+              {profile.smokingStatus === 'never' || profile.smokingStatus === 'former' ? (
+                <span className={styles.ynMark} aria-hidden>
+                  ✓
+                </span>
+              ) : (
+                <span className={styles.ynMarkPlaceholder} aria-hidden />
+              )}
+            </span>
+          </label>
+        </div>
         <label>
           {t('chronicConditions')}
           <select
@@ -545,6 +644,10 @@ export function PreventiveScreeningPage() {
 
         <button type="submit" disabled={isSaving}>{t('saveProfile')}</button>
       </form>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {schedule && (
         <div className={styles.dashboard}>
@@ -569,6 +672,7 @@ export function PreventiveScreeningPage() {
           <ScreeningSection
             title={t('upToDate')}
             items={schedule.upToDate}
+            singleColumnCards
             onMarkCompleted={handleMarkCompleted}
             onSetReminder={handleSetReminder}
             markCompletedLabel={t('markCompleted')}
