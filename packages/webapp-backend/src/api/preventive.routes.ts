@@ -251,6 +251,28 @@ router.post('/completion', async (req, res) => {
   }
 });
 
+router.delete('/completion/:patientId', async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const { patientId } = req.params;
+    if (!canAccessPatient(authReq, patientId)) return res.status(403).json({ error: 'Forbidden' });
+
+    const screeningCode = req.query.screeningCode;
+    const filter: { patientId: string; screeningCode?: ScreeningCode } = { patientId };
+    if (typeof screeningCode === 'string' && screeningCode.length > 0) {
+      if (!(completionSchema.shape.screeningCode.options as readonly string[]).includes(screeningCode)) {
+        return res.status(400).json({ error: 'Invalid screening code' });
+      }
+      filter.screeningCode = screeningCode as ScreeningCode;
+    }
+
+    const result = await ScreeningCompletion.deleteMany(filter);
+    res.json({ deletedCount: result.deletedCount || 0 });
+  } catch {
+    res.status(500).json({ error: 'Failed to reset screening completion history' });
+  }
+});
+
 router.post('/reminder', async (req, res) => {
   try {
     const authReq = req as AuthenticatedRequest;

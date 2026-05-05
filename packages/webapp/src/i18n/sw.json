@@ -80,6 +80,15 @@
   "markCompleted": "Weka kuwa imekamilika",
   "learnMore": "Jifunze zaidi",
   "setReminder": "Weka ukumbusho",
+  "resetCompletions": "Weka upya historia ya vipimo",
+  "resetCompletionsBusy": "Inaweka upya…",
+  "resetCompletionsConfirm": "Weka upya vipimo vyote vilivyorekodiwa? Hii itaondoa vipengee kutoka Imesasishwa na kufuta tarehe za Vipimo vijavyo.",
   "timeline": "Vipimo vijavyo",
-  "disclaimer": "Taarifa hizi hazibadilishi tathmini ya mtaalamu wa afya."
+  "disclaimer": "Taarifa hizi hazibadilishi tathmini ya mtaalamu wa afya.",
+  "remindersTitle": "Vikumbusho",
+  "remindersEmpty": "Hakuna vikumbusho vinavyoendelea.",
+  "reminderRemove": "Ondoa",
+  "reminderSetSuccess": "Kikumbusho kimewekwa kwa siku 7 zijazo.",
+  "reminderRemovedSuccess": "Kikumbusho kimeondolewa.",
+  "reminderComingSoon": "Inakuja hivi karibuni"
 }

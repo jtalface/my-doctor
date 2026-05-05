@@ -83,8 +83,10 @@ function ScreeningSection({
   onSetReminder,
   markCompletedLabel,
   learnMoreLabel,
+  closeLabel,
   setReminderLabel,
   singleColumnCards,
+  showActions = true,
 }: {
   title: string;
   items: PreventiveScheduleItem[];
@@ -92,11 +94,30 @@ function ScreeningSection({
   onSetReminder: (code: string) => void;
   markCompletedLabel: string;
   learnMoreLabel: string;
+  closeLabel: string;
   setReminderLabel: string;
   /** One card per row (e.g. up-to-date list). */
   singleColumnCards?: boolean;
+  /** Whether action buttons are shown for this section. */
+  showActions?: boolean;
 }) {
+  const [learnMoreItem, setLearnMoreItem] = useState<PreventiveScheduleItem | null>(null);
   if (!items.length) return null;
+  const learnMoreSections = learnMoreItem
+    ? learnMoreItem.learnMore
+        .split(/\n{2,}/)
+        .map((block) => block.trim())
+        .filter(Boolean)
+        .map((block) => {
+          if (!block.startsWith('## ')) return { heading: '', body: block };
+          const [headingLine, ...rest] = block.split('\n');
+          return {
+            heading: headingLine.replace(/^##\s+/, '').trim(),
+            body: rest.join('\n').trim(),
+          };
+        })
+    : [];
+
   return (
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>{title}</h2>
@@ -105,19 +126,58 @@ function ScreeningSection({
           <article key={item.code} className={styles.card}>
             <h3 className={styles.cardTitle}>{item.name}</h3>
             <p className={styles.interval}>{item.intervalLabel}</p>
-            <p>{item.whyItMatters}</p>
-            <p className={styles.risk}>{item.riskNote}</p>
-            <details>
-              <summary>{learnMoreLabel}</summary>
-              <p>{item.learnMore}</p>
-            </details>
-            <div className={styles.actions}>
-              <button onClick={() => onMarkCompleted(item.code)}>{markCompletedLabel}</button>
-              <button onClick={() => onSetReminder(item.code)}>{setReminderLabel}</button>
-            </div>
+            <p className={styles.cardSummary}>{item.whyItMatters}</p>
+            <button
+              type="button"
+              className={styles.learnMoreLink}
+              onClick={() => setLearnMoreItem(item)}
+            >
+              {learnMoreLabel}
+            </button>
+            {showActions ? (
+              <div className={styles.actions}>
+                <button onClick={() => onMarkCompleted(item.code)}>{markCompletedLabel}</button>
+                <button type="button" disabled aria-disabled="true">
+                  {setReminderLabel}
+                </button>
+              </div>
+            ) : null}
           </article>
         ))}
       </div>
+      {learnMoreItem ? (
+        <div
+          className={styles.learnMoreOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`learn-more-title-${learnMoreItem.code}`}
+          onClick={() => setLearnMoreItem(null)}
+        >
+          <div className={styles.learnMoreDialog} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.learnMoreHeader}>
+              <h3 id={`learn-more-title-${learnMoreItem.code}`} className={styles.cardTitle}>
+                {learnMoreItem.name}
+              </h3>
+              <button
+                type="button"
+                className={styles.learnMoreClose}
+                aria-label={closeLabel}
+                onClick={() => setLearnMoreItem(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles.learnMoreContent}>
+              {learnMoreSections.map((section, idx) => (
+                <section key={`${learnMoreItem.code}-section-${idx}`} className={styles.learnMoreSection}>
+                  {section.heading ? <h4 className={styles.learnMoreSectionTitle}>{section.heading}</h4> : null}
+                  {section.body ? <p className={styles.learnMoreSectionBody}>{section.body}</p> : null}
+                </section>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -149,6 +209,9 @@ export function PreventiveScreeningPage() {
   const [neverDoneByScreening, setNeverDoneByScreening] = useState<Record<string, boolean>>({});
   const [schedule, setSchedule] = useState<Awaited<ReturnType<typeof api.getPreventiveSchedule>> | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isResettingCompletions, setIsResettingCompletions] = useState(false);
+  const [reminderFeedback, setReminderFeedback] = useState<string | null>(null);
+  const [reminderActionId, setReminderActionId] = useState<string | null>(null);
   const [chronicAddValue, setChronicAddValue] = useState('');
   const [familyAddValue, setFamilyAddValue] = useState('');
   const [heightInput, setHeightInput] = useState('');
@@ -313,6 +376,37 @@ export function PreventiveScreeningPage() {
       channel: 'in_app',
     });
     setSchedule(await api.getPreventiveSchedule(user.id));
+    setReminderFeedback(t('reminderSetSuccess'));
+    window.setTimeout(() => setReminderFeedback(null), 2500);
+  };
+
+  const handleDisableReminder = async (reminderId: string) => {
+    if (!user?.id || reminderActionId) return;
+    setReminderActionId(reminderId);
+    try {
+      await api.updateScreeningReminder(reminderId, { enabled: false });
+      setSchedule(await api.getPreventiveSchedule(user.id));
+      setReminderFeedback(t('reminderRemovedSuccess'));
+      window.setTimeout(() => setReminderFeedback(null), 2500);
+    } finally {
+      setReminderActionId(null);
+    }
+  };
+
+  const handleResetCompletions = async () => {
+    if (!user?.id || isResettingCompletions) return;
+    const confirmed = window.confirm(t('resetCompletionsConfirm'));
+    if (!confirmed) return;
+
+    setIsResettingCompletions(true);
+    try {
+      await api.resetScreeningCompletions(user.id);
+      setCompletions({});
+      setNeverDoneByScreening({});
+      setSchedule(await api.getPreventiveSchedule(user.id));
+    } finally {
+      setIsResettingCompletions(false);
+    }
   };
 
   return (
@@ -640,6 +734,16 @@ export function PreventiveScreeningPage() {
               );
             })}
           </div>
+          <div className={styles.completionActions}>
+            <button
+              type="button"
+              className={styles.resetCompletionsButton}
+              onClick={handleResetCompletions}
+              disabled={isResettingCompletions}
+            >
+              {isResettingCompletions ? t('resetCompletionsBusy') : t('resetCompletions')}
+            </button>
+          </div>
         </fieldset>
 
         <button type="submit" disabled={isSaving}>{t('saveProfile')}</button>
@@ -654,10 +758,12 @@ export function PreventiveScreeningPage() {
           <ScreeningSection
             title={t('dueNow')}
             items={schedule.dueNow}
+            singleColumnCards
             onMarkCompleted={handleMarkCompleted}
             onSetReminder={handleSetReminder}
             markCompletedLabel={t('markCompleted')}
             learnMoreLabel={t('learnMore')}
+            closeLabel={tNav('common_close')}
             setReminderLabel={t('setReminder')}
           />
           <ScreeningSection
@@ -667,25 +773,30 @@ export function PreventiveScreeningPage() {
             onSetReminder={handleSetReminder}
             markCompletedLabel={t('markCompleted')}
             learnMoreLabel={t('learnMore')}
+            closeLabel={tNav('common_close')}
             setReminderLabel={t('setReminder')}
           />
           <ScreeningSection
             title={t('upToDate')}
             items={schedule.upToDate}
             singleColumnCards
+            showActions={false}
             onMarkCompleted={handleMarkCompleted}
             onSetReminder={handleSetReminder}
             markCompletedLabel={t('markCompleted')}
             learnMoreLabel={t('learnMore')}
+            closeLabel={tNav('common_close')}
             setReminderLabel={t('setReminder')}
           />
           <ScreeningSection
             title={t('discuss')}
             items={schedule.discussWithClinician}
+            showActions={false}
             onMarkCompleted={handleMarkCompleted}
             onSetReminder={handleSetReminder}
             markCompletedLabel={t('markCompleted')}
             learnMoreLabel={t('learnMore')}
+            closeLabel={tNav('common_close')}
             setReminderLabel={t('setReminder')}
           />
 
@@ -698,6 +809,37 @@ export function PreventiveScreeningPage() {
                 </li>
               ))}
             </ul>
+          </section>
+
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>{t('remindersTitle')}</h2>
+            {reminderFeedback ? (
+              <p className={styles.reminderFeedback} role="status" aria-live="polite">
+                {reminderFeedback}
+              </p>
+            ) : null}
+            {schedule.reminders.length ? (
+              <ul className={styles.reminderList}>
+                {schedule.reminders.map((reminder) => (
+                  <li key={reminder._id} className={styles.reminderItem}>
+                    <span className={styles.reminderItemText}>
+                      {screeningLabelMap[reminder.screeningCode as keyof typeof screeningLabelMap]} -{' '}
+                      {new Date(reminder.remindAt).toLocaleDateString()}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.reminderRemoveButton}
+                      disabled={reminderActionId === reminder._id}
+                      onClick={() => handleDisableReminder(reminder._id)}
+                    >
+                      {t('reminderRemove')}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.reminderEmpty}>{t('remindersEmpty')}</p>
+            )}
           </section>
 
           <p className={styles.disclaimer}>{schedule.disclaimer || t('disclaimer')}</p>

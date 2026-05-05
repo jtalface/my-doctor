@@ -80,6 +80,15 @@
   "markCompleted": "Mark as completed",
   "learnMore": "Learn more",
   "setReminder": "Set reminder",
+  "resetCompletions": "Reset completion history",
+  "resetCompletionsBusy": "Resetting…",
+  "resetCompletionsConfirm": "Reset all recorded screening completions? This will move items out of Up to date and clear Upcoming screenings dates.",
   "timeline": "Upcoming screenings",
-  "disclaimer": "This information does not replace evaluation by a healthcare professional."
+  "disclaimer": "This information does not replace evaluation by a healthcare professional.",
+  "remindersTitle": "Reminders",
+  "remindersEmpty": "No active reminders.",
+  "reminderRemove": "Remove",
+  "reminderSetSuccess": "Reminder set for 7 days from now.",
+  "reminderRemovedSuccess": "Reminder removed.",
+  "reminderComingSoon": "Coming soon"
 }

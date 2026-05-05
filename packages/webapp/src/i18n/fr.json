@@ -80,6 +80,15 @@
   "markCompleted": "Marquer comme réalisé",
   "learnMore": "En savoir plus",
   "setReminder": "Définir un rappel",
+  "resetCompletions": "Réinitialiser l'historique des examens",
+  "resetCompletionsBusy": "Réinitialisation…",
+  "resetCompletionsConfirm": "Réinitialiser tous les examens enregistrés ? Cela retirera les éléments de À jour et effacera les dates des dépistages à venir.",
   "timeline": "Dépistages à venir",
-  "disclaimer": "Ces informations ne remplacent pas l'évaluation par un professionnel de santé."
+  "disclaimer": "Ces informations ne remplacent pas l'évaluation par un professionnel de santé.",
+  "remindersTitle": "Rappels",
+  "remindersEmpty": "Aucun rappel actif.",
+  "reminderRemove": "Supprimer",
+  "reminderSetSuccess": "Rappel défini pour dans 7 jours.",
+  "reminderRemovedSuccess": "Rappel supprimé.",
+  "reminderComingSoon": "Bientôt disponible"
 }

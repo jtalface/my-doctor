@@ -1061,6 +1061,13 @@ class ApiClient {
     });
   }
 
+  async resetScreeningCompletions(patientId: string, screeningCode?: string) {
+    const params = screeningCode ? `?screeningCode=${encodeURIComponent(screeningCode)}` : '';
+    return this.authRequest<{ deletedCount: number }>(`/api/preventive/completion/${patientId}${params}`, {
+      method: 'DELETE',
+    });
+  }
+
   async createScreeningReminder(payload: {
     patientId: string;
     screeningCode: string;

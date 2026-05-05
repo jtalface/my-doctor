@@ -475,6 +475,27 @@
   cursor: not-allowed;
 }
 
+.completionActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-3);
+}
+
+.form button.resetCompletionsButton {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.form button.resetCompletionsButton:hover {
+  background: var(--bg-primary);
+}
+
+.form button.resetCompletionsButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 540px) {
   .completionHeader,
   .completionRow {
@@ -565,15 +586,99 @@
   color: var(--text-secondary);
 }
 
-.card details {
-  margin-top: var(--space-2);
-  font-size: var(--font-size-sm);
+.cardSummary {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.card details summary {
+.learnMoreLink {
+  border: 0;
+  background: transparent;
+  color: var(--color-primary-700, #1d4ed8);
   cursor: pointer;
+  padding: 0;
+  margin-top: var(--space-2);
+  text-align: left;
+  font-size: var(--font-size-sm);
+  text-decoration: underline;
+}
+
+.learnMoreOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  z-index: var(--z-modal, 300);
+}
+
+.learnMoreDialog {
+  width: min(36rem, 100%);
+  max-height: min(80vh, 40rem);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  box-shadow: 0 14px 34px rgb(15 23 42 / 0.22);
+}
+
+.learnMoreHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.learnMoreClose {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.learnMoreContent {
+  padding: var(--space-4);
+  max-height: min(64vh, 32rem);
+  overflow: auto;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.learnMoreSection {
+  display: grid;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.learnMoreSection:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.learnMoreSectionTitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
-  font-weight: var(--font-weight-medium);
+}
+
+.learnMoreSectionBody {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  white-space: pre-line;
 }
 
 .interval {
@@ -608,12 +713,67 @@
   padding-top: 0;
 }
 
+.reminderFeedback {
+  margin: 0 0 var(--space-3);
+  color: var(--color-primary-700, #1d4ed8);
+  font-size: var(--font-size-sm);
+}
+
+.reminderList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.reminderItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.reminderItemText {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+.reminderRemoveButton {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.reminderRemoveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.reminderEmpty {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
 .risk {
   color: var(--text-secondary);
 }
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-2);
 }
@@ -626,6 +786,13 @@
   cursor: pointer;
   background: var(--color-primary-600);
   color: white;
+}
+
+.actions button:disabled {
+  background: #9ca3af;
+  color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 1;
 }
 
 .form button.chronicChipRemove {
@@ -646,5 +813,6 @@
 
 .disclaimer {
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
+  font-style: italic;
 }

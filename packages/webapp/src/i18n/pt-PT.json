@@ -79,7 +79,16 @@
   "discuss": "Fale com um profissional de saúde",
   "markCompleted": "Marcar como concluído",
   "learnMore": "Saber mais",
-  "setReminder": "Definir lembrete",
+  "setReminder": "Criar lembrete",
+  "resetCompletions": "Repor histórico de exames",
+  "resetCompletionsBusy": "A repor…",
+  "resetCompletionsConfirm": "Repor todos os exames registados? Isto vai remover itens de Atualizado e limpar as datas de Próximos rastreios.",
   "timeline": "Próximos rastreios",
-  "disclaimer": "Esta informação não substitui a avaliação por um profissional de saúde."
+  "disclaimer": "Esta informação não substitui a avaliação por um profissional de saúde.",
+  "remindersTitle": "Lembretes",
+  "remindersEmpty": "Sem lembretes ativos.",
+  "reminderRemove": "Remover",
+  "reminderSetSuccess": "Lembrete definido para daqui a 7 dias.",
+  "reminderRemovedSuccess": "Lembrete removido.",
+  "reminderComingSoon": "Em breve"
 }
