@@ -293,6 +293,57 @@ export interface Message {
   isDeleted?: boolean;
 }
 
+export interface PreventiveProfile {
+  patientId: string;
+  dateOfBirth?: string;
+  age?: number;
+  sexAtBirth: 'male' | 'female' | 'other';
+  genderContext?: string;
+  country?: string;
+  region?: string;
+  pregnancyStatus?: 'yes' | 'no' | 'unknown';
+  smokingStatus?: 'never' | 'former' | 'current';
+  heightCm?: number | null;
+  weightKg?: number | null;
+  bmi?: number | null;
+  weightCategory?: 'underweight' | 'normal' | 'overweight' | 'obesity' | null;
+  chronicConditions?: string[];
+  familyHistory?: string[];
+  riskFactors?: {
+    smoker?: boolean;
+    overweightOrObesity?: boolean;
+    hypertension?: boolean;
+    diabetesOrPrediabetes?: boolean;
+    familyHistoryCancer?: boolean;
+    familyHistoryCardiovascular?: boolean;
+  };
+  language?: 'pt' | 'en' | 'fr' | 'sw';
+}
+
+export interface PreventiveScheduleItem {
+  code: string;
+  name: string;
+  intervalLabel: string;
+  whyItMatters: string;
+  dueStatus: 'due_now' | 'due_soon' | 'up_to_date' | 'discuss_with_clinician';
+  riskNote: string;
+  recommendBy: string | null;
+  learnMore: string;
+  lastCompletedAt: string | null;
+}
+
+export interface PreventiveSchedule {
+  language: string;
+  generatedAt: string;
+  disclaimer: string;
+  dueNow: PreventiveScheduleItem[];
+  dueSoon: PreventiveScheduleItem[];
+  upToDate: PreventiveScheduleItem[];
+  discussWithClinician: PreventiveScheduleItem[];
+  upcomingTimeline: Array<{ screeningCode: string; screeningName: string; recommendBy: string | null }>;
+  reminders: Array<{ _id: string; screeningCode: string; remindAt: string; channel: 'in_app' | 'email'; enabled: boolean }>;
+}
+
 // API Client class
 class ApiClient {
   private baseUrl: string;
@@ -975,6 +1026,68 @@ class ApiClient {
   async markCallFallback(callId: string): Promise<{ success: boolean }> {
     return this.authRequest(`/api/calls/${callId}/fallback`, {
       method: 'POST',
+    });
+  }
+
+  // ==========================================
+  // PREVENTIVE SCREENING ENDPOINTS (PROTECTED)
+  // ==========================================
+  async createPreventiveProfile(payload: PreventiveProfile): Promise<PreventiveProfile> {
+    return this.authRequest('/api/preventive/profile', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getPreventiveProfile(patientId: string): Promise<PreventiveProfile> {
+    return this.authRequest(`/api/preventive/profile/${patientId}`);
+  }
+
+  async updatePreventiveProfile(patientId: string, payload: Partial<PreventiveProfile>): Promise<PreventiveProfile> {
+    return this.authRequest(`/api/preventive/profile/${patientId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getPreventiveSchedule(patientId: string): Promise<PreventiveSchedule> {
+    return this.authRequest(`/api/preventive/schedule/${patientId}`);
+  }
+
+  async markScreeningCompleted(payload: { patientId: string; screeningCode: string; completedAt: string; notes?: string }) {
+    return this.authRequest('/api/preventive/completion', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async createScreeningReminder(payload: {
+    patientId: string;
+    screeningCode: string;
+    remindAt: string;
+    channel?: 'in_app' | 'email';
+    enabled?: boolean;
+  }) {
+    return this.authRequest('/api/preventive/reminder', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateScreeningReminder(
+    reminderId: string,
+    payload: Partial<{ remindAt: string; channel: 'in_app' | 'email'; enabled: boolean; screeningCode: string }>
+  ) {
+    return this.authRequest(`/api/preventive/reminder/${reminderId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateLanguagePreference(language: 'pt' | 'en' | 'fr' | 'sw') {
+    return this.authRequest('/api/user/preferences/language', {
+      method: 'PUT',
+      body: JSON.stringify({ language }),
     });
   }
 }

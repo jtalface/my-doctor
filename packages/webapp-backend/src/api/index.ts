@@ -6,3 +6,4 @@ export { vaccinationRoutes } from './vaccination.routes.js';
 export { default as cycleRoutes } from './cycle.routes.js';
 export { default as glucoseRoutes } from './glucose.routes.js';
 export { default as bpRoutes } from './bp.routes.js';
+export { default as preventiveRoutes } from './preventive.routes.js';

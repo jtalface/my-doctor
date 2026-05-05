@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx",
-    "clean": "rm -rf dist node_modules/.vite",
+    "clean": "rm -rf dist node_modules/.vite coverage",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",

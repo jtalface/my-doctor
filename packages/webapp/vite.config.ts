@@ -10,7 +10,13 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icons/*.svg'],
       manifest: false, // We're using our own manifest.json in public/
+      // Avoid registering the service worker during `vite` dev — otherwise precached
+      // chunks can show stale UI/strings until the browser cache is cleared.
+      devOptions: {
+        enabled: false,
+      },
       workbox: {
+        cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {

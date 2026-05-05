@@ -12,5 +12,6 @@ export { RedFlagAlertPage } from './RedFlagAlertPage';
 export { HealthHistoryPage } from './HealthHistoryPage';
 export { ProfilePage } from './ProfilePage';
 export { SettingsPage } from './SettingsPage';
+export { PreventiveScreeningPage } from './PreventiveScreeningPage';
 export { NotFoundPage } from './NotFoundPage';
 

@@ -2,10 +2,12 @@ import { Router, Request, Response } from 'express';
 import type { Router as RouterType } from 'express';
 import { User } from '../models/user.model.js';
 import { PatientProfile } from '../models/patient-profile.model.js';
+import { UserPreferences } from '../models/user-preferences.model.js';
 import mongoose from 'mongoose';
 import { AuthenticatedRequest } from '../auth/auth.types.js';
 
 const router: RouterType = Router();
+const SUPPORTED_LANGUAGES = new Set(['pt', 'en', 'fr', 'sw']);
 
 /**
  * All routes in this file require authentication.
@@ -164,6 +166,50 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.status(500).json({ 
       error: 'Failed to update user',
       details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// PUT /api/user/preferences/language - Update user language preference
+router.put('/preferences/language', async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.userId;
+    const { language } = req.body as { language?: string };
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    if (!language || !SUPPORTED_LANGUAGES.has(language)) {
+      return res.status(400).json({ error: 'Invalid language code' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: { 'preferences.language': language } },
+      { new: true }
+    );
+
+    await UserPreferences.findOneAndUpdate(
+      { userId },
+      { $set: { userId, language } },
+      { upsert: true, new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      language,
+      preferences: user.preferences,
+    });
+  } catch (error) {
+    console.error('[API] Error updating language preference:', error);
+    res.status(500).json({
+      error: 'Failed to update language preference',
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });

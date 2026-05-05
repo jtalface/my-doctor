@@ -20,6 +20,7 @@ import { HealthHistoryPage } from '@pages/HealthHistoryPage';
 import { ProfilePage } from '@pages/ProfilePage';
 import { SettingsPage } from '@pages/SettingsPage';
 import { MessagesPage } from '@pages/MessagesPage';
+import { PreventiveScreeningPage } from '@pages/PreventiveScreeningPage';
 import { NotFoundPage } from '@pages/NotFoundPage';
 
 // Cycle Tracker - Lazy loaded for code splitting (female-only feature)
@@ -138,6 +139,11 @@ function App() {
               <Route path="/settings" element={
                 <ProtectedRoute>
                   <SettingsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/preventive" element={
+                <ProtectedRoute>
+                  <PreventiveScreeningPage />
                 </ProtectedRoute>
               } />
               <Route path="/dependent/:id/profile/setup" element={

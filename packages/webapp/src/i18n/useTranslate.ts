@@ -26,9 +26,12 @@ import { DEFAULT_LANGUAGE, type LanguageCode } from '../config/languages';
  */
 export function useTranslate(languageOverride?: LanguageCode) {
   const { user } = useAuth();
+  const localLanguage = (typeof window !== 'undefined'
+    ? window.localStorage.getItem('mydoctor_language')
+    : null) as LanguageCode | null;
   
   // Use override if provided (for LoginPage), otherwise use user preference
-  const language = languageOverride || (user?.preferences?.language as LanguageCode) || DEFAULT_LANGUAGE;
+  const language = languageOverride || (user?.preferences?.language as LanguageCode) || localLanguage || DEFAULT_LANGUAGE;
   
   const translateFn = (key: TranslationKey, params?: Record<string, string | number>): string => {
     // Get translation for user's language, fallback to English

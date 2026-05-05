@@ -9,6 +9,8 @@
     "dev:prod": "NODE_ENV=production tsx watch src/server.ts",
     "build": "tsc && mkdir -p dist/state && cp src/state/machine.json dist/state/machine.json",
     "start": "node dist/server.js",
+    "test": "tsx --test src/**/*.test.ts",
+    "seed:preventive": "tsx src/preventive/seed.ts",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },

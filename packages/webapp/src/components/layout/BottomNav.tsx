@@ -9,6 +9,7 @@ export function BottomNav() {
   const baseNavItems = [
     { path: '/dashboard', icon: '🏠', labelKey: 'nav_home' },
     { path: '/checkup/start', icon: '🩺', labelKey: 'nav_virtual_doctor' },
+    { path: '/preventive', icon: '🛡️', labelKey: 'nav_preventive' },
     { path: '/messages', icon: '💬', labelKey: 'nav_messages' },
     { path: '/profile', icon: '👤', labelKey: 'nav_profile' },
   ];
@@ -17,7 +18,8 @@ export function BottomNav() {
     <nav className={styles.bottomNav} aria-label="Main navigation">
       {baseNavItems.map(({ path, icon, labelKey }) => {
         const isActive = location.pathname === path || 
-          (path === '/checkup/start' && location.pathname.startsWith('/checkup'));
+          (path === '/checkup/start' && location.pathname.startsWith('/checkup')) ||
+          (path === '/preventive' && location.pathname.startsWith('/preventive'));
         
         return (
           <Link

@@ -216,6 +216,16 @@ export function DashboardPage() {
           </Card>
         </Link>
 
+        <Link to="/preventive" className={styles.actionCard}>
+          <Card variant="interactive" padding="lg">
+            <CardContent>
+              <div className={styles.actionIcon}>🛡️</div>
+              <h3 className={styles.actionTitle}>{t('dashboard_preventive_title')}</h3>
+              <p className={styles.actionDesc}>{t('dashboard_preventive_desc')}</p>
+            </CardContent>
+          </Card>
+        </Link>
+
         <Link to="/history" className={styles.actionCard}>
           <Card variant="interactive" padding="lg">
             <CardContent>

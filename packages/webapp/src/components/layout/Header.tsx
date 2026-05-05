@@ -33,6 +33,12 @@ export function Header() {
             >
               {t('nav_virtual_doctor')}
             </Link>
+            <Link
+              to="/preventive"
+              className={`${styles.navLink} ${location.pathname.startsWith('/preventive') ? styles.active : ''}`}
+            >
+              {t('nav_preventive')}
+            </Link>
             <Link 
               to="/messages" 
               className={`${styles.navLink} ${location.pathname.startsWith('/messages') ? styles.active : ''}`}
