@@ -211,7 +211,7 @@
       "choices": ["Yes, prescription medications", "Yes, over-the-counter only", "No medications"],
       "transitions": {
         "Yes, prescription medications": "medication_details",
-        "default": "allergies"
+        "default": "additional_concerns"
       }
     },
     "medication_details": {
@@ -219,7 +219,7 @@
       "prompt": "Please list your current medications (or type 'skip' if you prefer not to share)",
       "inputType": "text",
       "transitions": {
-        "default": "allergies"
+        "default": "additional_concerns"
       }
     },
     "medication_catalog_all": {
@@ -227,31 +227,12 @@
       "prompt": "Please list all medications you are currently taking.",
       "inputType": "structured",
       "transitions": {
-        "default": "allergies"
-      }
-    },
-    "allergies": {
-      "id": "allergies",
-      "prompt": "Do you have any known allergies?",
-      "inputType": "choice",
-      "choices": ["No known allergies", "Drug allergies", "Food allergies", "Environmental allergies", "Multiple allergies"],
-      "transitions": {
-        "default": "screening_reminder"
-      }
-    },
-    "screening_reminder": {
-      "id": "screening_reminder",
-      "prompt": "Based on general guidelines, have you had any of these screenings recently?",
-      "helpText": "Regular screenings help catch issues early",
-      "inputType": "choice",
-      "choices": ["Blood pressure check (within 1 year)", "Blood work/labs (within 1 year)", "Annual physical exam", "None recently"],
-      "transitions": {
-        "default": "additional_concerns"
+        "default": "medication_wrapup"
       }
     },
     "additional_concerns": {
       "id": "additional_concerns",
-      "prompt": "Is there anything else you'd like to discuss or any other symptoms you've noticed?",
+      "prompt": "Would you like to add anything else or share any other relevant symptoms?",
       "inputType": "choice",
       "choices": ["No, I think we covered everything", "Yes, I have something to add"],
       "transitions": {

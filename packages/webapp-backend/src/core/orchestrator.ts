@@ -215,11 +215,14 @@ class Orchestrator {
     if (sessionData.sessionType === 'symptom-check' && currentNode.id === 'diet_habits') {
       nextStateId = 'medications';
     }
-    if (sessionData.sessionType === 'symptom-check' && currentNode.id === 'allergies') {
-      nextStateId = 'summary';
+    if (sessionData.sessionType === 'symptom-check' && currentNode.id === 'medications') {
+      const normalizedInput = typeof input === 'string' ? input.trim().toLowerCase() : '';
+      if (normalizedInput !== 'yes, prescription medications') {
+        nextStateId = 'summary';
+      }
     }
-    if (sessionData.sessionType === 'medication-review' && currentNode.id === 'screening_reminder') {
-      nextStateId = 'medication_wrapup';
+    if (sessionData.sessionType === 'symptom-check' && currentNode.id === 'medication_details') {
+      nextStateId = 'summary';
     }
     const nextNode = stateLoader.getNode(nextStateId);
 
