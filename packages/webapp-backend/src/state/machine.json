@@ -18,7 +18,7 @@
       "inputType": "choice",
       "choices": ["Continue"],
       "transitions": {
-        "default": "chief_complaint"
+        "default": "general_feeling"
       }
     },
     "symptom_intro": {
@@ -235,16 +235,6 @@
       "prompt": "Do you have any known allergies?",
       "inputType": "choice",
       "choices": ["No known allergies", "Drug allergies", "Food allergies", "Environmental allergies", "Multiple allergies"],
-      "transitions": {
-        "default": "family_history"
-      }
-    },
-    "family_history": {
-      "id": "family_history",
-      "prompt": "Is there any significant medical history in your immediate family?",
-      "helpText": "Parents, siblings - select all that apply",
-      "inputType": "choice",
-      "choices": ["Heart disease", "Diabetes", "Cancer", "Mental health conditions", "No significant history", "Prefer not to say"],
       "transitions": {
         "default": "screening_reminder"
       }

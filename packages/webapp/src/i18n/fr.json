@@ -27,6 +27,8 @@
   "chronic_obesity": "Obésité",
   "chronic_dyslipidemia": "Dyslipidémie (hypercholestérolémie)",
   "chronic_stroke": "Accident vasculaire cérébral",
+  "knownAllergies": "Allergies connues",
+  "allergies_add_placeholder": "Ajouter une allergie…",
   "familyHistory": "Antécédents familiaux (sélectionnez toutes les options applicables)",
   "family_add_placeholder": "Ajouter un antécédent…",
   "fh_cancer": "Cancer",

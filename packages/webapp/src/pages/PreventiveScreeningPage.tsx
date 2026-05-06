@@ -76,6 +76,10 @@ function savedMetricToInput(saved: number | null | undefined): string {
   return '';
 }
 
+function normalizeAllergyValue(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
 function ScreeningSection({
   title,
   items,
@@ -202,6 +206,7 @@ export function PreventiveScreeningPage() {
     age: userProfile?.demographics?.age,
     language: resolvePreventiveLanguage(user?.preferences?.language),
     chronicConditions: [],
+    knownAllergies: [],
     familyHistory: [],
   });
   const [completions, setCompletions] = useState<CompletionMap>({});
@@ -214,6 +219,7 @@ export function PreventiveScreeningPage() {
   const [reminderActionId, setReminderActionId] = useState<string | null>(null);
   const [chronicAddValue, setChronicAddValue] = useState('');
   const [familyAddValue, setFamilyAddValue] = useState('');
+  const [allergyAddValue, setAllergyAddValue] = useState('');
   const [heightInput, setHeightInput] = useState('');
   const [weightInput, setWeightInput] = useState('');
   /** After a successful save, the profile form collapses into a compact header; user can expand to edit. */
@@ -245,6 +251,13 @@ export function PreventiveScreeningPage() {
   const familyHistorySelected = useMemo(
     () => (profile.familyHistory || []).filter((c) => familyHistorySet.has(c)),
     [profile.familyHistory]
+  );
+  const knownAllergiesSelected = useMemo(
+    () =>
+      (profile.knownAllergies || [])
+        .map((item) => normalizeAllergyValue(item))
+        .filter(Boolean),
+    [profile.knownAllergies]
   );
 
   const heightNum = useMemo(() => parseMetricInput(heightInput), [heightInput]);
@@ -282,6 +295,7 @@ export function PreventiveScreeningPage() {
           pregnancyStatus: saved.pregnancyStatus ?? prev.pregnancyStatus,
           smokingStatus: saved.smokingStatus ?? prev.smokingStatus,
           chronicConditions: saved.chronicConditions ?? prev.chronicConditions,
+          knownAllergies: saved.knownAllergies ?? prev.knownAllergies,
           familyHistory: saved.familyHistory ?? prev.familyHistory,
         }));
       } catch {
@@ -306,6 +320,9 @@ export function PreventiveScreeningPage() {
     setIsSaving(true);
     try {
       const chronicConditions = (profile.chronicConditions || []).filter((c) => chronicConditionSet.has(c));
+      const knownAllergies = (profile.knownAllergies || [])
+        .map((item) => normalizeAllergyValue(item))
+        .filter(Boolean);
       const familyHistory = (profile.familyHistory || []).filter((c) => familyHistorySet.has(c));
       const h = parseMetricInput(heightInput);
       const w = parseMetricInput(weightInput);
@@ -316,6 +333,7 @@ export function PreventiveScreeningPage() {
         patientId: user.id,
         language,
         chronicConditions,
+        knownAllergies,
         familyHistory,
         riskFactors: {},
         heightCm,
@@ -569,6 +587,68 @@ export function PreventiveScreeningPage() {
                       setProfile((p) => ({
                         ...p,
                         chronicConditions: (p.chronicConditions || []).filter((c) => c !== key),
+                      }))
+                    }
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </label>
+        <label>
+          {t('knownAllergies')}
+          <div className={styles.tagInputRow}>
+            <input
+              type="text"
+              value={allergyAddValue}
+              placeholder={t('allergies_add_placeholder')}
+              onChange={(e) => setAllergyAddValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter') return;
+                e.preventDefault();
+                const normalized = normalizeAllergyValue(allergyAddValue);
+                if (!normalized) return;
+                setProfile((p) => {
+                  const current = (p.knownAllergies || []).map((item) => normalizeAllergyValue(item)).filter(Boolean);
+                  if (current.some((item) => item.toLowerCase() === normalized.toLowerCase())) return p;
+                  return { ...p, knownAllergies: [...current, normalized] };
+                });
+                setAllergyAddValue('');
+              }}
+            />
+            <button
+              type="button"
+              className={styles.tagAddButton}
+              onClick={() => {
+                const normalized = normalizeAllergyValue(allergyAddValue);
+                if (!normalized) return;
+                setProfile((p) => {
+                  const current = (p.knownAllergies || []).map((item) => normalizeAllergyValue(item)).filter(Boolean);
+                  if (current.some((item) => item.toLowerCase() === normalized.toLowerCase())) return p;
+                  return { ...p, knownAllergies: [...current, normalized] };
+                });
+                setAllergyAddValue('');
+              }}
+              disabled={!normalizeAllergyValue(allergyAddValue)}
+            >
+              +
+            </button>
+          </div>
+          {knownAllergiesSelected.length > 0 && (
+            <ul className={styles.chronicChips} aria-label={t('knownAllergies')}>
+              {knownAllergiesSelected.map((item) => (
+                <li key={item} className={styles.chronicChip}>
+                  <span>{item}</span>
+                  <button
+                    type="button"
+                    className={styles.chronicChipRemove}
+                    aria-label={`${t('chronic_remove')}: ${item}`}
+                    onClick={() =>
+                      setProfile((p) => ({
+                        ...p,
+                        knownAllergies: (p.knownAllergies || []).filter((allergy) => normalizeAllergyValue(allergy) !== item),
                       }))
                     }
                   >

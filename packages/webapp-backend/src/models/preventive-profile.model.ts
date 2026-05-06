@@ -16,6 +16,7 @@ export interface IPreventiveProfile extends Document {
   bmi?: number;
   weightCategory?: WeightCategory;
   chronicConditions: string[];
+  knownAllergies: string[];
   familyHistory: string[];
   riskFactors: {
     smoker?: boolean;
@@ -46,6 +47,7 @@ const PreventiveProfileSchema = new Schema<IPreventiveProfile>(
     bmi: { type: Number },
     weightCategory: { type: String, enum: ['underweight', 'normal', 'overweight', 'obesity'] },
     chronicConditions: { type: [String], default: [] },
+    knownAllergies: { type: [String], default: [] },
     familyHistory: { type: [String], default: [] },
     riskFactors: {
       smoker: { type: Boolean, default: false },

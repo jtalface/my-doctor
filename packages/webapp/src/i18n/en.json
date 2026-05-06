@@ -27,6 +27,8 @@
   "chronic_obesity": "Obesity",
   "chronic_dyslipidemia": "Dyslipidemia (high cholesterol)",
   "chronic_stroke": "Stroke",
+  "knownAllergies": "Known allergies",
+  "allergies_add_placeholder": "Add an allergy…",
   "familyHistory": "Family history (select all that apply)",
   "family_add_placeholder": "Add family history…",
   "fh_cancer": "Cancer",

@@ -26,6 +26,7 @@ const profileSchema = z.object({
   bmi: z.number().min(10).max(80).nullish(),
   weightCategory: z.enum(['underweight', 'normal', 'overweight', 'obesity']).nullish(),
   chronicConditions: z.array(z.string()).optional(),
+  knownAllergies: z.array(z.string()).optional(),
   familyHistory: z.array(z.string()).optional(),
   riskFactors: z
     .object({

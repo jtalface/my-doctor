@@ -308,6 +308,7 @@ export interface PreventiveProfile {
   bmi?: number | null;
   weightCategory?: 'underweight' | 'normal' | 'overweight' | 'obesity' | null;
   chronicConditions?: string[];
+  knownAllergies?: string[];
   familyHistory?: string[];
   riskFactors?: {
     smoker?: boolean;

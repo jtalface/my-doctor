@@ -27,6 +27,8 @@
   "chronic_obesity": "Unene",
   "chronic_dyslipidemia": "Kiwango cha kolestroli kisicho cha kawaida (kolestroli ya juu)",
   "chronic_stroke": "Kiharusi",
+  "knownAllergies": "Mizio inayojulikana",
+  "allergies_add_placeholder": "Ongeza mzio…",
   "familyHistory": "Historia ya familia (chagua yote yanayotumika)",
   "family_add_placeholder": "Ongeza historia ya familia…",
   "fh_cancer": "Saratani",

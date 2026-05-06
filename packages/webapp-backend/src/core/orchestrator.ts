@@ -218,10 +218,7 @@ class Orchestrator {
     if (sessionData.sessionType === 'symptom-check' && currentNode.id === 'allergies') {
       nextStateId = 'summary';
     }
-    if (
-      sessionData.sessionType === 'medication-review' &&
-      (currentNode.id === 'family_history' || currentNode.id === 'screening_reminder')
-    ) {
+    if (sessionData.sessionType === 'medication-review' && currentNode.id === 'screening_reminder') {
       nextStateId = 'medication_wrapup';
     }
     const nextNode = stateLoader.getNode(nextStateId);

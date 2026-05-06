@@ -6,7 +6,7 @@ import { useTranslate } from '../i18n';
 import { api, SessionResponse, SessionNode } from '../services/api';
 import styles from './CheckupSessionPage.module.css';
 
-const MULTI_SELECT_NODE_IDS = new Set(['chronic_conditions', 'red_flag_check', 'family_history']);
+const MULTI_SELECT_NODE_IDS = new Set(['chronic_conditions', 'red_flag_check']);
 
 function getLocalizedSessionNode(
   node: SessionNode | null,
