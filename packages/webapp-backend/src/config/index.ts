@@ -44,6 +44,21 @@ export const config = {
   // LLM
   defaultLLMProvider: process.env.DEFAULT_LLM_PROVIDER || 'lm-studio',
   enableStepLlmResponses: process.env.ENABLE_STEP_LLM_RESPONSES === 'true',
+  /** Max completion tokens for final summaries (reasoning models count hidden reasoning in this budget). */
+  llmSummaryMaxTokens: (() => {
+    const raw = process.env.LLM_SUMMARY_MAX_TOKENS;
+    const n = raw !== undefined && raw !== '' ? parseInt(raw, 10) : 20000;
+    return Number.isFinite(n) && n > 0 ? n : 20000;
+  })(),
+  /**
+   * Symptom-check final summary only (lower than LLM_SUMMARY_MAX_TOKENS so output stays compact).
+   * Reasoning models count hidden reasoning in this same budget. Default ~⅔ of former 4096 cap.
+   */
+  llmSymptomCheckSummaryMaxTokens: (() => {
+    const raw = process.env.LLM_SYMPTOM_CHECK_SUMMARY_MAX_TOKENS;
+    const n = raw !== undefined && raw !== '' ? parseInt(raw, 10) : 2731;
+    return Number.isFinite(n) && n > 0 ? n : 2731;
+  })(),
 
   // LM Studio
   lmStudio: {
@@ -52,7 +67,7 @@ export const config = {
     timeout: parseInt(process.env.LM_STUDIO_TIMEOUT || '30000', 10),
   },
 
-  // OpenAI
+  // OpenAI (optional: OPENAI_REASONING_EFFORT — see resolveOpenAIReasoningEffort in openai.provider.ts)
   openai: {
     apiKey: process.env.OPENAI_API_KEY || '',
     model: process.env.OPENAI_MODEL || 'gpt-5-nano',

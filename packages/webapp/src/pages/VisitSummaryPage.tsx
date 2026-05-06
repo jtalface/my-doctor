@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Button } from '@components/common';
 import { useTranslate } from '../i18n';
@@ -28,6 +28,92 @@ const RED_FLAG_VALUE_TRANSLATION_KEYS: Record<string, string> = {
   'I understand': 'visit_summary_red_flag_value_i_understand',
   'I need more information': 'visit_summary_red_flag_value_need_more_information',
 };
+
+/** Strip leading list marker from a bullet line. */
+function stripLeadingBulletMarker(line: string): string {
+  return line.trim().replace(/^[-•*]\s+/, '');
+}
+
+/**
+ * Renders visit summary `notes` with clear section titles, list styling, and vertical rhythm.
+ */
+function renderAiSummaryNotes(
+  notes: string,
+  options: {
+    isSummaryHeadingLine: (line: string) => boolean;
+    localizeSummaryHeadingLine: (line: string) => string;
+  }
+): ReactNode[] {
+  const { isSummaryHeadingLine, localizeSummaryHeadingLine } = options;
+  const lines = notes.split('\n');
+  const out: ReactNode[] = [];
+  let bulletBuffer: string[] = [];
+  let key = 0;
+
+  const nextKey = () => {
+    key += 1;
+    return `ai-note-${key}`;
+  };
+
+  const flushBullets = () => {
+    if (bulletBuffer.length === 0) return;
+    out.push(
+      <ul key={nextKey()} className={styles.aiSummaryList}>
+        {bulletBuffer.map((raw) => (
+          <li key={nextKey()} className={styles.aiSummaryListItem}>
+            {stripLeadingBulletMarker(raw)}
+          </li>
+        ))}
+      </ul>
+    );
+    bulletBuffer = [];
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      flushBullets();
+      out.push(<div key={nextKey()} className={styles.aiSummarySpacer} aria-hidden />);
+      continue;
+    }
+
+    if (/^\d+\)\s/.test(trimmed)) {
+      flushBullets();
+      out.push(
+        <h3 key={nextKey()} className={styles.aiSummarySectionTitle}>
+          {trimmed}
+        </h3>
+      );
+      continue;
+    }
+
+    if (isSummaryHeadingLine(line)) {
+      flushBullets();
+      out.push(
+        <h4 key={nextKey()} className={styles.aiSummarySubheading}>
+          {localizeSummaryHeadingLine(line)}
+        </h4>
+      );
+      continue;
+    }
+
+    if (/^[-•*]\s+/.test(trimmed)) {
+      bulletBuffer.push(line);
+      continue;
+    }
+
+    flushBullets();
+    out.push(
+      <p key={nextKey()} className={styles.aiSummaryParagraph}>
+        {line}
+      </p>
+    );
+  }
+
+  flushBullets();
+  return out;
+}
 
 function formatDate(dateString?: string): string {
   if (!dateString) return new Date().toLocaleDateString('en-US', {
@@ -306,11 +392,10 @@ export function VisitSummaryPage() {
             <CardContent>
               <h2 className={styles.sectionTitle}>{t('visit_summary_ai_summary_title')}</h2>
               <div className={styles.aiSummary}>
-                {summary.notes.split('\n').map((line, i) => (
-                  <p key={i} className={isSummaryHeadingLine(line) ? styles.aiSummaryHeading : styles.aiSummaryLine}>
-                    {isSummaryHeadingLine(line) ? localizeSummaryHeadingLine(line) : line}
-                  </p>
-                ))}
+                {renderAiSummaryNotes(summary.notes, {
+                  isSummaryHeadingLine,
+                  localizeSummaryHeadingLine,
+                })}
               </div>
             </CardContent>
           </Card>

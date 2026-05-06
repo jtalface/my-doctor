@@ -3,8 +3,13 @@ import { sessionMemoryService } from '../services/session-memory.service.js';
 import { promptEngineService } from '../services/prompt-engine.service.js';
 import { config } from '../config/index.js';
 import { User } from '../models/user.model.js';
+import { PatientProfile } from '../models/patient-profile.model.js';
+import { PreventiveProfile } from '../models/preventive-profile.model.js';
 import { DEFAULT_LANGUAGE } from '../config/languages.js';
 import { ISessionStep } from '../models/session.model.js';
+
+/** Used in LLM patient context when preventive profile has no country set. */
+const DEFAULT_LLM_PATIENT_COUNTRY = 'Mozambique';
 
 export interface OrchestratorResponse {
   sessionId: string;
@@ -42,6 +47,79 @@ export interface ReasoningResult {
 
 class Orchestrator {
   private reasoning: Map<string, ReasoningResult> = new Map();
+
+  private inferSeasonalHealthContext(country?: string, region?: string): string | undefined {
+    const month = new Date().getMonth() + 1;
+    const normalizedCountry = (country || '').toLowerCase();
+    const tropicalHints = ['mozambique', 'moz', 'tanzania', 'uganda', 'kenya', 'zambia', 'angola'];
+    const isLikelyTropical = tropicalHints.some((hint) => normalizedCountry.includes(hint));
+
+    if (!country && !region) return undefined;
+    if (!isLikelyTropical) {
+      return 'Use local seasonal and outbreak context only if clearly relevant to the presenting symptoms.';
+    }
+
+    const rainySeasonLikely = month >= 11 || month <= 4;
+    return rainySeasonLikely
+      ? 'Likely rainy season context in tropical/subtropical areas; consider higher relevance of malaria/vector-borne and diarrheal illnesses when clinically compatible.'
+      : 'Likely dry-season context in tropical/subtropical areas; still consider endemic infectious causes when clinically compatible.';
+  }
+
+  private async buildPatientLlmContext(userId: string, user: Awaited<ReturnType<typeof User.findById>>) {
+    const [patientProfile, preventiveProfile] = await Promise.all([
+      PatientProfile.findOne({ userId }).lean(),
+      PreventiveProfile.findOne({ patientId: userId }).lean(),
+    ]);
+
+    const demographics = (patientProfile?.demographics || {}) as {
+      dateOfBirth?: Date;
+      age?: number;
+      sexAtBirth?: 'male' | 'female' | 'other';
+      race?: string;
+      ethnicGroup?: string;
+    };
+    const userDob = (user as { dateOfBirth?: Date } | null)?.dateOfBirth;
+    const dob =
+      demographics.dateOfBirth ||
+      preventiveProfile?.dateOfBirth ||
+      userDob ||
+      undefined;
+    const derivedAge =
+      typeof demographics.age === 'number'
+        ? demographics.age
+        : dob instanceof Date
+          ? Math.max(0, Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)))
+          : undefined;
+
+    const countryFromProfile =
+      typeof preventiveProfile?.country === 'string' ? preventiveProfile.country.trim() : '';
+    const country = countryFromProfile || DEFAULT_LLM_PATIENT_COUNTRY;
+    const region = preventiveProfile?.region;
+
+    const userDoc = user as { firstName?: string } | null | undefined;
+    const firstName =
+      typeof userDoc?.firstName === 'string' ? userDoc.firstName.trim() : undefined;
+
+    return {
+      firstName: firstName || undefined,
+      age: derivedAge,
+      sexAtBirth: demographics.sexAtBirth || preventiveProfile?.sexAtBirth,
+      genderContext: preventiveProfile?.genderContext,
+      race: demographics.race,
+      ethnicGroup: demographics.ethnicGroup,
+      country,
+      region,
+      chronicConditions:
+        preventiveProfile?.chronicConditions?.length
+          ? preventiveProfile.chronicConditions
+          : patientProfile?.medicalHistory?.chronicConditions || [],
+      smokingStatus: preventiveProfile?.smokingStatus || patientProfile?.lifestyle?.smoking,
+      localContext: {
+        dateIso: new Date().toISOString(),
+        seasonalHint: this.inferSeasonalHealthContext(country, region),
+      },
+    };
+  }
 
   async startSession(
     userId: string,
@@ -96,15 +174,29 @@ class Orchestrator {
     const reasoning = this.analyzeInput(priorReasoning, currentNode, input);
     this.reasoning.set(sessionId, reasoning);
 
+    const llmPatientContext = await this.buildPatientLlmContext(sessionData.userId, user);
     let llmResponse = '';
     // Keep per-step LLM generation code behind a feature flag so
     // we can re-enable streamed guidance later without refactoring.
     if (config.enableStepLlmResponses) {
+      if (sessionData.sessionType === 'symptom-check') {
+        console.log('[LLM INPUT][symptom-check][step]', {
+          sessionId,
+          nodeId: currentNode.id,
+          prompt: currentNode.prompt,
+          input,
+          reasoning,
+          patientProfile: llmPatientContext,
+          language,
+        });
+      }
       llmResponse = await promptEngineService.generate({
         nodeId: currentNode.id,
         prompt: currentNode.prompt,
         input,
+        sessionType: sessionData.sessionType,
         reasoning,
+        patientProfile: llmPatientContext,
         language,
       });
     }
@@ -120,6 +212,12 @@ class Orchestrator {
 
     // Determine next state
     let nextStateId = stateLoader.getNextState(currentNode.id, input);
+    if (sessionData.sessionType === 'symptom-check' && currentNode.id === 'diet_habits') {
+      nextStateId = 'medications';
+    }
+    if (sessionData.sessionType === 'symptom-check' && currentNode.id === 'allergies') {
+      nextStateId = 'summary';
+    }
     if (
       sessionData.sessionType === 'medication-review' &&
       (currentNode.id === 'family_history' || currentNode.id === 'screening_reminder')
@@ -259,6 +357,9 @@ class Orchestrator {
     // Get user language preference
     const user = await User.findById(sessionData?.userId);
     const language = user?.preferences?.language || DEFAULT_LANGUAGE;
+    const llmPatientContext = sessionData?.userId
+      ? await this.buildPatientLlmContext(sessionData.userId, user)
+      : undefined;
     
     const steps = history.map(h => ({
       nodeId: h.nodeId,
@@ -267,9 +368,24 @@ class Orchestrator {
     }));
 
     const finalReasoning = reasoning || this.rebuildReasoningFromHistory(history);
+    if (sessionData?.sessionType === 'symptom-check') {
+      console.log('[LLM INPUT][symptom-check][summary]', {
+        sessionId,
+        steps,
+        reasoning: finalReasoning,
+        patientProfile: llmPatientContext,
+        language,
+      });
+    }
     const notes = sessionData?.sessionType === 'medication-review'
       ? await promptEngineService.generateMedicationReviewSummary(steps, finalReasoning, language)
-      : await promptEngineService.generateSummary(steps, finalReasoning, language);
+      : await promptEngineService.generateSummary(
+          steps,
+          finalReasoning,
+          language,
+          llmPatientContext,
+          sessionData?.sessionType
+        );
 
     return {
       redFlags: finalReasoning.redFlags || [],

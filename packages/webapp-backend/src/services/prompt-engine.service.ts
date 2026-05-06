@@ -6,6 +6,7 @@ export interface PromptContext {
   nodeId: string;
   prompt: string;
   input: any;
+  sessionType?: 'annual-checkup' | 'symptom-check' | 'medication-review';
   memory?: any;
   reasoning?: any;
   patientProfile?: any;
@@ -55,6 +56,47 @@ RESPONSE FORMAT:
     return `${this.baseSystemPrompt}\n\nLANGUAGE INSTRUCTION:\n${languageInstruction}`;
   }
 
+  /** System prompt for final summaries (not per-step chat). Avoids the 2–3 sentence cap from baseSystemPrompt. */
+  private buildSummarySystemPrompt(
+    languageCode?: string,
+    sessionType?: PromptContext['sessionType']
+  ): string {
+    const languageInstruction = this.getLanguageInstruction(languageCode || DEFAULT_LANGUAGE);
+    if (sessionType === 'symptom-check') {
+      return `You are a helpful medical education assistant named MyDoctor.
+
+IMPORTANT GUIDELINES:
+- You do NOT diagnose conditions or prescribe treatments.
+- You may name specific diseases or conditions only as possible explanations in a differential sense, with cautious language (e.g. "could be consistent with", "one possibility among others", "worth discussing with a clinician").
+- Incorporate patient context (age, sex, country/region, travel, season, comorbidities) when suggesting what to consider.
+- Encourage timely professional evaluation when appropriate.
+- Sound warm and personal: address the patient supportively, use natural empathy, and offer gentle reassurance where appropriate without promising outcomes or replacing clinical judgment.
+- Be brief: telegraphic style in sections 2–3, short sentences, no repetition, one short disclaimer at the end of section 2 only (not again in section 3).
+
+RESPONSE FORMAT:
+- Follow the structure in the user message exactly.
+- Use clear section labels in the same language as the response.
+- Do not use Markdown heading markers like # or ##.
+
+LANGUAGE INSTRUCTION:
+${languageInstruction}`;
+    }
+    return `You are a helpful medical education assistant named MyDoctor.
+
+IMPORTANT GUIDELINES:
+- You do NOT diagnose conditions or prescribe treatments
+- You provide general health education and guidance
+- You encourage users to consult healthcare professionals
+- You are empathetic, supportive, and use simple language
+
+RESPONSE FORMAT:
+- Produce a concise, educational summary with the sections requested in the user message.
+- Avoid unnecessary length, but complete each section with useful detail.
+
+LANGUAGE INSTRUCTION:
+${languageInstruction}`;
+  }
+
   async generate(context: PromptContext): Promise<string> {
     const provider = llmManager.getActiveProvider();
     
@@ -100,8 +142,18 @@ RESPONSE FORMAT:
       prompt += `Patient Context: ${JSON.stringify(context.patientProfile)}\n\n`;
     }
 
-    prompt += `Please provide a brief, helpful response (2-3 sentences max). `;
-    prompt += `Acknowledge their answer with ONE key insight or piece of guidance. Be warm but concise.`;
+    if (context.sessionType === 'symptom-check') {
+      prompt += `Write EXACTLY 3 short paragraphs in this order:\n`;
+      prompt += `1) Summarize the user input clearly in plain language. If Patient Context includes a non-empty firstName, open by addressing them with that first name only (e.g. "Maria, thanks for sharing..."); if firstName is missing, open warmly without a name. Be briefly empathetic and conversational.\n`;
+      prompt += `2) Provide a brief differential (2-4 plausible causes, from less severe to more concerning), and explicitly use patient context (age, sex/gender, race/ethnic context if provided) plus local context (country/region/seasonal risks) when available.\n`;
+      prompt += `3) Provide practical next-step recommendations.\n\n`;
+      prompt += `At the end of paragraph 2, include a clear disclaimer equivalent to: "However, only a doctor or appropriate tests can confirm this. Please consult a doctor."\n`;
+      prompt += `Do not present a diagnosis as certain. Keep wording cautious, clear, and supportive.\n`;
+      prompt += `Keep each paragraph concise (2-4 sentences each).`;
+    } else {
+      prompt += `Please provide a brief, helpful response (2-3 sentences max). `;
+      prompt += `Acknowledge their answer with ONE key insight or piece of guidance. Be warm but concise.`;
+    }
     
     return prompt;
   }
@@ -121,7 +173,9 @@ RESPONSE FORMAT:
   async generateSummary(
     steps: Array<{ nodeId: string; input: any; response: string }>,
     reasoning: any,
-    language?: string
+    language?: string,
+    patientProfile?: any,
+    sessionType?: PromptContext['sessionType']
   ): Promise<string> {
     const provider = llmManager.getActiveProvider();
     
@@ -130,13 +184,53 @@ RESPONSE FORMAT:
     }
 
     try {
-      const summaryPrompt = `Based on the following health checkup conversation, provide a brief summary:
+      const conversationBlock = steps.map(s => `- ${s.nodeId}: User said "${s.input}"`).join('\n');
+      const analysisBlock = JSON.stringify(reasoning, null, 2);
+      const patientBlock = JSON.stringify(patientProfile || {}, null, 2);
+
+      const summaryPrompt =
+        sessionType === 'symptom-check'
+          ? `You are writing the FINAL summary for a symptom-check conversation (educational information only — not a medical diagnosis).
 
 Conversation History:
-${steps.map(s => `- ${s.nodeId}: User said "${s.input}"`).join('\n')}
+${conversationBlock}
 
 Analysis:
-${JSON.stringify(reasoning, null, 2)}
+${analysisBlock}
+
+Patient Context:
+${patientBlock}
+
+Patient Context includes **firstName** when known—use **first name only** for greetings; never invent a name.
+
+Use clear section labels in the same language as your response. HARD LENGTH TARGET: the entire reply should stay compact (~**280 words maximum**; the personal opening in section 1 should not push the rest into long lists). No nested sub-bullets; no duplicate sentences across sections; no preamble before section 1.
+
+1) Summary (warm, personal opening — plain prose, no bullets)
+   - **First line must address the patient:** if \`firstName\` is present in Patient Context, start exactly with that name and a comma (e.g. "Josefa, you've shared that..."). If \`firstName\` is absent, start with a warm direct address without a name (e.g. "Thank you for sharing that...").
+   - Continue in the same short paragraph: reflect their symptoms and timing in your own words; add **one** brief empathetic sentence (natural wording—e.g. that you're sorry they're going through this).
+   - Add **one** sentence of balanced encouragement: many cases like this can turn out to be common and manageable causes—frame as **hopeful possibility**, not a diagnosis (e.g. "sometimes this pattern is simply fatigue or a passing virus").
+   - End the paragraph with **one** compressed clause for age/sex and key comorbidities/travel **only if stated** in context.
+   - Cap section 1 at about **5 short sentences** total; stay conversational, not clinical or lecture-like.
+
+2) Possible explanations (educational differential — not a diagnosis)
+   - **One sentence only**: many illnesses overlap; only a clinician/tests can confirm; add geography/travel/**only if relevant in one short clause**.
+   - **Exactly 3 bullets** (not 4 or more). Each bullet = **one line**, **≤18 words**, must name at least one concrete condition or category where reasonable (merge related ideas—e.g. viral respiratory vs UTI vs dehydration vs vector-borne if exposure fits vs meningitis **only** if alarm features). Cautious wording.
+   - **One short sentence** to close section 2: seek evaluation if worse; professional confirms cause.
+
+3) Practical next steps
+   - **Exactly 4 bullets**, **≤14 words each**: (1) hydration (2) rest (3) OTC fever/pain—no dosing, say label/clinician (4) combine red flags **and** when to seek urgent care in one line.
+
+Be specific to the conversation; cut filler, explanations, and moralizing.`
+          : `Based on the following health checkup conversation, provide a brief summary:
+
+Conversation History:
+${conversationBlock}
+
+Analysis:
+${analysisBlock}
+
+Patient Context:
+${patientBlock}
 
 Please provide:
 1. A brief summary of the main health topics discussed
@@ -145,18 +239,23 @@ Please provide:
 
 Keep it concise and educational.`;
 
-      const systemPrompt = this.buildSystemPrompt(language);
+      const systemPrompt = this.buildSummarySystemPrompt(language, sessionType);
       
       if (config.debugMode) {
         console.log(`[PromptEngine] Generating summary in language: ${language || DEFAULT_LANGUAGE}`);
       }
+
+      const summaryMaxTokens =
+        sessionType === 'symptom-check'
+          ? config.llmSymptomCheckSummaryMaxTokens
+          : config.llmSummaryMaxTokens;
 
       const response = await provider.chat([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: summaryPrompt },
       ], {
         temperature: 0.5,
-        maxTokens: 3072, // Increased for gpt-5-nano reasoning + summary output
+        maxTokens: summaryMaxTokens,
       });
 
       const structured = this.ensureStructuredSummary(response.content, language);
@@ -250,7 +349,7 @@ Questions to Ask Your Doctor/Pharmacist:
         { role: 'user', content: medicationReviewPrompt },
       ], {
         temperature: 0.4,
-        maxTokens: 3072,
+        maxTokens: config.llmSummaryMaxTokens,
       });
 
       const structured = this.ensureStructuredSummary(response.content, language);
